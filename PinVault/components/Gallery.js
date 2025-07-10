@@ -72,14 +72,6 @@ const Gallery = ({ navigation }) => {
   };
 
   const renderGridItem = ({ item, index }) => {
-    const getPinDigits = () => {
-      return item.grid
-        .filter(cell => cell.isPinDigit)
-        .sort((a, b) => a.id - b.id)
-        .map(cell => cell.value)
-        .join('');
-    };
-
     const formatDate = (dateString) => {
       return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -99,16 +91,12 @@ const Gallery = ({ navigation }) => {
           </Text>
         </View>
 
-        <View style={styles.pinDisplay}>
-          <Text style={styles.pinLabel}>Your PIN:</Text>
-          <Text style={styles.pinValue}>{getPinDigits()}</Text>
-        </View>
-
         <PinGrid
           grid={item.grid}
           onGridUpdate={() => {}} // Read-only in gallery
           isEditable={false}
           showValues={true}
+          showPinHighlight={false}
         />
 
         <View style={styles.cardActions}>
@@ -295,30 +283,11 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 5,
   },
-  cardDate: {
-    fontSize: 14,
-    color: '#666',
-  },
-  pinDisplay: {
-    backgroundColor: '#E8F4F8',
-    padding: 20,
-    borderRadius: 15,
-    marginBottom: 15,
-    alignItems: 'center',
-  },
-  pinLabel: {
-    fontSize: 16,
-    color: '#2C3E50',
-    marginBottom: 5,
-  },
-  pinValue: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2C3E50',
-    letterSpacing: 8,
-    fontFamily: 'monospace',
-  },
-  cardActions: {
+      cardDate: {
+      fontSize: 14,
+      color: '#666',
+    },
+    cardActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: 20,
