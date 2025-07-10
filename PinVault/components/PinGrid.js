@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,18 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   const [selectedCell, setSelectedCell] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const inputRef = useRef(null);
+
+  // Auto-focus input when modal opens
+  useEffect(() => {
+    if (modalVisible && inputRef.current) {
+      // Small delay to ensure modal is fully rendered
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [modalVisible]);
 
   const getColorHex = (color) => {
     const colors = {
@@ -44,12 +56,21 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
         isPinDigit: inputValue !== ''
       };
       onGridUpdate(updatedGrid);
-      setModalVisible(false);
-      setSelectedCell(null);
-      setInputValue('');
+      closeModal();
     } else {
       Alert.alert('Invalid Input', 'Please enter a digit from 0 to 9');
     }
+  };
+
+  const closeModal = () => {
+    inputRef.current?.blur(); // Dismiss keyboard
+    setModalVisible(false);
+    setSelectedCell(null);
+    setInputValue('');
+  };
+
+  const handleKeyboardSubmit = () => {
+    handleValueSubmit();
   };
 
   const renderCell = (cell, index) => {
@@ -87,24 +108,38 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={closeModal}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+        <TouchableOpacity 
+          style={styles.modalContainer}
+          activeOpacity={1}
+          onPress={closeModal}
+        >
+          <TouchableOpacity 
+            style={styles.modalContent}
+            activeOpacity={1}
+            onPress={() => {}} // Prevent closing when tapping on content
+          >
             <Text style={styles.modalTitle}>Enter Digit (0-9)</Text>
             <TextInput
+              ref={inputRef}
               style={styles.input}
               value={inputValue}
               onChangeText={setInputValue}
               keyboardType="numeric"
               maxLength={1}
               placeholder="0-9 or leave empty"
-              autoFocus
+              autoFocus={true}
+              returnKeyType="done"
+              enablesReturnKeyAutomatically={true}
+              onSubmitEditing={handleKeyboardSubmit}
+              blurOnSubmit={false}
+              selectTextOnFocus={true}
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.button, styles.cancelButton]}
-                onPress={() => setModalVisible(false)}
+                onPress={closeModal}
               >
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
@@ -115,8 +150,8 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
                 <Text style={styles.buttonText}>OK</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     </View>
   );
