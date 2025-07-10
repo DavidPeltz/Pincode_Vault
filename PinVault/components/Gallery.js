@@ -101,46 +101,48 @@ const Gallery = ({ navigation }) => {
 
     return (
       <View style={styles.gridCard}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>{item.name}</Text>
-          <Text style={styles.cardDate}>
-            Updated: {formatDate(item.updatedAt)}
-          </Text>
-        </View>
+        <View style={styles.gridContent}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>{item.name}</Text>
+            <Text style={styles.cardDate}>
+              Updated: {formatDate(item.updatedAt)}
+            </Text>
+          </View>
 
-        <PinGrid
-          grid={item.grid}
-          onGridUpdate={() => {}} // Read-only in gallery
-          isEditable={false}
-          showValues={true}
-          showPinHighlight={false}
-        />
+          <PinGrid
+            grid={item.grid}
+            onGridUpdate={() => {}} // Read-only in gallery
+            isEditable={false}
+            showValues={true}
+            showPinHighlight={false}
+          />
 
-        <View style={styles.cardActions}>
-          <TouchableOpacity
-            style={[
-              styles.actionButton, 
-              styles.editButton,
-              authenticationInProgress && styles.disabledButton
-            ]}
-            onPress={() => handleEdit(item)}
-            disabled={authenticationInProgress}
-          >
-            {authenticationInProgress ? (
-              <ActivityIndicator color="white" size="small" />
-            ) : (
-              <Text style={styles.actionButtonText}>
-                {isAuthAvailable ? `Edit (${biometricType})` : 'Edit'}
-              </Text>
-            )}
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={[styles.actionButton, styles.deleteButton]}
-            onPress={() => handleDelete(item)}
-          >
-            <Text style={styles.actionButtonText}>Delete</Text>
-          </TouchableOpacity>
+          <View style={styles.cardActions}>
+            <TouchableOpacity
+              style={[
+                styles.actionButton, 
+                styles.editButton,
+                authenticationInProgress && styles.disabledButton
+              ]}
+              onPress={() => handleEdit(item)}
+              disabled={authenticationInProgress}
+            >
+              {authenticationInProgress ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <Text style={styles.actionButtonText}>
+                  {isAuthAvailable ? `Edit (${biometricType})` : 'Edit'}
+                </Text>
+              )}
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.actionButton, styles.deleteButton]}
+              onPress={() => handleDelete(item)}
+            >
+              <Text style={styles.actionButtonText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );
@@ -202,38 +204,11 @@ const Gallery = ({ navigation }) => {
         <Text style={styles.subtitle}>
           {grids.length} saved grid{grids.length !== 1 ? 's' : ''}
         </Text>
-        
-        {/* DEBUG INFO - Remove this later */}
-        <View style={styles.debugContainer}>
-          <Text style={styles.debugText}>
-            🔍 Auth Available: {isAuthAvailable ? 'YES' : 'NO'}
-          </Text>
-          <Text style={styles.debugText}>
-            🔍 Auth Type: {biometricType || 'None'}
-          </Text>
-          <Text style={styles.debugText}>
-            🔍 Auth In Progress: {authenticationInProgress ? 'YES' : 'NO'}
-          </Text>
-        </View>
-        
         <TouchableOpacity
           style={styles.securityButton}
           onPress={() => navigation.navigate('SecurityInfo')}
         >
           <Text style={styles.securityButtonText}>🔐 Security Info</Text>
-        </TouchableOpacity>
-        
-        {/* DEBUG BUTTON - Remove this later */}
-        <TouchableOpacity
-          style={[styles.securityButton, { backgroundColor: '#E74C3C', marginTop: 5 }]}
-          onPress={async () => {
-            console.log('🧪 Manual auth test triggered');
-            const result = await authenticate('Manual authentication test');
-            console.log('🧪 Manual auth result:', result);
-            Alert.alert('Debug Result', `Authentication result: ${result}`);
-          }}
-        >
-          <Text style={styles.securityButtonText}>🧪 Test Auth Now</Text>
         </TouchableOpacity>
       </View>
 
@@ -244,9 +219,14 @@ const Gallery = ({ navigation }) => {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        snapToAlignment="start"
+        snapToAlignment="center"
         decelerationRate="fast"
         contentContainerStyle={styles.flatListContainer}
+        getItemLayout={(data, index) => ({
+          length: width,
+          offset: width * index,
+          index,
+        })}
         onMomentumScrollEnd={(event) => {
           const newIndex = Math.round(event.nativeEvent.contentOffset.x / width);
           setCurrentIndex(newIndex);
@@ -339,20 +319,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-  debugContainer: {
-    backgroundColor: '#FFE5E5',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-    borderWidth: 1,
-    borderColor: '#FF6B6B',
-  },
-  debugText: {
-    fontSize: 12,
-    color: '#D63031',
-    fontFamily: 'monospace',
-    textAlign: 'center',
-  },
   loadingText: {
     fontSize: 18,
     color: '#666',
@@ -383,16 +349,25 @@ const styles = StyleSheet.create({
   },
   flatListContainer: {
     paddingVertical: 20,
+    alignItems: 'center',
   },
   gridCard: {
     width: width,
     paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  gridContent: {
+    width: '100%',
+    maxWidth: width * 0.9,
+    alignItems: 'center',
   },
   cardHeader: {
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 15,
     marginBottom: 15,
+    width: '100%',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -417,6 +392,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginTop: 20,
     gap: 15,
+    width: '100%',
   },
   actionButton: {
     flex: 1,
