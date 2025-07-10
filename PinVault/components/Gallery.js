@@ -65,7 +65,24 @@ const Gallery = ({ navigation }) => {
     }
   };
 
-  const handleDelete = (gridData) => {
+  const handleDelete = async (gridData) => {
+    if (!isAuthAvailable) {
+      Alert.alert(
+        'Authentication Required',
+        'Device authentication (biometric or PIN/pattern) must be set up to delete PIN grids. Please configure device security in your system settings.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    const authReason = `Authenticate to delete "${gridData.name}"`;
+    const authenticated = await authenticate(authReason);
+    
+    if (!authenticated) {
+      return; // User cancelled or authentication failed
+    }
+
+    // Show confirmation dialog only after successful authentication
     Alert.alert(
       'Delete Grid',
       `Are you sure you want to delete "${gridData.name}"?`,
@@ -137,10 +154,21 @@ const Gallery = ({ navigation }) => {
             </TouchableOpacity>
             
             <TouchableOpacity
-              style={[styles.actionButton, styles.deleteButton]}
+              style={[
+                styles.actionButton, 
+                styles.deleteButton,
+                authenticationInProgress && styles.disabledButton
+              ]}
               onPress={() => handleDelete(item)}
+              disabled={authenticationInProgress}
             >
-              <Text style={styles.actionButtonText}>Delete</Text>
+              {authenticationInProgress ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <Text style={styles.actionButtonText}>
+                  {isAuthAvailable ? `Delete (${biometricType})` : 'Delete'}
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>
