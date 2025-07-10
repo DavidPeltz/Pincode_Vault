@@ -8,7 +8,8 @@ import {
   Modal,
   TextInput,
   Dimensions,
-  InteractionManager
+  InteractionManager,
+  Platform
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -22,28 +23,16 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   // Auto-focus input when modal opens
   useEffect(() => {
     if (modalVisible) {
-      console.log('Modal opened, attempting to focus input');
-      
       // Use InteractionManager to ensure all interactions are complete
       const interaction = InteractionManager.runAfterInteractions(() => {
-        console.log('Running after interactions');
         inputRef.current?.focus();
       });
 
       // Backup focus attempts with different timings
       const timers = [
-        setTimeout(() => {
-          console.log('Focus attempt 1');
-          inputRef.current?.focus();
-        }, 100),
-        setTimeout(() => {
-          console.log('Focus attempt 2');
-          inputRef.current?.focus();
-        }, 300),
-        setTimeout(() => {
-          console.log('Focus attempt 3');
-          inputRef.current?.focus();
-        }, 500)
+        setTimeout(() => inputRef.current?.focus(), 100),
+        setTimeout(() => inputRef.current?.focus(), 300),
+        setTimeout(() => inputRef.current?.focus(), 500)
       ];
       
       return () => {
@@ -67,8 +56,51 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     if (!isEditable) return;
     
     setSelectedCell(cellIndex);
-    setInputValue(grid[cellIndex].value?.toString() || '');
-    setModalVisible(true);
+    const currentValue = grid[cellIndex].value?.toString() || '';
+    setInputValue(currentValue);
+    
+    // Try using native Alert.prompt on iOS for better keyboard handling
+    if (Platform.OS === 'ios') {
+      Alert.prompt(
+        'Enter Digit',
+        'Enter a digit from 0-9 or leave empty',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => {
+              setSelectedCell(null);
+              setInputValue('');
+            }
+          },
+          {
+            text: 'OK',
+            onPress: (text) => {
+              const trimmedText = text?.trim() || '';
+              if (trimmedText === '' || (trimmedText >= '0' && trimmedText <= '9' && trimmedText.length === 1)) {
+                const updatedGrid = [...grid];
+                updatedGrid[cellIndex] = {
+                  ...updatedGrid[cellIndex],
+                  value: trimmedText === '' ? null : parseInt(trimmedText),
+                  isPinDigit: trimmedText !== ''
+                };
+                onGridUpdate(updatedGrid);
+              } else {
+                Alert.alert('Invalid Input', 'Please enter a single digit from 0 to 9');
+              }
+              setSelectedCell(null);
+              setInputValue('');
+            }
+          }
+        ],
+        'plain-text',
+        currentValue,
+        'number-pad'
+      );
+    } else {
+      // Use modal for Android
+      setModalVisible(true);
+    }
   };
 
   const handleValueSubmit = () => {
@@ -94,7 +126,6 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   };
 
   const handleKeyboardSubmit = () => {
-    console.log('Keyboard submit pressed');
     handleValueSubmit();
   };
 
@@ -131,29 +162,25 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
       <Modal
         animationType="slide"
-        transparent={true}
+        transparent={false}
         visible={modalVisible}
         onRequestClose={closeModal}
-        presentationStyle="overFullScreen"
-        supportedOrientations={['portrait', 'landscape']}
+        presentationStyle="formSheet"
       >
-        <TouchableOpacity 
-          style={styles.modalContainer}
-          activeOpacity={1}
-          onPress={closeModal}
-        >
-          <TouchableOpacity 
-            style={styles.modalContent}
-            activeOpacity={1}
-            onPress={() => {}} // Prevent closing when tapping on content
-          >
+        <View style={styles.fullScreenModal}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleValueSubmit} style={styles.saveButton}>
+              <Text style={styles.saveButtonText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.modalBody}>
             <Text style={styles.modalTitle}>Enter Digit (0-9)</Text>
             <TouchableOpacity
               style={styles.keyboardHint}
-              onPress={() => {
-                console.log('Manual focus triggered');
-                inputRef.current?.focus();
-              }}
+              onPress={() => inputRef.current?.focus()}
             >
               <Text style={styles.keyboardHintText}>
                 💡 Tap here if keyboard doesn't appear
@@ -177,8 +204,6 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
               autoCorrect={false}
               autoCapitalize="none"
               contextMenuHidden={true}
-              onFocus={() => console.log('Input focused')}
-              onBlur={() => console.log('Input blurred')}
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -194,8 +219,8 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
                 <Text style={styles.buttonText}>OK</Text>
               </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
     </View>
   );
@@ -245,6 +270,41 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#000',
   },
+  fullScreenModal: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  closeButton: {
+    padding: 10,
+  },
+  closeButtonText: {
+    color: '#FF6B6B',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  saveButton: {
+    padding: 10,
+  },
+  saveButtonText: {
+    color: '#4ECDC4',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalBody: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -267,9 +327,11 @@ const styles = StyleSheet.create({
     width: width * 0.8,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: 20,
+    color: '#2C3E50',
+    textAlign: 'center',
   },
   keyboardHint: {
     backgroundColor: '#E3F2FD',
@@ -284,14 +346,24 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#DDD',
-    borderRadius: 10,
-    padding: 15,
-    fontSize: 24,
+    borderWidth: 2,
+    borderColor: '#4ECDC4',
+    borderRadius: 15,
+    padding: 20,
+    fontSize: 32,
     textAlign: 'center',
-    width: 80,
-    marginBottom: 20,
+    width: 120,
+    height: 80,
+    marginBottom: 30,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   modalButtons: {
     flexDirection: 'row',
