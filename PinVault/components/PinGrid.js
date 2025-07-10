@@ -9,6 +9,7 @@ import {
   TextInput,
   Dimensions
 } from 'react-native';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -17,17 +18,10 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   const [modalVisible, setModalVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef(null);
-
-
+  const { theme } = useTheme();
 
   const getColorHex = (color) => {
-    const colors = {
-      red: '#FF0000',    // Pure red (255, 0, 0)
-      green: '#00FF00',  // Pure green (0, 255, 0)
-      blue: '#0000FF',   // Pure blue (0, 0, 255)
-      yellow: '#FFFF00'  // Pure yellow (255, 255, 0)
-    };
-    return colors[color] || '#CCCCCC';
+    return theme.gridColors[color] || '#CCCCCC';
   };
 
   const handleCellPress = (cellIndex) => {
@@ -112,9 +106,9 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
         visible={modalVisible}
         onRequestClose={closeModal}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Enter Digit (0-9)</Text>
+        <View style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}>
+          <View style={[styles.modalContent, { backgroundColor: theme.modal.background }]}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>Enter Digit (0-9)</Text>
             
             <TouchableOpacity
               style={styles.inputTouchArea}
@@ -123,12 +117,17 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
             >
               <TextInput
                 ref={inputRef}
-                style={styles.input}
+                style={[styles.input, { 
+                  backgroundColor: theme.surface, 
+                  color: theme.text, 
+                  borderColor: theme.primary 
+                }]}
                 value={inputValue}
                 onChangeText={setInputValue}
                 keyboardType="number-pad"
                 maxLength={1}
-                placeholder="Tap to enter"
+                placeholder="Tap to enter digit (0-9)"
+                placeholderTextColor={theme.textSecondary}
                 returnKeyType="done"
                 onSubmitEditing={handleKeyboardSubmit}
                 selectTextOnFocus={true}
@@ -137,25 +136,25 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
               />
             </TouchableOpacity>
             
-            <Text style={styles.instruction}>
-              Tap the input above to open keyboard
+            <Text style={[styles.instruction, { color: theme.textSecondary }]}>
+              Tap the input above to open keyboard and enter your PIN digit
             </Text>
             
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.button, styles.clearButton]}
+                style={[styles.button, { backgroundColor: theme.warning }]}
                 onPress={handleClearCell}
               >
                 <Text style={styles.buttonText}>Clear</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
+                style={[styles.button, { backgroundColor: theme.error }]}
                 onPress={closeModal}
               >
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.button, styles.submitButton]}
+                style={[styles.button, { backgroundColor: theme.success }]}
                 onPress={handleValueSubmit}
               >
                 <Text style={styles.buttonText}>OK</Text>
@@ -216,10 +215,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: 'white',
     borderRadius: 20,
     padding: 30,
     alignItems: 'center',
@@ -254,14 +251,13 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 2,
-    borderColor: '#4ECDC4',
     borderRadius: 12,
-    padding: 15,
-    fontSize: 28,
+    padding: 20,
+    fontSize: 32,
+    fontWeight: 'bold',
     textAlign: 'center',
     width: '100%',
-    height: 70,
-    backgroundColor: 'white',
+    height: 90,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -283,15 +279,7 @@ const styles = StyleSheet.create({
     elevation: 2,
     flex: 1,
   },
-  clearButton: {
-    backgroundColor: '#FF9500',
-  },
-  cancelButton: {
-    backgroundColor: '#FF6B6B',
-  },
-  submitButton: {
-    backgroundColor: '#4ECDC4',
-  },
+
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
