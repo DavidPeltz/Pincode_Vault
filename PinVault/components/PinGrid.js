@@ -53,6 +53,17 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     }
   };
 
+  const handleClearCell = () => {
+    const updatedGrid = [...grid];
+    updatedGrid[selectedCell] = {
+      ...updatedGrid[selectedCell],
+      value: null,
+      isPinDigit: false
+    };
+    onGridUpdate(updatedGrid);
+    closeModal();
+  };
+
   const closeModal = () => {
     inputRef.current?.blur(); // Dismiss keyboard
     setModalVisible(false);
@@ -131,6 +142,12 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
             </Text>
             
             <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.button, styles.clearButton]}
+                onPress={handleClearCell}
+              >
+                <Text style={styles.buttonText}>Clear</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, styles.cancelButton]}
                 onPress={closeModal}
@@ -258,12 +275,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
+    gap: 10,
   },
   button: {
     borderRadius: 10,
     padding: 10,
     elevation: 2,
-    minWidth: 80,
+    flex: 1,
+  },
+  clearButton: {
+    backgroundColor: '#FF9500',
   },
   cancelButton: {
     backgroundColor: '#FF6B6B',
