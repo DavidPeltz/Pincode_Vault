@@ -6,33 +6,35 @@ import Gallery from './components/Gallery';
 import GridEditor from './components/GridEditor';
 import SecurityInfo from './components/SecurityInfo';
 import { AuthProvider } from './components/AuthProvider';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 
 const Stack = createStackNavigator();
 
-export default function App() {
+function AppNavigator() {
+  const { theme, isDarkMode } = useTheme();
+  
   return (
-    <AuthProvider>
-      <NavigationContainer>
-        <StatusBar style="auto" />
-        <Stack.Navigator
-          initialRouteName="Gallery"
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: '#3498DB',
-            },
-            headerTintColor: '#fff',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-            },
-          }}
-        >
+    <NavigationContainer>
+      <StatusBar style={isDarkMode ? "light" : "auto"} />
+      <Stack.Navigator
+        initialRouteName="Gallery"
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: theme.primary,
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      >
           <Stack.Screen
             name="Gallery"
             component={Gallery}
             options={{
               title: 'PIN Vault',
               headerStyle: {
-                backgroundColor: '#2C3E50',
+                backgroundColor: theme.surface,
               },
             }}
           />
@@ -42,7 +44,7 @@ export default function App() {
             options={{
               title: 'PIN Grid Editor',
               headerStyle: {
-                backgroundColor: '#3498DB',
+                backgroundColor: theme.primary,
               },
             }}
           />
@@ -52,12 +54,21 @@ export default function App() {
             options={{
               title: 'Security Information',
               headerStyle: {
-                backgroundColor: '#8E44AD',
+                backgroundColor: theme.purple,
               },
             }}
           />
         </Stack.Navigator>
       </NavigationContainer>
-    </AuthProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <AppNavigator />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

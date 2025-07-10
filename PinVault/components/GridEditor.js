@@ -11,12 +11,15 @@ import {
 } from 'react-native';
 import PinGrid from './PinGrid';
 import { generateRandomGrid, fillEmptyCells, saveGrid } from '../utils/storage';
+import { useTheme } from '../contexts/ThemeContext';
+import ThemeToggle from './ThemeToggle';
 
 const GridEditor = ({ navigation, route }) => {
   const [grid, setGrid] = useState([]);
   const [cardName, setCardName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [hasEnteredPin, setHasEnteredPin] = useState(false);
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (route.params?.gridData) {
@@ -139,28 +142,39 @@ const GridEditor = ({ navigation, route }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
-          <Text style={styles.title}>
-            {isEditing ? 'Edit Grid' : 'Create New Grid'}
-          </Text>
+          <View style={styles.headerTop}>
+            <Text style={[styles.title, { color: theme.text }]}>
+              {isEditing ? 'Edit Grid' : 'Create New Grid'}
+            </Text>
+            <ThemeToggle />
+          </View>
         </View>
 
         <View style={styles.nameContainer}>
-          <Text style={styles.label}>Card Name:</Text>
+          <Text style={[styles.label, { color: theme.text }]}>Card Name:</Text>
           <TextInput
-            style={styles.nameInput}
+            style={[styles.nameInput, { 
+              backgroundColor: theme.surface, 
+              color: theme.text, 
+              borderColor: theme.border,
+              placeholderTextColor: theme.textSecondary
+            }]}
             value={cardName}
             onChangeText={setCardName}
             placeholder="Enter card name (e.g., Chase Credit Card)"
+            placeholderTextColor={theme.textSecondary}
             maxLength={50}
+            multiline={true}
+            numberOfLines={2}
           />
         </View>
 
         {hasEnteredPin && (
-          <View style={styles.pinPreview}>
-            <Text style={styles.pinLabel}>Your PIN: {getPinDigits()}</Text>
+          <View style={[styles.pinPreview, { backgroundColor: theme.surface }]}>
+            <Text style={[styles.pinLabel, { color: theme.primary }]}>Your PIN: {getPinDigits()}</Text>
           </View>
         )}
 
@@ -171,28 +185,28 @@ const GridEditor = ({ navigation, route }) => {
           showValues={true}
         />
 
-        <View style={styles.instructions}>
-          <Text style={styles.instructionText}>
+        <View style={[styles.instructions, { backgroundColor: theme.surface }]}>
+          <Text style={[styles.instructionText, { color: theme.textSecondary }]}>
             1. Tap colored cells to enter your PIN digits (0-9)
           </Text>
-          <Text style={styles.instructionText}>
+          <Text style={[styles.instructionText, { color: theme.textSecondary }]}>
             2. Fill remaining cells with random digits for security
           </Text>
-          <Text style={styles.instructionText}>
+          <Text style={[styles.instructionText, { color: theme.textSecondary }]}>
             3. Save your grid with a memorable name
           </Text>
         </View>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={[styles.button, styles.newGridButton]}
+            style={[styles.button, { backgroundColor: theme.purple }]}
             onPress={handleNewGrid}
           >
             <Text style={styles.buttonText}>New Random Grid</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, styles.clearGridButton]}
+            style={[styles.button, { backgroundColor: theme.danger }]}
             onPress={handleClearGrid}
           >
             <Text style={styles.buttonText}>Clear All Digits</Text>
@@ -201,7 +215,7 @@ const GridEditor = ({ navigation, route }) => {
           <TouchableOpacity
             style={[
               styles.button,
-              styles.fillButton,
+              { backgroundColor: !hasEnteredPin ? theme.textSecondary : theme.orange },
               !hasEnteredPin && styles.disabledButton
             ]}
             onPress={handleFillRandomDigits}
@@ -213,7 +227,7 @@ const GridEditor = ({ navigation, route }) => {
           <TouchableOpacity
             style={[
               styles.button,
-              styles.saveButton,
+              { backgroundColor: (!hasEnteredPin || !cardName.trim()) ? theme.textSecondary : theme.green },
               (!hasEnteredPin || !cardName.trim()) && styles.disabledButton
             ]}
             onPress={handleSave}
@@ -230,7 +244,6 @@ const GridEditor = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
   },
   scrollContainer: {
     padding: 20,
@@ -239,10 +252,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    flex: 1,
+    textAlign: 'center',
   },
   nameContainer: {
     marginBottom: 20,
@@ -255,11 +275,11 @@ const styles = StyleSheet.create({
   },
   nameInput: {
     borderWidth: 1,
-    borderColor: '#DDD',
     borderRadius: 10,
     padding: 15,
     fontSize: 16,
-    backgroundColor: 'white',
+    minHeight: 60,
+    textAlignVertical: 'top',
   },
   pinPreview: {
     backgroundColor: '#E8F4F8',
