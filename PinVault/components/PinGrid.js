@@ -7,7 +7,8 @@ import {
   Alert,
   Modal,
   TextInput,
-  Dimensions
+  Dimensions,
+  InteractionManager
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -20,12 +21,35 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   // Auto-focus input when modal opens
   useEffect(() => {
-    if (modalVisible && inputRef.current) {
-      // Small delay to ensure modal is fully rendered
-      const timer = setTimeout(() => {
+    if (modalVisible) {
+      console.log('Modal opened, attempting to focus input');
+      
+      // Use InteractionManager to ensure all interactions are complete
+      const interaction = InteractionManager.runAfterInteractions(() => {
+        console.log('Running after interactions');
         inputRef.current?.focus();
-      }, 100);
-      return () => clearTimeout(timer);
+      });
+
+      // Backup focus attempts with different timings
+      const timers = [
+        setTimeout(() => {
+          console.log('Focus attempt 1');
+          inputRef.current?.focus();
+        }, 100),
+        setTimeout(() => {
+          console.log('Focus attempt 2');
+          inputRef.current?.focus();
+        }, 300),
+        setTimeout(() => {
+          console.log('Focus attempt 3');
+          inputRef.current?.focus();
+        }, 500)
+      ];
+      
+      return () => {
+        interaction.cancel();
+        timers.forEach(timer => clearTimeout(timer));
+      };
     }
   }, [modalVisible]);
 
@@ -70,6 +94,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   };
 
   const handleKeyboardSubmit = () => {
+    console.log('Keyboard submit pressed');
     handleValueSubmit();
   };
 
@@ -109,6 +134,8 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
         transparent={true}
         visible={modalVisible}
         onRequestClose={closeModal}
+        presentationStyle="overFullScreen"
+        supportedOrientations={['portrait', 'landscape']}
       >
         <TouchableOpacity 
           style={styles.modalContainer}
@@ -121,12 +148,23 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
             onPress={() => {}} // Prevent closing when tapping on content
           >
             <Text style={styles.modalTitle}>Enter Digit (0-9)</Text>
+            <TouchableOpacity
+              style={styles.keyboardHint}
+              onPress={() => {
+                console.log('Manual focus triggered');
+                inputRef.current?.focus();
+              }}
+            >
+              <Text style={styles.keyboardHintText}>
+                💡 Tap here if keyboard doesn't appear
+              </Text>
+            </TouchableOpacity>
             <TextInput
               ref={inputRef}
               style={styles.input}
               value={inputValue}
               onChangeText={setInputValue}
-              keyboardType="numeric"
+              keyboardType="number-pad"
               maxLength={1}
               placeholder="0-9 or leave empty"
               autoFocus={true}
@@ -135,6 +173,12 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
               onSubmitEditing={handleKeyboardSubmit}
               blurOnSubmit={false}
               selectTextOnFocus={true}
+              caretHidden={false}
+              autoCorrect={false}
+              autoCapitalize="none"
+              contextMenuHidden={true}
+              onFocus={() => console.log('Input focused')}
+              onBlur={() => console.log('Input blurred')}
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -225,7 +269,19 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 15,
+  },
+  keyboardHint: {
+    backgroundColor: '#E3F2FD',
+    padding: 8,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  keyboardHintText: {
+    fontSize: 12,
+    color: '#1976D2',
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
   input: {
     borderWidth: 1,
