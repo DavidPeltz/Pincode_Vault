@@ -8,11 +8,13 @@ import {
   ScrollView,
   SafeAreaView,
   FlatList,
-  Dimensions
+  Dimensions,
+  ActivityIndicator
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import PinGrid from './PinGrid';
 import { getGrids, deleteGrid } from '../utils/storage';
+import { useAuth } from './AuthProvider';
 
 const { width } = Dimensions.get('window');
 
@@ -20,6 +22,7 @@ const Gallery = ({ navigation }) => {
   const [grids, setGrids] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { authenticate, authenticationInProgress, biometricType, isAuthAvailable } = useAuth();
 
   useFocusEffect(
     useCallback(() => {
@@ -44,8 +47,22 @@ const Gallery = ({ navigation }) => {
     }
   };
 
-  const handleEdit = (gridData) => {
-    navigation.navigate('GridEditor', { gridData });
+  const handleEdit = async (gridData) => {
+    if (!isAuthAvailable) {
+      Alert.alert(
+        'Authentication Required',
+        'Device authentication (biometric or PIN/pattern) must be set up to edit PIN grids. Please configure device security in your system settings.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    const authReason = `Authenticate to edit "${gridData.name}"`;
+    const authenticated = await authenticate(authReason);
+    
+    if (authenticated) {
+      navigation.navigate('GridEditor', { gridData });
+    }
   };
 
   const handleDelete = (gridData) => {
@@ -101,10 +118,21 @@ const Gallery = ({ navigation }) => {
 
         <View style={styles.cardActions}>
           <TouchableOpacity
-            style={[styles.actionButton, styles.editButton]}
+            style={[
+              styles.actionButton, 
+              styles.editButton,
+              authenticationInProgress && styles.disabledButton
+            ]}
             onPress={() => handleEdit(item)}
+            disabled={authenticationInProgress}
           >
-            <Text style={styles.actionButtonText}>Edit</Text>
+            {authenticationInProgress ? (
+              <ActivityIndicator color="white" size="small" />
+            ) : (
+              <Text style={styles.actionButtonText}>
+                {isAuthAvailable ? `Edit (${biometricType})` : 'Edit'}
+              </Text>
+            )}
           </TouchableOpacity>
           
           <TouchableOpacity
@@ -137,10 +165,30 @@ const Gallery = ({ navigation }) => {
             Create your first PIN grid to securely store your card PINs.
           </Text>
           <TouchableOpacity
-            style={styles.createButton}
-            onPress={() => navigation.navigate('GridEditor')}
+            style={[styles.createButton, authenticationInProgress && styles.disabledButton]}
+            onPress={async () => {
+              if (!isAuthAvailable) {
+                Alert.alert(
+                  'Authentication Required',
+                  'Device authentication must be set up to create PIN grids.',
+                  [{ text: 'OK' }]
+                );
+                return;
+              }
+              const authenticated = await authenticate('Authenticate to create a new PIN grid');
+              if (authenticated) {
+                navigation.navigate('GridEditor');
+              }
+            }}
+            disabled={authenticationInProgress}
           >
-            <Text style={styles.createButtonText}>Create First Grid</Text>
+            {authenticationInProgress ? (
+              <ActivityIndicator color="white" size="small" />
+            ) : (
+              <Text style={styles.createButtonText}>
+                Create First Grid {isAuthAvailable ? `(${biometricType})` : ''}
+              </Text>
+            )}
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -154,6 +202,12 @@ const Gallery = ({ navigation }) => {
         <Text style={styles.subtitle}>
           {grids.length} saved grid{grids.length !== 1 ? 's' : ''}
         </Text>
+        <TouchableOpacity
+          style={styles.securityButton}
+          onPress={() => navigation.navigate('SecurityInfo')}
+        >
+          <Text style={styles.securityButtonText}>🔐 Security Info</Text>
+        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -185,10 +239,28 @@ const Gallery = ({ navigation }) => {
       </View>
 
       <TouchableOpacity
-        style={styles.fabButton}
-        onPress={() => navigation.navigate('GridEditor')}
+        style={[styles.fabButton, authenticationInProgress && styles.disabledButton]}
+        onPress={async () => {
+          if (!isAuthAvailable) {
+            Alert.alert(
+              'Authentication Required',
+              'Device authentication must be set up to create PIN grids.',
+              [{ text: 'OK' }]
+            );
+            return;
+          }
+          const authenticated = await authenticate('Authenticate to create a new PIN grid');
+          if (authenticated) {
+            navigation.navigate('GridEditor');
+          }
+        }}
+        disabled={authenticationInProgress}
       >
-        <Text style={styles.fabText}>+</Text>
+        {authenticationInProgress ? (
+          <ActivityIndicator color="white" size="small" />
+        ) : (
+          <Text style={styles.fabText}>+</Text>
+        )}
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -227,6 +299,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     marginTop: 5,
+  },
+  securityButton: {
+    backgroundColor: '#8E44AD',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 15,
+  },
+  securityButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   loadingText: {
     fontSize: 18,
@@ -304,6 +388,10 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     backgroundColor: '#E74C3C',
+  },
+  disabledButton: {
+    backgroundColor: '#95A5A6',
+    opacity: 0.6,
   },
   actionButtonText: {
     color: 'white',
