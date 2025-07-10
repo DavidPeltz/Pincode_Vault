@@ -202,11 +202,38 @@ const Gallery = ({ navigation }) => {
         <Text style={styles.subtitle}>
           {grids.length} saved grid{grids.length !== 1 ? 's' : ''}
         </Text>
+        
+        {/* DEBUG INFO - Remove this later */}
+        <View style={styles.debugContainer}>
+          <Text style={styles.debugText}>
+            🔍 Auth Available: {isAuthAvailable ? 'YES' : 'NO'}
+          </Text>
+          <Text style={styles.debugText}>
+            🔍 Auth Type: {biometricType || 'None'}
+          </Text>
+          <Text style={styles.debugText}>
+            🔍 Auth In Progress: {authenticationInProgress ? 'YES' : 'NO'}
+          </Text>
+        </View>
+        
         <TouchableOpacity
           style={styles.securityButton}
           onPress={() => navigation.navigate('SecurityInfo')}
         >
           <Text style={styles.securityButtonText}>🔐 Security Info</Text>
+        </TouchableOpacity>
+        
+        {/* DEBUG BUTTON - Remove this later */}
+        <TouchableOpacity
+          style={[styles.securityButton, { backgroundColor: '#E74C3C', marginTop: 5 }]}
+          onPress={async () => {
+            console.log('🧪 Manual auth test triggered');
+            const result = await authenticate('Manual authentication test');
+            console.log('🧪 Manual auth result:', result);
+            Alert.alert('Debug Result', `Authentication result: ${result}`);
+          }}
+        >
+          <Text style={styles.securityButtonText}>🧪 Test Auth Now</Text>
         </TouchableOpacity>
       </View>
 
@@ -311,6 +338,20 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  debugContainer: {
+    backgroundColor: '#FFE5E5',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#FF6B6B',
+  },
+  debugText: {
+    fontSize: 12,
+    color: '#D63031',
+    fontFamily: 'monospace',
+    textAlign: 'center',
   },
   loadingText: {
     fontSize: 18,
