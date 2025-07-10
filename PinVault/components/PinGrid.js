@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,7 @@ import {
   Alert,
   Modal,
   TextInput,
-  Dimensions,
-  InteractionManager,
-  Platform
+  Dimensions
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -20,27 +18,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef(null);
 
-  // Auto-focus input when modal opens
-  useEffect(() => {
-    if (modalVisible) {
-      // Use InteractionManager to ensure all interactions are complete
-      const interaction = InteractionManager.runAfterInteractions(() => {
-        inputRef.current?.focus();
-      });
 
-      // Backup focus attempts with different timings
-      const timers = [
-        setTimeout(() => inputRef.current?.focus(), 100),
-        setTimeout(() => inputRef.current?.focus(), 300),
-        setTimeout(() => inputRef.current?.focus(), 500)
-      ];
-      
-      return () => {
-        interaction.cancel();
-        timers.forEach(timer => clearTimeout(timer));
-      };
-    }
-  }, [modalVisible]);
 
   const getColorHex = (color) => {
     const colors = {
@@ -56,51 +34,8 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     if (!isEditable) return;
     
     setSelectedCell(cellIndex);
-    const currentValue = grid[cellIndex].value?.toString() || '';
-    setInputValue(currentValue);
-    
-    // Try using native Alert.prompt on iOS for better keyboard handling
-    if (Platform.OS === 'ios') {
-      Alert.prompt(
-        'Enter Digit',
-        'Enter a digit from 0-9 or leave empty',
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-            onPress: () => {
-              setSelectedCell(null);
-              setInputValue('');
-            }
-          },
-          {
-            text: 'OK',
-            onPress: (text) => {
-              const trimmedText = text?.trim() || '';
-              if (trimmedText === '' || (trimmedText >= '0' && trimmedText <= '9' && trimmedText.length === 1)) {
-                const updatedGrid = [...grid];
-                updatedGrid[cellIndex] = {
-                  ...updatedGrid[cellIndex],
-                  value: trimmedText === '' ? null : parseInt(trimmedText),
-                  isPinDigit: trimmedText !== ''
-                };
-                onGridUpdate(updatedGrid);
-              } else {
-                Alert.alert('Invalid Input', 'Please enter a single digit from 0 to 9');
-              }
-              setSelectedCell(null);
-              setInputValue('');
-            }
-          }
-        ],
-        'plain-text',
-        currentValue,
-        'number-pad'
-      );
-    } else {
-      // Use modal for Android
-      setModalVisible(true);
-    }
+    setInputValue(grid[cellIndex].value?.toString() || '');
+    setModalVisible(true);
   };
 
   const handleValueSubmit = () => {
@@ -162,49 +97,39 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
       <Modal
         animationType="slide"
-        transparent={false}
+        transparent={true}
         visible={modalVisible}
         onRequestClose={closeModal}
-        presentationStyle="formSheet"
       >
-        <View style={styles.fullScreenModal}>
-          <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleValueSubmit} style={styles.saveButton}>
-              <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.modalBody}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Enter Digit (0-9)</Text>
+            
             <TouchableOpacity
-              style={styles.keyboardHint}
+              style={styles.inputTouchArea}
               onPress={() => inputRef.current?.focus()}
+              activeOpacity={1}
             >
-              <Text style={styles.keyboardHintText}>
-                💡 Tap here if keyboard doesn't appear
-              </Text>
+              <TextInput
+                ref={inputRef}
+                style={styles.input}
+                value={inputValue}
+                onChangeText={setInputValue}
+                keyboardType="number-pad"
+                maxLength={1}
+                placeholder="Tap to enter"
+                returnKeyType="done"
+                onSubmitEditing={handleKeyboardSubmit}
+                selectTextOnFocus={true}
+                autoCorrect={false}
+                autoCapitalize="none"
+              />
             </TouchableOpacity>
-            <TextInput
-              ref={inputRef}
-              style={styles.input}
-              value={inputValue}
-              onChangeText={setInputValue}
-              keyboardType="number-pad"
-              maxLength={1}
-              placeholder="0-9 or leave empty"
-              autoFocus={true}
-              returnKeyType="done"
-              enablesReturnKeyAutomatically={true}
-              onSubmitEditing={handleKeyboardSubmit}
-              blurOnSubmit={false}
-              selectTextOnFocus={true}
-              caretHidden={false}
-              autoCorrect={false}
-              autoCapitalize="none"
-              contextMenuHidden={true}
-            />
+            
+            <Text style={styles.instruction}>
+              Tap the input above to open keyboard
+            </Text>
+            
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.button, styles.cancelButton]}
@@ -270,41 +195,6 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#000',
   },
-  fullScreenModal: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  closeButton: {
-    padding: 10,
-  },
-  closeButtonText: {
-    color: '#FF6B6B',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  saveButton: {
-    padding: 10,
-  },
-  saveButtonText: {
-    color: '#4ECDC4',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  modalBody: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-  },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -314,7 +204,7 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 35,
+    padding: 30,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -324,46 +214,45 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    width: width * 0.8,
+    width: width * 0.85,
+    maxWidth: 400,
+  },
+  inputTouchArea: {
+    width: '100%',
+    marginVertical: 10,
+  },
+  instruction: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+    fontStyle: 'italic',
   },
   modalTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 15,
     color: '#2C3E50',
     textAlign: 'center',
-  },
-  keyboardHint: {
-    backgroundColor: '#E3F2FD',
-    padding: 8,
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  keyboardHintText: {
-    fontSize: 12,
-    color: '#1976D2',
-    textAlign: 'center',
-    fontStyle: 'italic',
   },
   input: {
     borderWidth: 2,
     borderColor: '#4ECDC4',
-    borderRadius: 15,
-    padding: 20,
-    fontSize: 32,
+    borderRadius: 12,
+    padding: 15,
+    fontSize: 28,
     textAlign: 'center',
-    width: 120,
-    height: 80,
-    marginBottom: 30,
+    width: '100%',
+    height: 70,
     backgroundColor: 'white',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 2,
+    elevation: 2,
   },
   modalButtons: {
     flexDirection: 'row',
