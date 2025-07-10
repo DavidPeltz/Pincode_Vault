@@ -126,7 +126,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
                 onChangeText={setInputValue}
                 keyboardType="number-pad"
                 maxLength={1}
-                placeholder="Tap to enter digit (0-9)"
+                placeholder="Tap to enter"
                 placeholderTextColor={theme.textSecondary}
                 returnKeyType="done"
                 onSubmitEditing={handleKeyboardSubmit}
