@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 const AuthContext = createContext();
 
@@ -26,14 +26,20 @@ export const AuthProvider = ({ children }) => {
     try {
       // Check if device has authentication hardware
       const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      console.log('Has biometric hardware:', hasHardware);
+      
       if (!hasHardware) {
+        console.log('No biometric hardware available');
         setIsAuthAvailable(false);
         return;
       }
 
       // Check if device has biometric records enrolled
       const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+      console.log('Has biometric enrolled:', isEnrolled);
+      
       if (!isEnrolled) {
+        console.log('No biometric credentials enrolled');
         setIsAuthAvailable(false);
         return;
       }
