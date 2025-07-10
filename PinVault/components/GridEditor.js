@@ -107,6 +107,29 @@ const GridEditor = ({ navigation, route }) => {
     );
   };
 
+  const handleClearGrid = () => {
+    Alert.alert(
+      'Clear Grid',
+      'Clear all digits from the grid? This will remove both PIN digits and random digits.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear All',
+          style: 'destructive',
+          onPress: () => {
+            const clearedGrid = grid.map(cell => ({
+              ...cell,
+              value: null,
+              isPinDigit: false
+            }));
+            setGrid(clearedGrid);
+            setHasEnteredPin(false);
+          }
+        }
+      ]
+    );
+  };
+
   const getPinDigits = () => {
     return grid
       .filter(cell => cell.isPinDigit)
@@ -166,6 +189,13 @@ const GridEditor = ({ navigation, route }) => {
             onPress={handleNewGrid}
           >
             <Text style={styles.buttonText}>New Random Grid</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.clearGridButton]}
+            onPress={handleClearGrid}
+          >
+            <Text style={styles.buttonText}>Clear All Digits</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -266,6 +296,9 @@ const styles = StyleSheet.create({
   },
   newGridButton: {
     backgroundColor: '#9B59B6',
+  },
+  clearGridButton: {
+    backgroundColor: '#E74C3C',
   },
   fillButton: {
     backgroundColor: '#F39C12',
