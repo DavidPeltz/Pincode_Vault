@@ -12,17 +12,17 @@ import {
 
 const { width, height } = Dimensions.get('window');
 
-const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true }) => {
+const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, showPinHighlight = true }) => {
   const [selectedCell, setSelectedCell] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
 
   const getColorHex = (color) => {
     const colors = {
-      red: '#FF6B6B',
-      blue: '#4ECDC4',
-      green: '#45B7D1',
-      yellow: '#FFA07A'
+      red: '#FF0000',    // Pure red (255, 0, 0)
+      green: '#00FF00',  // Pure green (0, 255, 0)
+      blue: '#0000FF',   // Pure blue (0, 0, 255)
+      yellow: '#FFFF00'  // Pure yellow (255, 255, 0)
     };
     return colors[color] || '#CCCCCC';
   };
@@ -62,14 +62,14 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true }) =
         style={[
           styles.cell,
           { backgroundColor: getColorHex(cell.color) },
-          cell.isPinDigit && styles.pinCell
+          cell.isPinDigit && showPinHighlight && styles.pinCell
         ]}
         onPress={() => handleCellPress(index)}
         disabled={!isEditable}
       >
         <Text style={[
           styles.cellText,
-          cell.isPinDigit && styles.pinText
+          cell.isPinDigit && showPinHighlight && styles.pinText
         ]}>
           {showValues && cell.value !== null ? cell.value : ''}
         </Text>
