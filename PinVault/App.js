@@ -36,6 +36,11 @@ function AppNavigator() {
               headerStyle: {
                 backgroundColor: theme.surface,
               },
+              headerTintColor: theme.text,
+              headerTitleStyle: {
+                fontWeight: 'bold',
+                color: theme.text,
+              },
             }}
           />
           <Stack.Screen
