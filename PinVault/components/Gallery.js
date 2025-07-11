@@ -17,6 +17,7 @@ import { getGrids, deleteGrid } from '../utils/storage';
 import { useAuth } from './AuthProvider';
 import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from './ThemeToggle';
+import InfoButton from './InfoButton';
 
 const { width } = Dimensions.get('window');
 
@@ -120,14 +121,14 @@ const Gallery = ({ navigation }) => {
     };
 
     return (
-      <View style={styles.gridCard}>
-        <View style={styles.gridContent}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>{item.name}</Text>
-            <Text style={styles.cardDate}>
-              Updated: {formatDate(item.updatedAt)}
-            </Text>
-          </View>
+              <View style={styles.gridCard}>
+          <View style={styles.gridContent}>
+            <View style={[styles.cardHeader, { backgroundColor: theme.surface }]}>
+              <Text style={[styles.cardTitle, { color: theme.text }]}>{item.name}</Text>
+              <Text style={[styles.cardDate, { color: theme.textSecondary }]}>
+                Updated: {formatDate(item.updatedAt)}
+              </Text>
+            </View>
 
           <PinGrid
             grid={item.grid}
@@ -137,43 +138,43 @@ const Gallery = ({ navigation }) => {
             showPinHighlight={false}
           />
 
-          <View style={styles.cardActions}>
-            <TouchableOpacity
-              style={[
-                styles.actionButton, 
-                styles.editButton,
-                authenticationInProgress && styles.disabledButton
-              ]}
-              onPress={() => handleEdit(item)}
-              disabled={authenticationInProgress}
-            >
-              {authenticationInProgress ? (
-                <ActivityIndicator color="white" size="small" />
-              ) : (
-                <Text style={styles.actionButtonText}>
-                  {isAuthAvailable ? `Edit (${biometricType})` : 'Edit'}
-                </Text>
-              )}
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[
-                styles.actionButton, 
-                styles.deleteButton,
-                authenticationInProgress && styles.disabledButton
-              ]}
-              onPress={() => handleDelete(item)}
-              disabled={authenticationInProgress}
-            >
-              {authenticationInProgress ? (
-                <ActivityIndicator color="white" size="small" />
-              ) : (
-                <Text style={styles.actionButtonText}>
-                  {isAuthAvailable ? `Delete (${biometricType})` : 'Delete'}
-                </Text>
-              )}
-            </TouchableOpacity>
-          </View>
+                      <View style={styles.cardActions}>
+              <TouchableOpacity
+                style={[
+                  styles.actionButton, 
+                  { backgroundColor: theme.primary },
+                  authenticationInProgress && styles.disabledButton
+                ]}
+                onPress={() => handleEdit(item)}
+                disabled={authenticationInProgress}
+              >
+                {authenticationInProgress ? (
+                  <ActivityIndicator color="white" size="small" />
+                ) : (
+                  <Text style={styles.actionButtonText}>
+                    {isAuthAvailable ? `Edit (${biometricType})` : 'Edit'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[
+                  styles.actionButton, 
+                  { backgroundColor: theme.danger },
+                  authenticationInProgress && styles.disabledButton
+                ]}
+                onPress={() => handleDelete(item)}
+                disabled={authenticationInProgress}
+              >
+                {authenticationInProgress ? (
+                  <ActivityIndicator color="white" size="small" />
+                ) : (
+                  <Text style={styles.actionButtonText}>
+                    {isAuthAvailable ? `Delete (${biometricType})` : 'Delete'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
         </View>
       </View>
     );
@@ -191,14 +192,27 @@ const Gallery = ({ navigation }) => {
 
   if (grids.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <View style={[styles.header, { backgroundColor: theme.surface }]}>
+          <View style={styles.headerTop}>
+            <InfoButton />
+            <View style={styles.headerContent}>
+              <Text style={[styles.title, { color: theme.text }]}>PIN Vault</Text>
+            </View>
+            <ThemeToggle />
+          </View>
+        </View>
         <View style={styles.centered}>
-          <Text style={styles.emptyTitle}>No PIN Grids Found</Text>
-          <Text style={styles.emptyMessage}>
+          <Text style={[styles.emptyTitle, { color: theme.text }]}>No PIN Grids Found</Text>
+          <Text style={[styles.emptyMessage, { color: theme.textSecondary }]}>
             Create your first PIN grid to securely store your card PINs.
           </Text>
           <TouchableOpacity
-            style={[styles.createButton, authenticationInProgress && styles.disabledButton]}
+            style={[
+              styles.createButton, 
+              { backgroundColor: theme.primary },
+              authenticationInProgress && styles.disabledButton
+            ]}
             onPress={async () => {
               if (!isAuthAvailable) {
                 Alert.alert(
@@ -232,6 +246,7 @@ const Gallery = ({ navigation }) => {
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.surface }]}>
         <View style={styles.headerTop}>
+          <InfoButton />
           <View style={styles.headerContent}>
             <Text style={[styles.title, { color: theme.text }]}>PIN Vault Gallery</Text>
             <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
@@ -282,7 +297,11 @@ const Gallery = ({ navigation }) => {
       </View>
 
       <TouchableOpacity
-        style={[styles.fabButton, authenticationInProgress && styles.disabledButton]}
+        style={[
+          styles.fabButton, 
+          { backgroundColor: theme.green },
+          authenticationInProgress && styles.disabledButton
+        ]}
         onPress={async () => {
           if (!isAuthAvailable) {
             Alert.alert(
@@ -345,15 +364,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
     marginTop: 5,
   },
   securityButton: {
-    backgroundColor: '#8E44AD',
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
@@ -366,23 +382,19 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 18,
-    color: '#666',
   },
   emptyTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
     marginBottom: 10,
   },
   emptyMessage: {
     fontSize: 16,
-    color: '#666',
     textAlign: 'center',
     marginBottom: 30,
     lineHeight: 24,
   },
   createButton: {
-    backgroundColor: '#3498DB',
     paddingHorizontal: 30,
     paddingVertical: 15,
     borderRadius: 25,
@@ -408,7 +420,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cardHeader: {
-    backgroundColor: 'white',
     padding: 20,
     borderRadius: 15,
     marginBottom: 15,
@@ -425,13 +436,11 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
     marginBottom: 5,
   },
-      cardDate: {
-      fontSize: 14,
-      color: '#666',
-    },
+  cardDate: {
+    fontSize: 14,
+  },
     cardActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -445,12 +454,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
-  editButton: {
-    backgroundColor: '#3498DB',
-  },
-  deleteButton: {
-    backgroundColor: '#E74C3C',
-  },
+
   disabledButton: {
     backgroundColor: '#95A5A6',
     opacity: 0.6,
@@ -486,7 +490,6 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#27AE60',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
