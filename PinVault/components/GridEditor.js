@@ -12,8 +12,6 @@ import {
 import PinGrid from './PinGrid';
 import { generateRandomGrid, fillEmptyCells, saveGrid } from '../utils/storage';
 import { useTheme } from '../contexts/ThemeContext';
-import ThemeToggle from './ThemeToggle';
-import InfoButton from './InfoButton';
 
 const GridEditor = ({ navigation, route }) => {
   const [grid, setGrid] = useState([]);
@@ -145,15 +143,6 @@ const GridEditor = ({ navigation, route }) => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <InfoButton />
-            <Text style={[styles.title, { color: theme.text }]}>
-              {isEditing ? 'Edit Grid' : 'Create New Grid'}
-            </Text>
-            <ThemeToggle />
-          </View>
-        </View>
 
         <View style={styles.nameContainer}>
           <Text style={[styles.label, { color: theme.text }]}>Card Name:</Text>
@@ -256,22 +245,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     padding: 20,
   },
-  header: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    flex: 1,
-    textAlign: 'center',
-  },
+
   nameContainer: {
     marginBottom: 20,
   },
