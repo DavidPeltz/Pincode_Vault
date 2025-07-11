@@ -13,6 +13,7 @@ import PinGrid from './PinGrid';
 import { generateRandomGrid, fillEmptyCells, saveGrid } from '../utils/storage';
 import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from './ThemeToggle';
+import InfoButton from './InfoButton';
 
 const GridEditor = ({ navigation, route }) => {
   const [grid, setGrid] = useState([]);
@@ -146,6 +147,7 @@ const GridEditor = ({ navigation, route }) => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
           <View style={styles.headerTop}>
+            <InfoButton />
             <Text style={[styles.title, { color: theme.text }]}>
               {isEditing ? 'Edit Grid' : 'Create New Grid'}
             </Text>
