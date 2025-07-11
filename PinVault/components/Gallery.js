@@ -16,8 +16,6 @@ import PinGrid from './PinGrid';
 import { getGrids, deleteGrid } from '../utils/storage';
 import { useAuth } from './AuthProvider';
 import { useTheme } from '../contexts/ThemeContext';
-import ThemeToggle from './ThemeToggle';
-import InfoButton from './InfoButton';
 
 const { width } = Dimensions.get('window');
 
@@ -193,15 +191,6 @@ const Gallery = ({ navigation }) => {
   if (grids.length === 0) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-        <View style={[styles.header, { backgroundColor: theme.surface }]}>
-          <View style={styles.headerTop}>
-            <InfoButton />
-            <View style={styles.headerContent}>
-              <Text style={[styles.title, { color: theme.text }]}>PIN Vault</Text>
-            </View>
-            <ThemeToggle />
-          </View>
-        </View>
         <View style={styles.centered}>
           <Text style={[styles.emptyTitle, { color: theme.text }]}>No PIN Grids Found</Text>
           <Text style={[styles.emptyMessage, { color: theme.textSecondary }]}>
@@ -245,22 +234,10 @@ const Gallery = ({ navigation }) => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.surface }]}>
-        <View style={styles.headerTop}>
-          <InfoButton />
-          <View style={styles.headerContent}>
-            <Text style={[styles.title, { color: theme.text }]}>PIN Vault Gallery</Text>
-            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-              {grids.length} saved grid{grids.length !== 1 ? 's' : ''}
-            </Text>
-          </View>
-          <ThemeToggle />
-        </View>
-        <TouchableOpacity
-          style={[styles.securityButton, { backgroundColor: theme.purple }]}
-          onPress={() => navigation.navigate('SecurityInfo')}
-        >
-          <Text style={styles.securityButtonText}>🔐 Security Info</Text>
-        </TouchableOpacity>
+        <Text style={[styles.title, { color: theme.text }]}>PIN Vault Gallery</Text>
+        <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+          {grids.length} saved grid{grids.length !== 1 ? 's' : ''}
+        </Text>
       </View>
 
       <FlatList
@@ -350,17 +327,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 15,
-  },
-  headerContent: {
-    flex: 1,
-    alignItems: 'center',
-  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -369,17 +335,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 5,
   },
-  securityButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginTop: 15,
-  },
-  securityButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
+
   loadingText: {
     fontSize: 18,
   },
