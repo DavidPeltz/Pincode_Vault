@@ -200,43 +200,49 @@ const GridEditor = ({ navigation, route }) => {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: theme.purple }]}
-            onPress={handleNewGrid}
-          >
-            <Text style={styles.buttonText}>New Random Grid</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={[styles.button, styles.buttonHalf, { backgroundColor: theme.purple }]}
+              onPress={handleNewGrid}
+            >
+              <Text style={styles.buttonText}>New Random Grid</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: theme.danger }]}
-            onPress={handleClearGrid}
-          >
-            <Text style={styles.buttonText}>Clear All Digits</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.buttonHalf, { backgroundColor: theme.danger }]}
+              onPress={handleClearGrid}
+            >
+              <Text style={styles.buttonText}>Clear All Digits</Text>
+            </TouchableOpacity>
+          </View>
 
-          <TouchableOpacity
-            style={[
-              styles.button,
-              { backgroundColor: !hasEnteredPin ? theme.textSecondary : theme.orange },
-              !hasEnteredPin && styles.disabledButton
-            ]}
-            onPress={handleFillRandomDigits}
-            disabled={!hasEnteredPin}
-          >
-            <Text style={styles.buttonText}>Fill Random Digits</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                styles.buttonHalf,
+                { backgroundColor: !hasEnteredPin ? theme.textSecondary : theme.orange },
+                !hasEnteredPin && styles.disabledButton
+              ]}
+              onPress={handleFillRandomDigits}
+              disabled={!hasEnteredPin}
+            >
+              <Text style={styles.buttonText}>Fill Random Digits</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[
-              styles.button,
-              { backgroundColor: (!hasEnteredPin || !cardName.trim()) ? theme.textSecondary : theme.green },
-              (!hasEnteredPin || !cardName.trim()) && styles.disabledButton
-            ]}
-            onPress={handleSave}
-            disabled={!hasEnteredPin || !cardName.trim()}
-          >
-            <Text style={styles.buttonText}>Save Grid</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                styles.buttonHalf,
+                { backgroundColor: (!hasEnteredPin || !cardName.trim()) ? theme.textSecondary : theme.green },
+                (!hasEnteredPin || !cardName.trim()) && styles.disabledButton
+              ]}
+              onPress={handleSave}
+              disabled={!hasEnteredPin || !cardName.trim()}
+            >
+              <Text style={styles.buttonText}>Save Grid</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -310,11 +316,18 @@ const styles = StyleSheet.create({
   buttonContainer: {
     gap: 15,
   },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 15,
+  },
   button: {
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  buttonHalf: {
+    flex: 1,
   },
   newGridButton: {
     backgroundColor: '#9B59B6',
