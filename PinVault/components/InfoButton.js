@@ -65,10 +65,10 @@ export default function InfoButton() {
                 </Text>
                 <TouchableOpacity
                   style={[styles.linkButton, { backgroundColor: theme.surface }]}
-                  onPress={() => openLink('mailto:support@pinvault.app')}
+                  onPress={() => openLink('mailto:davidpeltz@gmail.com')}
                 >
                   <Text style={[styles.linkText, { color: theme.primary }]}>
-                    📧 support@pinvault.app
+                    📧 davidpeltz@gmail.com
                   </Text>
                 </TouchableOpacity>
                 
@@ -92,7 +92,7 @@ export default function InfoButton() {
                 
                 <TouchableOpacity
                   style={[styles.donateButton, { backgroundColor: theme.success }]}
-                  onPress={() => openLink('https://paypal.me/pinvaultapp')}
+                  onPress={() => openLink('https://paypal.me/DavidPeltz')}
                 >
                   <Text style={styles.donateButtonText}>
                     💝 Donate via PayPal
@@ -101,7 +101,7 @@ export default function InfoButton() {
 
                 <TouchableOpacity
                   style={[styles.donateButton, { backgroundColor: theme.orange }]}
-                  onPress={() => openLink('https://ko-fi.com/pinvaultapp')}
+                  onPress={() => openLink('https://ko-fi.com/davidpeltz')}
                 >
                   <Text style={styles.donateButtonText}>
                     ☕ Buy me a coffee
