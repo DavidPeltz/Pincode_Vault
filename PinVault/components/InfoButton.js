@@ -49,7 +49,7 @@ export default function InfoButton() {
             <ScrollView contentContainerStyle={styles.scrollContent}>
               <View style={styles.logoContainer}>
                 <Image 
-                  source={require('../assets/icon.png')} 
+                  source={require('../assets/PIN_Vault_Icon.png')} 
                   style={styles.logo}
                   resizeMode="contain"
                 />
