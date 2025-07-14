@@ -8,6 +8,7 @@ import {
   ScrollView,
   Linking,
   Alert,
+  Image,
 } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -46,6 +47,13 @@ export default function InfoButton() {
         <View style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}>
           <View style={[styles.modalContent, { backgroundColor: theme.modal.background }]}>
             <ScrollView contentContainerStyle={styles.scrollContent}>
+              <View style={styles.logoContainer}>
+                <Image 
+                  source={require('../assets/icon.png')} 
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
+              </View>
               <Text style={[styles.modalTitle, { color: theme.text }]}>
                 PIN Vault Information
               </Text>
@@ -114,7 +122,7 @@ export default function InfoButton() {
                   Version & Privacy
                 </Text>
                 <Text style={[styles.sectionText, { color: theme.textSecondary }]}>
-                  Version: 1.0.0{'\n'}
+                  Version: 1.1.0-beta{'\n'}
                   Your PIN data is stored locally on your device and never transmitted to external servers. The app uses device biometric authentication for additional security.
                 </Text>
               </View>
@@ -171,6 +179,15 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 25,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logo: {
+    width: 80,
+    height: 80,
+    borderRadius: 16,
   },
   modalTitle: {
     fontSize: 24,

@@ -61,6 +61,7 @@ function AppNavigator() {
             component={Gallery}
             options={({ navigation }) => ({
               title: 'PIN Vault',
+              headerTitleAlign: 'center',
               headerStyle: {
                 backgroundColor: theme.surface,
               },
@@ -68,7 +69,6 @@ function AppNavigator() {
               headerTitleStyle: {
                 fontWeight: 'bold',
                 color: theme.text,
-                textAlign: 'center',
               },
               headerLeft: () => <HeaderLeft />,
               headerRight: () => <HeaderRight showSecurityButton={true} navigation={navigation} />,
