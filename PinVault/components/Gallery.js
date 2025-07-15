@@ -191,42 +191,72 @@ const Gallery = ({ navigation }) => {
   if (grids.length === 0) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-        <View style={styles.centered}>
-          <Text style={[styles.emptyTitle, { color: theme.text }]}>No PIN Grids Found</Text>
-          <Text style={[styles.emptyMessage, { color: theme.textSecondary }]}>
-            Create your first PIN grid to securely store your card PINs.
-          </Text>
-          <TouchableOpacity
-            style={[
-              styles.createButton, 
-              { backgroundColor: theme.primary },
-              authenticationInProgress && styles.disabledButton
-            ]}
-            onPress={async () => {
-              if (!isAuthAvailable) {
-                Alert.alert(
-                  'Authentication Required',
-                  'Device authentication must be set up to create PIN grids.',
-                  [{ text: 'OK' }]
-                );
-                return;
-              }
-              const authenticated = await authenticate('Authenticate to create a new PIN grid');
-              if (authenticated) {
-                navigation.navigate('GridEditor');
-              }
-            }}
-            disabled={authenticationInProgress}
-          >
-            {authenticationInProgress ? (
-              <ActivityIndicator color="white" size="small" />
-            ) : (
-              <Text style={styles.createButtonText}>
-                Create First Grid {isAuthAvailable ? `(${biometricType})` : ''}
+        <ScrollView contentContainerStyle={styles.centeredScrollable}>
+          <View style={styles.centered}>
+            <Text style={[styles.emptyTitle, { color: theme.text }]}>Welcome to PIN Vault</Text>
+            
+            {/* App Overview Section */}
+            <View style={[styles.overviewSection, { backgroundColor: theme.surface }]}>
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>
+                About PIN Vault
               </Text>
-            )}
-          </TouchableOpacity>
-        </View>
+              <Text style={[styles.overviewText, { color: theme.textSecondary }]}>
+                PIN Vault is a secure mobile app designed to help you safely store and manage your bank and credit card PIN codes using a visual grid system. Your PINs are hidden among random digits and protected with biometric authentication.
+              </Text>
+            </View>
+
+            {/* Instructions Section */}
+            <View style={[styles.instructionsSection, { backgroundColor: theme.surface }]}>
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>
+                How to Use PIN Vault
+              </Text>
+              <Text style={[styles.instructionText, { color: theme.textSecondary }]}>
+                1. Tap colored cells to enter your PIN digits (0-9)
+              </Text>
+              <Text style={[styles.instructionText, { color: theme.textSecondary }]}>
+                2. Fill remaining cells with random digits for security
+              </Text>
+              <Text style={[styles.instructionText, { color: theme.textSecondary }]}>
+                3. Save your grid with a memorable name
+              </Text>
+            </View>
+
+            <Text style={[styles.emptyMessage, { color: theme.textSecondary }]}>
+              Ready to get started? Create your first PIN grid below.
+            </Text>
+            
+            <TouchableOpacity
+              style={[
+                styles.createButton, 
+                { backgroundColor: theme.primary },
+                authenticationInProgress && styles.disabledButton
+              ]}
+              onPress={async () => {
+                if (!isAuthAvailable) {
+                  Alert.alert(
+                    'Authentication Required',
+                    'Device authentication must be set up to create PIN grids.',
+                    [{ text: 'OK' }]
+                  );
+                  return;
+                }
+                const authenticated = await authenticate('Authenticate to create a new PIN grid');
+                if (authenticated) {
+                  navigation.navigate('GridEditor');
+                }
+              }}
+              disabled={authenticationInProgress}
+            >
+              {authenticationInProgress ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <Text style={styles.createButtonText}>
+                  Create First Grid {isAuthAvailable ? `(${biometricType})` : ''}
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -314,6 +344,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+  },
+  centeredScrollable: {
+    flexGrow: 1,
   },
   header: {
     alignItems: 'center',
@@ -461,6 +494,45 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 28,
     fontWeight: 'bold',
+  },
+  overviewSection: {
+    padding: 20,
+    borderRadius: 15,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  overviewText: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  instructionsSection: {
+    padding: 20,
+    borderRadius: 15,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  instructionText: {
+    fontSize: 16,
+    marginBottom: 10,
   },
 });
 
