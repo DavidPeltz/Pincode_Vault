@@ -79,6 +79,7 @@ function AppNavigator() {
             component={GridEditor}
             options={({ navigation }) => ({
               title: 'PIN Grid Editor',
+              headerTitleAlign: 'center',
               headerStyle: {
                 backgroundColor: theme.primary,
               },
