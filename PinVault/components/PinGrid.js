@@ -18,7 +18,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   const [modalVisible, setModalVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef(null);
-  const { theme } = useTheme();
+  const { theme, isDarkMode } = useTheme();
 
   const getColorHex = (color) => {
     return theme.gridColors[color] || '#CCCCCC';
@@ -73,13 +73,19 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     const row = Math.floor(index / 8);
     const col = index % 8;
     
+    // Dynamic PIN cell style that adapts to theme
+    const pinCellStyle = cell.isPinDigit && showPinHighlight ? {
+      ...styles.pinCell,
+      borderColor: isDarkMode ? '#FFFFFF' : '#333333'
+    } : null;
+    
     return (
       <TouchableOpacity
         key={index}
         style={[
           styles.cell,
           { backgroundColor: getColorHex(cell.color) },
-          cell.isPinDigit && showPinHighlight && styles.pinCell
+          pinCellStyle
         ]}
         onPress={() => handleCellPress(index)}
         disabled={!isEditable}
@@ -191,7 +197,6 @@ const styles = StyleSheet.create({
   },
   pinCell: {
     borderWidth: 3,
-    borderColor: '#333',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
