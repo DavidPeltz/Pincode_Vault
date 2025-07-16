@@ -84,7 +84,7 @@ function AppNavigator() {
                 backgroundColor: theme.primary,
               },
               headerLeft: () => <HeaderLeft />,
-              headerRight: () => <HeaderRight showSecurityButton={false} navigation={navigation} />,
+              headerRight: () => <HeaderRight showSecurityButton={true} navigation={navigation} />,
             })}
           />
           <Stack.Screen
