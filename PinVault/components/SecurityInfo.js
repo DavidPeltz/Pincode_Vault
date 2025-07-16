@@ -1,260 +1,283 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
-  TouchableOpacity
+  TouchableOpacity,
+  Modal
 } from 'react-native';
 import { useAuth } from './AuthProvider';
+import { useTheme } from '../contexts/ThemeContext';
 
-const SecurityInfo = ({ navigation }) => {
+const SecurityInfoModal = ({ visible, onClose }) => {
   const { biometricType, isAuthAvailable } = useAuth();
+  const { theme } = useTheme();
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
-          <Text style={styles.title}>🔐 PIN Vault Security</Text>
-          <Text style={styles.subtitle}>Your PINs are protected by device authentication</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🛡️ Authentication Protection</Text>
-          <Text style={styles.description}>
-            PIN Vault uses your device's built-in security to protect access to editing and creating PIN grids.
-          </Text>
-          
-          {isAuthAvailable ? (
-            <View style={styles.authInfo}>
-              <Text style={styles.authType}>
-                ✅ Authentication Available: {biometricType}
-              </Text>
-              <Text style={styles.authDescription}>
-                {biometricType === 'Face ID' && 'Your face will be scanned to verify your identity.'}
-                {biometricType === 'Fingerprint' && 'Your fingerprint will be scanned to verify your identity.'}
-                {biometricType === 'Iris' && 'Your iris will be scanned to verify your identity.'}
-                {biometricType === 'Device Security' && 'Your device PIN, pattern, or password will be required.'}
-                {biometricType === 'Biometric' && 'Your biometric authentication will be used.'}
-              </Text>
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <View style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}>
+        <View style={[styles.modalContent, { backgroundColor: theme.modal.background }]}>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <View style={styles.header}>
+              <Text style={[styles.title, { color: theme.text }]}>🔐 PIN Vault Security</Text>
+              <Text style={[styles.subtitle, { color: theme.textSecondary }]}>Your PINs are protected by device authentication</Text>
             </View>
-          ) : (
-            <View style={styles.authWarning}>
-              <Text style={styles.warningText}>
-                ⚠️ Device authentication is not set up
+
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>🛡️ Authentication Protection</Text>
+              <Text style={[styles.description, { color: theme.textSecondary }]}>
+                PIN Vault uses your device's built-in security to protect access to editing and creating PIN grids.
               </Text>
-              <Text style={styles.warningDescription}>
-                Please configure biometric authentication or device lock (PIN/pattern/password) in your device settings to use PIN Vault securely.
-              </Text>
+              
+              {isAuthAvailable ? (
+                <View style={[styles.authInfo, { backgroundColor: theme.surface }]}>
+                  <Text style={[styles.authType, { color: theme.success }]}>
+                    ✅ Authentication Available: {biometricType}
+                  </Text>
+                  <Text style={[styles.authDescription, { color: theme.textSecondary }]}>
+                    {biometricType === 'Face ID' && 'Your face will be scanned to verify your identity.'}
+                    {biometricType === 'Fingerprint' && 'Your fingerprint will be scanned to verify your identity.'}
+                    {biometricType === 'Iris' && 'Your iris will be scanned to verify your identity.'}
+                    {biometricType === 'Device Security' && 'Your device PIN, pattern, or password will be required.'}
+                    {biometricType === 'Biometric' && 'Your biometric authentication will be used.'}
+                  </Text>
+                </View>
+              ) : (
+                <View style={[styles.authWarning, { backgroundColor: theme.surface }]}>
+                  <Text style={[styles.warningText, { color: theme.warning }]}>
+                    ⚠️ Device authentication is not set up
+                  </Text>
+                  <Text style={[styles.warningDescription, { color: theme.textSecondary }]}>
+                    Please configure biometric authentication or device lock (PIN/pattern/password) in your device settings to use PIN Vault securely.
+                  </Text>
+                </View>
+              )}
             </View>
-          )}
-        </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🔒 What's Protected</Text>
-          <View style={styles.protectedList}>
-            <Text style={styles.protectedItem}>• Creating new PIN grids</Text>
-            <Text style={styles.protectedItem}>• Editing existing grids</Text>
-            <Text style={styles.protectedItem}>• Modifying PIN digits</Text>
-            <Text style={styles.protectedItem}>• Accessing grid creation tools</Text>
-          </View>
-        </View>
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>🎯 Grid Method Security</Text>
+              <Text style={[styles.description, { color: theme.textSecondary }]}>
+                The PIN grid method provides additional security through:
+              </Text>
+              
+              <View style={styles.securityPoints}>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • <Text style={[styles.bold, { color: theme.text }]}>Visual Camouflage:</Text> Your real PIN digits are hidden among random numbers
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • <Text style={[styles.bold, { color: theme.text }]}>Memory Pattern:</Text> Remember the position and color pattern, not just numbers
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • <Text style={[styles.bold, { color: theme.text }]}>Unique Layout:</Text> Each grid has a unique arrangement of colors and positions
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • <Text style={[styles.bold, { color: theme.text }]}>Theft Resistance:</Text> Even if someone sees your grid, they can't identify your PIN
+                </Text>
+              </View>
+            </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>👁️ What's Always Visible</Text>
-          <View style={styles.visibleList}>
-            <Text style={styles.visibleItem}>• Gallery of saved grids (without PIN highlighting)</Text>
-            <Text style={styles.visibleItem}>• Card names and dates</Text>
-            <Text style={styles.visibleItem}>• Grid colors and random digits</Text>
-            <Text style={styles.visibleItem}>• App navigation and settings</Text>
-          </View>
-        </View>
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>📱 Data Protection</Text>
+              <View style={styles.securityPoints}>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • <Text style={[styles.bold, { color: theme.text }]}>Local Storage:</Text> All data is stored only on your device
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • <Text style={[styles.bold, { color: theme.text }]}>No Cloud Sync:</Text> Your PINs never leave your device
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • <Text style={[styles.bold, { color: theme.text }]}>Encrypted Storage:</Text> Data is protected by your device's encryption
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • <Text style={[styles.bold, { color: theme.text }]}>Authentication Required:</Text> Access requires biometric or device unlock
+                </Text>
+              </View>
+            </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🔐 Security Features</Text>
-          <View style={styles.featureList}>
-            <Text style={styles.featureItem}>
-              <Text style={styles.featureBold}>Hidden PIN Display:</Text> Your actual PIN digits are not highlighted when viewing saved grids
-            </Text>
-            <Text style={styles.featureItem}>
-              <Text style={styles.featureBold}>Device Authentication:</Text> Uses your phone's biometric or PIN/pattern security
-            </Text>
-            <Text style={styles.featureItem}>
-              <Text style={styles.featureBold}>Local Storage:</Text> All data stays on your device - no cloud storage
-            </Text>
-            <Text style={styles.featureItem}>
-              <Text style={styles.featureBold}>Visual Obfuscation:</Text> PINs are hidden among random digits in colored grids
-            </Text>
-          </View>
-        </View>
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>💡 Security Best Practices</Text>
+              <View style={styles.securityPoints}>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • Use unique PINs for different cards
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • Keep your device locked with a strong password
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • Enable automatic device lock
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • Don't share your grid patterns with others
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • Regularly update your device's operating system
+                </Text>
+              </View>
+            </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>💡 Security Tips</Text>
-          <View style={styles.tipsList}>
-            <Text style={styles.tipItem}>
-              • Always use the app in private to prevent shoulder surfing
-            </Text>
-            <Text style={styles.tipItem}>
-              • Remember your color pattern for each PIN
-            </Text>
-            <Text style={styles.tipItem}>
-              • Keep your device lock screen secure
-            </Text>
-            <Text style={styles.tipItem}>
-              • Regularly backup your important PINs externally
-            </Text>
-          </View>
-        </View>
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>🚨 Emergency Access</Text>
+              <Text style={[styles.description, { color: theme.textSecondary }]}>
+                If you lose access to your biometric authentication:
+              </Text>
+              <View style={styles.securityPoints}>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • You can still access using your device PIN/password
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • Your grids remain safe on your device
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • No data is lost during authentication changes
+                </Text>
+              </View>
+            </View>
 
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backButtonText}>Back to Gallery</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </SafeAreaView>
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>📋 Privacy Policy</Text>
+              <Text style={[styles.description, { color: theme.textSecondary }]}>
+                PIN Vault is committed to protecting your privacy:
+              </Text>
+              <View style={styles.securityPoints}>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • No personal data collection
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • No analytics or tracking
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • No network communication
+                </Text>
+                <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
+                  • Open source transparency
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.closeButton, { backgroundColor: theme.primary }]}
+              onPress={onClose}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
   );
 };
 
+// Export the modal component
+export default SecurityInfoModal;
+
 const styles = StyleSheet.create({
-  container: {
+  modalContainer: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  scrollContainer: {
-    padding: 20,
-  },
-  header: {
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
+    paddingHorizontal: 20,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2C3E50',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#7F8C8D',
-    textAlign: 'center',
-  },
-  section: {
-    backgroundColor: 'white',
-    borderRadius: 15,
-    padding: 20,
-    marginBottom: 20,
+  modalContent: {
+    borderRadius: 20,
+    width: '100%',
+    maxWidth: 500,
+    maxHeight: '90%',
+    elevation: 5,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5,
+  },
+  scrollContent: {
+    padding: 20,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  section: {
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#2C3E50',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   description: {
-    fontSize: 16,
-    color: '#34495E',
-    lineHeight: 24,
-    marginBottom: 15,
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 12,
   },
   authInfo: {
-    backgroundColor: '#E8F5E8',
     padding: 15,
     borderRadius: 10,
-    borderLeftWidth: 4,
-    borderLeftColor: '#27AE60',
+    marginTop: 10,
+  },
+  authWarning: {
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#FFB74D',
   },
   authType: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#27AE60',
-    marginBottom: 8,
+    marginBottom: 5,
   },
   authDescription: {
     fontSize: 14,
-    color: '#2D6A4F',
-    lineHeight: 20,
-  },
-  authWarning: {
-    backgroundColor: '#FFF3E0',
-    padding: 15,
-    borderRadius: 10,
-    borderLeftWidth: 4,
-    borderLeftColor: '#F39C12',
+    lineHeight: 18,
   },
   warningText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#E67E22',
-    marginBottom: 8,
+    marginBottom: 5,
   },
   warningDescription: {
     fontSize: 14,
-    color: '#D68910',
+    lineHeight: 18,
+  },
+  securityPoints: {
+    marginTop: 8,
+  },
+  bulletPoint: {
+    fontSize: 14,
     lineHeight: 20,
+    marginBottom: 6,
   },
-  protectedList: {
-    paddingLeft: 10,
-  },
-  protectedItem: {
-    fontSize: 16,
-    color: '#27AE60',
-    marginBottom: 8,
-    lineHeight: 22,
-  },
-  visibleList: {
-    paddingLeft: 10,
-  },
-  visibleItem: {
-    fontSize: 16,
-    color: '#7F8C8D',
-    marginBottom: 8,
-    lineHeight: 22,
-  },
-  featureList: {
-    paddingLeft: 10,
-  },
-  featureItem: {
-    fontSize: 15,
-    color: '#34495E',
-    marginBottom: 12,
-    lineHeight: 22,
-  },
-  featureBold: {
+  bold: {
     fontWeight: 'bold',
-    color: '#2C3E50',
   },
-  tipsList: {
-    paddingLeft: 10,
-  },
-  tipItem: {
-    fontSize: 15,
-    color: '#34495E',
-    marginBottom: 10,
-    lineHeight: 22,
-  },
-  backButton: {
-    backgroundColor: '#3498DB',
+  closeButton: {
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 10,
   },
-  backButtonText: {
+  closeButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
   },
 });
-
-export default SecurityInfo;
