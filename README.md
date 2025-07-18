@@ -334,3 +334,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 *PIN Vault v1.2 - Secure, Local, Private PIN Storage with Encrypted Backups* 🔐
+
+---
+*Updated for production build - Ready for v1.2 release*
