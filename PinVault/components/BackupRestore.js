@@ -161,6 +161,8 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
 
       // Store backup data temporarily and prompt for password
       setSelectedBackupData(readResult.data);
+      setPassword(''); // Clear any existing password for security
+      setPasswordError(''); // Clear any existing error
       setPasswordAction('restore');
       setShowPasswordInput(true);
       
