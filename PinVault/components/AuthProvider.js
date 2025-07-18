@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
     if (!isAuthAvailable) {
       Alert.alert(
         'Authentication Not Available',
-        'This device does not have biometric authentication or device lock configured. Please set up device security in your system settings.',
+        'This device does not have device authentication configured. Please set up device security (PIN, Pattern, Password, Face ID, or Fingerprint) in your system settings.',
         [{ text: 'OK' }]
       );
       return false;

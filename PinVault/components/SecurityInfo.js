@@ -54,7 +54,7 @@ const SecurityInfoModal = ({ visible, onClose }) => {
                     ⚠️ Device authentication is not set up
                   </Text>
                   <Text style={[styles.warningDescription, { color: theme.textSecondary }]}>
-                    Please configure biometric authentication or device lock (PIN/pattern/password) in your device settings to use PIN Vault securely.
+                    Please configure device authentication (PIN, Pattern, Password, Face ID, or Fingerprint) in your device settings to use PIN Vault securely.
                   </Text>
                 </View>
               )}
@@ -124,7 +124,7 @@ const SecurityInfoModal = ({ visible, onClose }) => {
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: theme.primary }]}>🚨 Emergency Access</Text>
               <Text style={[styles.description, { color: theme.textSecondary }]}>
-                If you lose access to your biometric authentication:
+                If you lose access to your device authentication:
               </Text>
               <View style={styles.securityPoints}>
                 <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>

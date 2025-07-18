@@ -63,7 +63,7 @@ export default function InfoButton() {
                   About PIN Vault
                 </Text>
                 <Text style={[styles.sectionText, { color: theme.textSecondary }]}>
-                  PIN Vault is a secure mobile app designed to help you safely store and manage your bank and credit card PIN codes using a visual grid system. Your PINs are hidden among random digits and protected with biometric authentication.
+                  PIN Vault is a secure mobile app designed to help you safely store and manage your bank and credit card PIN codes using a visual grid system. Your PINs are hidden among random digits and protected with device authentication (PIN, Pattern, Password, Face ID, or Fingerprint).
                 </Text>
               </View>
 
@@ -132,7 +132,7 @@ export default function InfoButton() {
                 </Text>
                 <Text style={[styles.sectionText, { color: theme.textSecondary }]}>
                   Version: 1.2.0{'\n'}
-                  Your PIN data is stored locally on your device and never transmitted to external servers. The app uses device biometric authentication for additional security.
+                  Your PIN data is stored locally on your device and never transmitted to external servers. The app uses your device's available authentication methods (PIN, Pattern, Password, Face ID, or Fingerprint) for additional security.
                 </Text>
               </View>
             </ScrollView>
