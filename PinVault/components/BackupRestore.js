@@ -38,6 +38,7 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
   const [password, setPassword] = useState('');
   const [passwordAction, setPasswordAction] = useState(null); // 'backup' or 'restore'
   const [passwordError, setPasswordError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleCreateBackup = async () => {
     try {
@@ -250,6 +251,7 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
     setPasswordError('');
     setShowPasswordInput(false);
     setPasswordAction(null);
+    setShowPassword(false);
     setRestoreOptions({
       replaceAll: false,
       overwriteExisting: false
@@ -293,6 +295,7 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
     setPasswordError('');
     setShowPasswordInput(false);
     setPasswordAction(null);
+    setShowPassword(false);
     setSelectedBackupData(null);
   };
 
@@ -497,22 +500,31 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
                   }
                 </Text>
                 
-                <TextInput
-                  style={[styles.passwordInput, { 
-                    backgroundColor: theme.surface, 
-                    color: theme.text,
-                    borderColor: passwordError ? theme.error : theme.primary
-                  }]}
-                  value={password}
-                  onChangeText={(text) => {
-                    setPassword(text);
-                    if (passwordError) setPasswordError('');
-                  }}
-                  placeholder="Enter password"
-                  placeholderTextColor={theme.textSecondary}
-                  secureTextEntry
-                  autoFocus
-                />
+                <View style={[styles.passwordInputContainer, {
+                  backgroundColor: theme.surface,
+                  borderColor: passwordError ? theme.error : theme.primary
+                }]}>
+                  <TextInput
+                    style={[styles.passwordTextInput, { color: theme.text }]}
+                    value={password}
+                    onChangeText={(text) => {
+                      setPassword(text);
+                      if (passwordError) setPasswordError('');
+                    }}
+                    placeholder="Enter password"
+                    placeholderTextColor={theme.textSecondary}
+                    secureTextEntry={!showPassword}
+                    autoFocus
+                  />
+                  <TouchableOpacity
+                    style={styles.eyeButton}
+                    onPress={() => setShowPassword(!showPassword)}
+                  >
+                    <Text style={[styles.eyeIcon, { color: theme.textSecondary }]}>
+                      {showPassword ? '🙈' : '👁️'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
                 
                 {passwordError ? (
                   <Text style={[styles.passwordError, { color: theme.error }]}>
@@ -731,12 +743,27 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 20,
   },
-  passwordInput: {
+  passwordInputContainer: {
     borderWidth: 2,
     borderRadius: 10,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 15,
+  },
+  passwordTextInput: {
+    flex: 1,
     padding: 15,
     fontSize: 16,
-    marginBottom: 10,
+    paddingRight: 10,
+  },
+  eyeButton: {
+    padding: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  eyeIcon: {
+    fontSize: 20,
   },
   passwordError: {
     fontSize: 14,
