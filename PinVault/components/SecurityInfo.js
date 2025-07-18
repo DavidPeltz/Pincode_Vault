@@ -38,14 +38,10 @@ const SecurityInfoModal = ({ visible, onClose }) => {
               {isAuthAvailable ? (
                 <View style={[styles.authInfo, { backgroundColor: theme.surface }]}>
                   <Text style={[styles.authType, { color: theme.success }]}>
-                    ✅ Authentication Available: {biometricType}
+                    ✅ Device Authentication Available
                   </Text>
                   <Text style={[styles.authDescription, { color: theme.textSecondary }]}>
-                    {biometricType === 'Face ID' && 'Your face will be scanned to verify your identity.'}
-                    {biometricType === 'Fingerprint' && 'Your fingerprint will be scanned to verify your identity.'}
-                    {biometricType === 'Iris' && 'Your iris will be scanned to verify your identity.'}
-                    {biometricType === 'Device Security' && 'Your device PIN, pattern, or password will be required.'}
-                    {biometricType === 'Biometric' && 'Your biometric authentication will be used.'}
+                    Your device authentication (PIN, Pattern, Password, Face ID, or Fingerprint) will be used to verify your identity when accessing PIN grids.
                   </Text>
                 </View>
               ) : (

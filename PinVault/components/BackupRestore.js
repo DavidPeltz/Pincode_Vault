@@ -372,7 +372,7 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
             <View style={[styles.securityNotice, { backgroundColor: theme.surface }]}>
               <Text style={[styles.securityIcon, { color: theme.primary }]}>🔐</Text>
               <Text style={[styles.securityText, { color: theme.text }]}>
-                All backups are encrypted with your chosen password and protected by {biometricType || 'device authentication'}. 
+                All backups are encrypted with your chosen password and protected by device authentication. 
                 You can restore backup files on any device using the same password.
               </Text>
             </View>
