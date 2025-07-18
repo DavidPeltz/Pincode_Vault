@@ -18,7 +18,6 @@ import { useAuth } from './AuthProvider';
 import { useTheme } from '../contexts/ThemeContext';
 import { useGridRefresh } from '../contexts/GridRefreshContext';
 import { useNavigationBarHeight } from '../hooks/useNavigationBarHeight';
-import NavigationDebugInfo from './NavigationDebugInfo';
 
 const { width } = Dimensions.get('window');
 
@@ -311,7 +310,6 @@ const Gallery = ({ navigation }) => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background, paddingBottom: safeBottomPadding }]}>
-      <NavigationDebugInfo />
       <View style={[styles.header, { backgroundColor: theme.surface }]}>
         <Text style={[styles.title, { color: theme.text }]}>PIN Vault Gallery</Text>
         <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
