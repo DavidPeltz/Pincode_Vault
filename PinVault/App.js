@@ -35,14 +35,21 @@ function AppNavigator() {
       {showSecurityButton && (
         <TouchableOpacity
           style={{
+            width: 44,
+            height: 44,
+            borderRadius: 22,
             backgroundColor: theme.purple,
-            paddingHorizontal: 12,
-            paddingVertical: 6,
-            borderRadius: 15,
+            justifyContent: 'center',
+            alignItems: 'center',
+            elevation: 3,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
           }}
           onPress={() => setSecurityModalVisible(true)}
         >
-          <Text style={{ fontSize: 12, color: 'white' }}>🔐</Text>
+          <Text style={{ fontSize: 20, color: 'white', fontWeight: 'bold' }}>🔐</Text>
         </TouchableOpacity>
       )}
       <ThemeToggle />
@@ -50,7 +57,7 @@ function AppNavigator() {
   );
 
   const HeaderLeft = () => (
-    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 5 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginLeft: 5 }}>
       <InfoButton />
       <BackupButton onGridsUpdated={gridRefreshCallback} />
     </View>
