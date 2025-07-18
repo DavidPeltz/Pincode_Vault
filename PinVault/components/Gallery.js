@@ -16,7 +16,7 @@ import PinGrid from './PinGrid';
 import { getGrids, deleteGrid } from '../utils/storage';
 import { useAuth } from './AuthProvider';
 import { useTheme } from '../contexts/ThemeContext';
-import { useGridRefresh } from '../App';
+import { useGridRefresh } from '../contexts/GridRefreshContext';
 
 const { width } = Dimensions.get('window');
 
