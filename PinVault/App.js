@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, createContext, useContext } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -10,12 +10,25 @@ import { AuthProvider } from './components/AuthProvider';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import ThemeToggle from './components/ThemeToggle';
 import InfoButton from './components/InfoButton';
+import BackupButton from './components/BackupButton';
 
 const Stack = createStackNavigator();
+
+// Create context for grid refresh functionality
+const GridRefreshContext = createContext();
+
+export const useGridRefresh = () => {
+  const context = useContext(GridRefreshContext);
+  if (!context) {
+    throw new Error('useGridRefresh must be used within a GridRefreshProvider');
+  }
+  return context;
+};
 
 function AppNavigator() {
   const { theme, isDarkMode } = useTheme();
   const [securityModalVisible, setSecurityModalVisible] = useState(false);
+  const [gridRefreshCallback, setGridRefreshCallback] = useState(null);
   
   const HeaderRight = ({ showSecurityButton = false, navigation }) => (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 5 }}>
@@ -37,13 +50,14 @@ function AppNavigator() {
   );
 
   const HeaderLeft = () => (
-    <View style={{ marginLeft: 5 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 5 }}>
       <InfoButton />
+      <BackupButton onGridsUpdated={gridRefreshCallback} />
     </View>
   );
   
   return (
-    <>
+    <GridRefreshContext.Provider value={{ setGridRefreshCallback }}>
       <NavigationContainer>
       <StatusBar style={isDarkMode ? "light" : "auto"} />
       <Stack.Navigator
@@ -97,7 +111,7 @@ function AppNavigator() {
         visible={securityModalVisible}
         onClose={() => setSecurityModalVisible(false)}
       />
-    </>
+    </GridRefreshContext.Provider>
   );
 }
 
