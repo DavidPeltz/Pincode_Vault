@@ -222,6 +222,28 @@ const Gallery = ({ navigation }) => {
               </Text>
             </View>
 
+            {/* Authentication Setup Warning - Only show if auth not available */}
+            {!isAuthAvailable && (
+              <View style={[styles.authSetupSection, { backgroundColor: theme.surface, borderColor: theme.warning }]}>
+                <Text style={[styles.sectionTitle, { color: theme.warning }]}>
+                  🔒 Setup Required
+                </Text>
+                <Text style={[styles.overviewText, { color: theme.textSecondary }]}>
+                  Before you can create PIN grids, you need to set up device authentication. Please go to your device settings and configure one of the following security methods:
+                </Text>
+                <View style={styles.authMethodsList}>
+                  <Text style={[styles.authMethod, { color: theme.textSecondary }]}>• Device PIN</Text>
+                  <Text style={[styles.authMethod, { color: theme.textSecondary }]}>• Pattern Lock</Text>
+                  <Text style={[styles.authMethod, { color: theme.textSecondary }]}>• Password</Text>
+                  <Text style={[styles.authMethod, { color: theme.textSecondary }]}>• Face ID (iOS)</Text>
+                  <Text style={[styles.authMethod, { color: theme.textSecondary }]}>• Fingerprint</Text>
+                </View>
+                <Text style={[styles.authSetupNote, { color: theme.textSecondary }]}>
+                  Once device authentication is configured, restart PIN Vault to begin creating secure PIN grids.
+                </Text>
+              </View>
+            )}
+
             {/* Instructions Section */}
             <View style={[styles.instructionsSection, { backgroundColor: theme.surface }]}>
               <Text style={[styles.sectionTitle, { color: theme.primary }]}>
@@ -239,20 +261,23 @@ const Gallery = ({ navigation }) => {
             </View>
 
             <Text style={[styles.emptyMessage, { color: theme.textSecondary }]}>
-              Ready to get started? Create your first PIN grid below.
+              {isAuthAvailable 
+                ? 'Ready to get started? Create your first PIN grid below.'
+                : 'Once device authentication is set up, you can create your first PIN grid.'
+              }
             </Text>
             
             <TouchableOpacity
               style={[
                 styles.createButton, 
-                { backgroundColor: theme.primary },
-                authenticationInProgress && styles.disabledButton
+                { backgroundColor: isAuthAvailable ? theme.primary : theme.textSecondary },
+                (authenticationInProgress || !isAuthAvailable) && styles.disabledButton
               ]}
               onPress={async () => {
                 if (!isAuthAvailable) {
                   Alert.alert(
-                    'Authentication Required',
-                    'Device authentication must be set up to create PIN grids.',
+                    'Authentication Setup Required',
+                    'To create PIN grids, you must first set up device authentication (PIN, Pattern, Password, Face ID, or Fingerprint) in your device settings. Once configured, restart PIN Vault to begin.',
                     [{ text: 'OK' }]
                   );
                   return;
@@ -262,13 +287,16 @@ const Gallery = ({ navigation }) => {
                   navigation.navigate('GridEditor');
                 }
               }}
-              disabled={authenticationInProgress}
+              disabled={authenticationInProgress || !isAuthAvailable}
             >
               {authenticationInProgress ? (
                 <ActivityIndicator color="white" size="small" />
               ) : (
                 <Text style={styles.createButtonText}>
-                  Create First Grid {isAuthAvailable ? `(${biometricType})` : ''}
+                  {isAuthAvailable 
+                    ? `Create First Grid (${biometricType})`
+                    : 'Setup Authentication Required'
+                  }
                 </Text>
               )}
             </TouchableOpacity>
@@ -324,14 +352,14 @@ const Gallery = ({ navigation }) => {
       <TouchableOpacity
         style={[
           styles.fabButton, 
-          { backgroundColor: theme.green },
-          authenticationInProgress && styles.disabledButton
+          { backgroundColor: isAuthAvailable ? theme.green : theme.textSecondary },
+          (authenticationInProgress || !isAuthAvailable) && styles.disabledButton
         ]}
         onPress={async () => {
           if (!isAuthAvailable) {
             Alert.alert(
-              'Authentication Required',
-              'Device authentication must be set up to create PIN grids.',
+              'Authentication Setup Required',
+              'To create PIN grids, you must first set up device authentication (PIN, Pattern, Password, Face ID, or Fingerprint) in your device settings. Once configured, restart PIN Vault to begin.',
               [{ text: 'OK' }]
             );
             return;
@@ -341,12 +369,12 @@ const Gallery = ({ navigation }) => {
             navigation.navigate('GridEditor');
           }
         }}
-        disabled={authenticationInProgress}
+        disabled={authenticationInProgress || !isAuthAvailable}
       >
         {authenticationInProgress ? (
           <ActivityIndicator color="white" size="small" />
         ) : (
-          <Text style={styles.fabText}>+</Text>
+          <Text style={styles.fabText}>{isAuthAvailable ? '+' : '🔒'}</Text>
         )}
       </TouchableOpacity>
     </SafeAreaView>
@@ -551,6 +579,33 @@ const styles = StyleSheet.create({
   instructionText: {
     fontSize: 16,
     marginBottom: 10,
+  },
+  authSetupSection: {
+    padding: 20,
+    borderRadius: 15,
+    marginBottom: 20,
+    borderWidth: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  authMethodsList: {
+    marginVertical: 10,
+    paddingLeft: 10,
+  },
+  authMethod: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  authSetupNote: {
+    fontSize: 14,
+    fontStyle: 'italic',
+    marginTop: 10,
   },
 });
 
