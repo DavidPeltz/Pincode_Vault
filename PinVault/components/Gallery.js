@@ -212,6 +212,16 @@ const Gallery = ({ navigation }) => {
               </Text>
             </View>
 
+            {/* Backup & Restore Section */}
+            <View style={[styles.overviewSection, { backgroundColor: theme.surface }]}>
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>
+                Backup & Restore
+              </Text>
+              <Text style={[styles.overviewText, { color: theme.textSecondary }]}>
+                Securely backup your PIN grids to password-protected files that can be shared across devices. Use the backup button in the header to export your grids or import existing backups when setting up PIN Vault on a new device. All backup files are encrypted for your security.
+              </Text>
+            </View>
+
             {/* Instructions Section */}
             <View style={[styles.instructionsSection, { backgroundColor: theme.surface }]}>
               <Text style={[styles.sectionTitle, { color: theme.primary }]}>
