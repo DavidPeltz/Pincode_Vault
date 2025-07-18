@@ -159,7 +159,7 @@ const Gallery = ({ navigation }) => {
                   <ActivityIndicator color="white" size="small" />
                 ) : (
                   <Text style={styles.actionButtonText}>
-                    {isAuthAvailable ? `Edit (${biometricType})` : 'Edit'}
+                    {isAuthAvailable ? 'Edit (Auth Required)' : 'Edit'}
                   </Text>
                 )}
               </TouchableOpacity>
@@ -177,7 +177,7 @@ const Gallery = ({ navigation }) => {
                   <ActivityIndicator color="white" size="small" />
                 ) : (
                   <Text style={styles.actionButtonText}>
-                    {isAuthAvailable ? `Delete (${biometricType})` : 'Delete'}
+                    {isAuthAvailable ? 'Delete (Auth Required)' : 'Delete'}
                   </Text>
                 )}
               </TouchableOpacity>
@@ -296,7 +296,7 @@ const Gallery = ({ navigation }) => {
               ) : (
                 <Text style={styles.createButtonText}>
                   {isAuthAvailable 
-                    ? `Create First Grid (${biometricType})`
+                    ? 'Create First Grid (Auth Required)'
                     : 'Setup Authentication Required'
                   }
                 </Text>
