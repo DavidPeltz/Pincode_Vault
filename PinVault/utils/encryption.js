@@ -26,7 +26,7 @@ const deriveKey = async (password, salt) => {
 };
 
 // Simple XOR-based encryption (for demo - in production use AES)
-const xorEncryptDecrypt = (data, key) => {
+const xorEncrypt = (data, key) => {
   const dataBytes = Buffer.from(data, 'utf8');
   const keyBytes = Buffer.from(key, 'hex');
   const result = Buffer.alloc(dataBytes.length);
@@ -36,6 +36,18 @@ const xorEncryptDecrypt = (data, key) => {
   }
   
   return result.toString('base64');
+};
+
+const xorDecrypt = (encryptedBase64, key) => {
+  const dataBytes = Buffer.from(encryptedBase64, 'base64');
+  const keyBytes = Buffer.from(key, 'hex');
+  const result = Buffer.alloc(dataBytes.length);
+  
+  for (let i = 0; i < dataBytes.length; i++) {
+    result[i] = dataBytes[i] ^ keyBytes[i % keyBytes.length];
+  }
+  
+  return result.toString('utf8');
 };
 
 // Encrypt backup data with user password
@@ -62,7 +74,7 @@ export const encryptBackupData = async (data, userPassword) => {
     const backupString = JSON.stringify(backupObject);
     
     // Encrypt the entire backup
-    const encrypted = xorEncryptDecrypt(backupString, key);
+    const encrypted = xorEncrypt(backupString, key);
     
     // Add a header to identify this as a PIN Vault backup
     const finalBackup = `PINVAULT_BACKUP_V1.2:${encrypted}`;
@@ -100,11 +112,17 @@ export const decryptBackupData = async (encryptedData, userPassword) => {
     const key = await deriveKey(userPassword, BACKUP_SALT);
     
     // Decrypt
-    const decrypted = xorEncryptDecrypt(encrypted, key);
-    const backupString = Buffer.from(decrypted, 'base64').toString('utf8');
+    const backupString = xorDecrypt(encrypted, key);
     
     // Parse the backup object
-    const backupObject = JSON.parse(backupString);
+    let backupObject;
+    try {
+      backupObject = JSON.parse(backupString);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      console.error('Decrypted string:', backupString);
+      throw new Error('Failed to parse backup data. This may indicate an incorrect password or corrupted backup file.');
+    }
     
     // Validate backup structure
     if (!backupObject.version || !backupObject.data) {
@@ -112,7 +130,13 @@ export const decryptBackupData = async (encryptedData, userPassword) => {
     }
     
     // Parse the actual data
-    const data = JSON.parse(backupObject.data);
+    let data;
+    try {
+      data = JSON.parse(backupObject.data);
+    } catch (dataParseError) {
+      console.error('Data parse error:', dataParseError);
+      throw new Error('Failed to parse backup grid data. Backup may be corrupted.');
+    }
     
     return {
       success: true,
