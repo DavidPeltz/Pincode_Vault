@@ -69,6 +69,15 @@ export default function InfoButton() {
 
               <View style={styles.section}>
                 <Text style={[styles.sectionTitle, { color: theme.primary }]}>
+                  Backup & Restore
+                </Text>
+                <Text style={[styles.sectionText, { color: theme.textSecondary }]}>
+                  Securely backup your PIN grids to password-protected files that can be shared across devices. Use the backup button in the header to export your grids or import existing backups when setting up PIN Vault on a new device. All backup files are encrypted for your security.
+                </Text>
+              </View>
+
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: theme.primary }]}>
                   Contact & Support
                 </Text>
                 <TouchableOpacity
