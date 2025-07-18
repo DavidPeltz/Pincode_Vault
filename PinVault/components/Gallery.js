@@ -13,10 +13,10 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import PinGrid from './PinGrid';
-import BackupRestore from './BackupRestore';
 import { getGrids, deleteGrid } from '../utils/storage';
 import { useAuth } from './AuthProvider';
 import { useTheme } from '../contexts/ThemeContext';
+import { useGridRefresh } from '../App';
 
 const { width } = Dimensions.get('window');
 
@@ -24,15 +24,20 @@ const Gallery = ({ navigation }) => {
   const [grids, setGrids] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [backupModalVisible, setBackupModalVisible] = useState(false);
   const { authenticate, authenticationInProgress, biometricType, isAuthAvailable } = useAuth();
   const { theme } = useTheme();
+  const { setGridRefreshCallback } = useGridRefresh();
 
   useFocusEffect(
     useCallback(() => {
       loadGrids();
     }, [])
   );
+
+  // Register grid refresh callback with the context
+  useEffect(() => {
+    setGridRefreshCallback(() => loadGrids);
+  }, [setGridRefreshCallback]);
 
   const loadGrids = async () => {
     setLoading(true);
@@ -305,53 +310,35 @@ const Gallery = ({ navigation }) => {
         ))}
       </View>
 
-      {/* Action Buttons */}
-      <View style={styles.actionButtons}>
-        {/* Backup Button */}
-        <TouchableOpacity
-          style={[styles.backupButton, { backgroundColor: theme.purple }]}
-          onPress={() => setBackupModalVisible(true)}
-        >
-          <Text style={styles.backupButtonText}>💾</Text>
-        </TouchableOpacity>
-
-        {/* Create New Grid Button */}
-        <TouchableOpacity
-          style={[
-            styles.fabButton, 
-            { backgroundColor: theme.green },
-            authenticationInProgress && styles.disabledButton
-          ]}
-          onPress={async () => {
-            if (!isAuthAvailable) {
-              Alert.alert(
-                'Authentication Required',
-                'Device authentication must be set up to create PIN grids.',
-                [{ text: 'OK' }]
-              );
-              return;
-            }
-            const authenticated = await authenticate('Authenticate to create a new PIN grid');
-            if (authenticated) {
-              navigation.navigate('GridEditor');
-            }
-          }}
-          disabled={authenticationInProgress}
-        >
-          {authenticationInProgress ? (
-            <ActivityIndicator color="white" size="small" />
-          ) : (
-            <Text style={styles.fabText}>+</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-
-      {/* Backup & Restore Modal */}
-      <BackupRestore
-        visible={backupModalVisible}
-        onClose={() => setBackupModalVisible(false)}
-        onGridsUpdated={loadGrids}
-      />
+      {/* Create New Grid Button */}
+      <TouchableOpacity
+        style={[
+          styles.fabButton, 
+          { backgroundColor: theme.green },
+          authenticationInProgress && styles.disabledButton
+        ]}
+        onPress={async () => {
+          if (!isAuthAvailable) {
+            Alert.alert(
+              'Authentication Required',
+              'Device authentication must be set up to create PIN grids.',
+              [{ text: 'OK' }]
+            );
+            return;
+          }
+          const authenticated = await authenticate('Authenticate to create a new PIN grid');
+          if (authenticated) {
+            navigation.navigate('GridEditor');
+          }
+        }}
+        disabled={authenticationInProgress}
+      >
+        {authenticationInProgress ? (
+          <ActivityIndicator color="white" size="small" />
+        ) : (
+          <Text style={styles.fabText}>+</Text>
+        )}
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -493,35 +480,10 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
   },
-  actionButtons: {
+  fabButton: {
     position: 'absolute',
     bottom: 30,
     right: 30,
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 15,
-  },
-  backupButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 6,
-  },
-  backupButtonText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  fabButton: {
     width: 60,
     height: 60,
     borderRadius: 30,
