@@ -60,7 +60,7 @@ const Gallery = ({ navigation }) => {
     if (!isAuthAvailable) {
       Alert.alert(
         'Authentication Required',
-        'Device authentication (biometric or PIN/pattern) must be set up to edit PIN grids. Please configure device security in your system settings.',
+        'Device authentication (PIN, Pattern, Password, Face ID, or Fingerprint) must be set up to edit PIN grids. Please configure device security in your system settings.',
         [{ text: 'OK' }]
       );
       return;
@@ -78,7 +78,7 @@ const Gallery = ({ navigation }) => {
     if (!isAuthAvailable) {
       Alert.alert(
         'Authentication Required',
-        'Device authentication (biometric or PIN/pattern) must be set up to delete PIN grids. Please configure device security in your system settings.',
+        'Device authentication (PIN, Pattern, Password, Face ID, or Fingerprint) must be set up to delete PIN grids. Please configure device security in your system settings.',
         [{ text: 'OK' }]
       );
       return;
@@ -208,7 +208,7 @@ const Gallery = ({ navigation }) => {
                 About PIN Vault
               </Text>
               <Text style={[styles.overviewText, { color: theme.textSecondary }]}>
-                PIN Vault is a secure mobile app designed to help you safely store and manage your bank and credit card PIN codes using a visual grid system. Your PINs are hidden among random digits and protected with biometric authentication.
+                PIN Vault is a secure mobile app designed to help you safely store and manage your bank and credit card PIN codes using a visual grid system. Your PINs are hidden among random digits and protected with device authentication (PIN, Pattern, Password, Face ID, or Fingerprint).
               </Text>
             </View>
 
