@@ -13,7 +13,8 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from './AuthProvider';
 import { 
-  createBackup, 
+  createBackupForSharing,
+  createBackupForLocal, 
   shareBackup, 
   pickBackupFile, 
   readBackupFile, 
@@ -36,7 +37,7 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
   // Password input states
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [password, setPassword] = useState('');
-  const [passwordAction, setPasswordAction] = useState(null); // 'backup' or 'restore'
+  const [passwordAction, setPasswordAction] = useState(null); // 'backup-local', 'backup-share', or 'restore'
   const [passwordError, setPasswordError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -52,9 +53,28 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
         return;
       }
 
-      // Show password input for backup
-      setPasswordAction('backup');
-      setShowPasswordInput(true);
+      // Ask user where to save the backup
+      Alert.alert(
+        'Backup Location',
+        'Where would you like to save your backup?',
+        [
+          { 
+            text: 'Keep Local',
+            onPress: () => {
+              setPasswordAction('backup-local');
+              setShowPasswordInput(true);
+            }
+          },
+          { 
+            text: 'Share/Export',
+            onPress: () => {
+              setPasswordAction('backup-share');
+              setShowPasswordInput(true);
+            }
+          },
+          { text: 'Cancel', style: 'cancel' }
+        ]
+      );
       
     } catch (error) {
       Alert.alert('Error', 'Failed to prepare backup: ' + error.message);
@@ -67,26 +87,37 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
     try {
       setLoading(true);
 
-      // Create backup with password
-      const result = await createBackup(backupPassword);
+      let result;
+      
+      // Determine backup type based on password action
+      if (passwordAction === 'backup-local') {
+        // Create backup in user-accessible location
+        result = await createBackupForLocal(backupPassword);
+      } else {
+        // Create backup for sharing (private location)
+        result = await createBackupForSharing(backupPassword);
+      }
       
       if (!result.success) {
         Alert.alert('Backup Failed', result.error);
         return;
       }
 
-      // Ask user if they want to share the backup
-      Alert.alert(
-        'Backup Created Successfully',
-        `Created backup with ${result.gridCount} grids.\n\nFilename: ${result.filename}\n\nWould you like to share this backup file?`,
-        [
-          { text: 'Keep Local', style: 'cancel' },
-          { 
-            text: 'Share', 
-            onPress: () => handleShareBackup(result.fileUri)
-          }
-        ]
-      );
+      if (passwordAction === 'backup-local') {
+        // Local backup success message
+        const locationMsg = result.fallback 
+          ? 'Saved to app directory (user location unavailable)'
+          : 'Saved to your selected folder';
+          
+        Alert.alert(
+          'Backup Saved Locally',
+          `Created backup with ${result.gridCount} grids.\n\nFilename: ${result.filename}\n\n${locationMsg}\n\nYou can now navigate to this file in your file manager to restore on another device.`,
+          [{ text: 'OK' }]
+        );
+      } else {
+        // Share backup automatically
+        await handleShareBackup(result.fileUri);
+      }
       
     } catch (error) {
       Alert.alert('Error', 'Failed to create backup: ' + error.message);
@@ -268,7 +299,7 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
     setLoading(true);
 
     try {
-      if (passwordAction === 'backup') {
+      if (passwordAction === 'backup-local' || passwordAction === 'backup-share') {
         setShowPasswordInput(false);
         await performBackup(password);
       } else if (passwordAction === 'restore') {
@@ -491,10 +522,10 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
             <View style={[styles.passwordOverlay, { backgroundColor: theme.modal.overlay }]}>
               <View style={[styles.passwordModal, { backgroundColor: theme.modal.background }]}>
                 <Text style={[styles.passwordTitle, { color: theme.primary }]}>
-                  {passwordAction === 'backup' ? 'Create Backup Password' : 'Enter Backup Password'}
+                  {(passwordAction === 'backup-local' || passwordAction === 'backup-share') ? 'Create Backup Password' : 'Enter Backup Password'}
                 </Text>
                 <Text style={[styles.passwordSubtitle, { color: theme.textSecondary }]}>
-                  {passwordAction === 'backup' 
+                  {(passwordAction === 'backup-local' || passwordAction === 'backup-share')
                     ? 'Create a password to encrypt your backup. You\'ll need this password to restore your grids.'
                     : 'Enter the password used when this backup was created.'
                   }
@@ -549,7 +580,7 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
                     disabled={loading || !password.trim()}
                   >
                     <Text style={[styles.passwordButtonText, { color: 'white' }]}>
-                      {passwordAction === 'backup' ? 'Create Backup' : 'Analyze Backup'}
+                      {(passwordAction === 'backup-local' || passwordAction === 'backup-share') ? 'Create Backup' : 'Analyze Backup'}
                     </Text>
                   </TouchableOpacity>
                 </View>

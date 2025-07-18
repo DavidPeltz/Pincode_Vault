@@ -4,8 +4,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import { getGrids, saveGrid } from './storage';
 import { encryptBackupData, decryptBackupData, validateBackupFile } from './encryption';
 
-// Create encrypted backup file with user password
-export const createBackup = async (password) => {
+// Create encrypted backup file for sharing (private app directory)
+export const createBackupForSharing = async (password) => {
   try {
     // Get all grids from storage
     const grids = await getGrids();
@@ -16,7 +16,7 @@ export const createBackup = async (password) => {
         error: 'No grids found to backup'
       };
     }
-    
+
     // Encrypt the data with user password
     const encryptionResult = await encryptBackupData(grids, password);
     
@@ -37,7 +37,8 @@ export const createBackup = async (password) => {
       fileUri: fileUri,
       filename: filename,
       timestamp: encryptionResult.timestamp,
-      gridCount: Object.keys(grids).length
+      gridCount: Object.keys(grids).length,
+      isSharing: true
     };
   } catch (error) {
     console.error('Backup creation error:', error);
@@ -47,6 +48,98 @@ export const createBackup = async (password) => {
     };
   }
 };
+
+// Create encrypted backup file for local storage (user-accessible directory)
+export const createBackupForLocal = async (password) => {
+  try {
+    // Get all grids from storage
+    const grids = await getGrids();
+    
+    if (Object.keys(grids).length === 0) {
+      return {
+        success: false,
+        error: 'No grids found to backup'
+      };
+    }
+
+    // Encrypt the data with user password
+    const encryptionResult = await encryptBackupData(grids, password);
+    
+    if (!encryptionResult.success) {
+      return encryptionResult;
+    }
+    
+    // Create filename with timestamp
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `pinvault-backup-${timestamp}.pvb`;
+    
+    // Use Storage Access Framework to save to user-accessible location
+    const { StorageAccessFramework } = FileSystem;
+    
+    try {
+      // Request directory permissions for user to choose location
+      const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
+      
+      if (!permissions.granted) {
+        return {
+          success: false,
+          error: 'Storage permission denied. Please try again and select a folder.'
+        };
+      }
+      
+      // Create file in user-selected directory
+      const fileUri = await StorageAccessFramework.createFileAsync(
+        permissions.directoryUri,
+        filename,
+        'application/octet-stream'
+      );
+      
+      // Write encrypted data to the user-accessible file
+      await StorageAccessFramework.writeAsStringAsync(
+        fileUri, 
+        encryptionResult.encryptedData,
+        { encoding: FileSystem.EncodingType.UTF8 }
+      );
+      
+      return {
+        success: true,
+        fileUri: fileUri,
+        filename: filename,
+        timestamp: encryptionResult.timestamp,
+        gridCount: Object.keys(grids).length,
+        isLocal: true,
+        userDirectory: permissions.directoryUri
+      };
+      
+    } catch (safError) {
+      console.log('SAF failed, falling back to document directory:', safError);
+      
+      // Fallback to app document directory if SAF fails
+      const fallbackUri = `${FileSystem.documentDirectory}${filename}`;
+      await FileSystem.writeAsStringAsync(fallbackUri, encryptionResult.encryptedData);
+      
+      return {
+        success: true,
+        fileUri: fallbackUri,
+        filename: filename,
+        timestamp: encryptionResult.timestamp,
+        gridCount: Object.keys(grids).length,
+        isLocal: true,
+        fallback: true
+      };
+    }
+    
+  } catch (error) {
+    console.error('Backup creation error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};
+
+// Legacy function for backward compatibility
+export const createBackup = createBackupForSharing;
 
 // Share backup file
 export const shareBackup = async (fileUri) => {
