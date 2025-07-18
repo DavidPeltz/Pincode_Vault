@@ -12,6 +12,7 @@ import {
 import PinGrid from './PinGrid';
 import { generateRandomGrid, fillEmptyCells, saveGrid } from '../utils/storage';
 import { useTheme } from '../contexts/ThemeContext';
+import { useNavigationBarHeight } from '../hooks/useNavigationBarHeight';
 
 const GridEditor = ({ navigation, route }) => {
   const [grid, setGrid] = useState([]);
@@ -19,6 +20,7 @@ const GridEditor = ({ navigation, route }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [hasEnteredPin, setHasEnteredPin] = useState(false);
   const { theme } = useTheme();
+  const { safeBottomPadding } = useNavigationBarHeight();
 
   useEffect(() => {
     if (route.params?.gridData) {
@@ -141,7 +143,7 @@ const GridEditor = ({ navigation, route }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background, paddingBottom: safeBottomPadding }]}>
       <View style={styles.content}>
         
         {/* Top Section: Card Name and PIN Preview */}

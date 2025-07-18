@@ -17,6 +17,8 @@ import { getGrids, deleteGrid } from '../utils/storage';
 import { useAuth } from './AuthProvider';
 import { useTheme } from '../contexts/ThemeContext';
 import { useGridRefresh } from '../contexts/GridRefreshContext';
+import { useNavigationBarHeight } from '../hooks/useNavigationBarHeight';
+import NavigationDebugInfo from './NavigationDebugInfo';
 
 const { width } = Dimensions.get('window');
 
@@ -27,6 +29,7 @@ const Gallery = ({ navigation }) => {
   const { authenticate, authenticationInProgress, biometricType, isAuthAvailable } = useAuth();
   const { theme } = useTheme();
   const { setGridRefreshCallback } = useGridRefresh();
+  const { safeBottomPadding, isButtonNavigation } = useNavigationBarHeight();
 
   useFocusEffect(
     useCallback(() => {
@@ -187,7 +190,7 @@ const Gallery = ({ navigation }) => {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background, paddingBottom: safeBottomPadding }]}>
         <View style={styles.centered}>
           <Text style={[styles.loadingText, { color: theme.text }]}>Loading your grids...</Text>
         </View>
@@ -197,7 +200,7 @@ const Gallery = ({ navigation }) => {
 
   if (grids.length === 0) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background, paddingBottom: safeBottomPadding }]}>
         <ScrollView contentContainerStyle={styles.centeredScrollable}>
           <View style={styles.centered}>
             <Text style={[styles.emptyTitle, { color: theme.text }]}>Welcome to PIN Vault</Text>
@@ -307,7 +310,8 @@ const Gallery = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background, paddingBottom: safeBottomPadding }]}>
+      <NavigationDebugInfo />
       <View style={[styles.header, { backgroundColor: theme.surface }]}>
         <Text style={[styles.title, { color: theme.text }]}>PIN Vault Gallery</Text>
         <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
