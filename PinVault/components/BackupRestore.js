@@ -8,6 +8,7 @@ import {
   Alert,
   Modal,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from './AuthProvider';
@@ -31,6 +32,12 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
     replaceAll: false,
     overwriteExisting: false
   });
+  
+  // Password input states
+  const [showPasswordInput, setShowPasswordInput] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordAction, setPasswordAction] = useState(null); // 'backup' or 'restore'
+  const [passwordError, setPasswordError] = useState('');
 
   const handleCreateBackup = async () => {
     try {
@@ -44,8 +51,23 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
         return;
       }
 
-      // Create backup
-      const result = await createBackup();
+      // Show password input for backup
+      setPasswordAction('backup');
+      setShowPasswordInput(true);
+      
+    } catch (error) {
+      Alert.alert('Error', 'Failed to prepare backup: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const performBackup = async (backupPassword) => {
+    try {
+      setLoading(true);
+
+      // Create backup with password
+      const result = await createBackup(backupPassword);
       
       if (!result.success) {
         Alert.alert('Backup Failed', result.error);
@@ -105,25 +127,36 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
         return;
       }
 
-      // Get backup information
-      const infoResult = await getBackupInfo(readResult.data);
-      
-      if (!infoResult.success) {
-        Alert.alert('Backup Analysis Failed', infoResult.error);
-        return;
-      }
-
+      // Store backup data temporarily and prompt for password
       setSelectedBackupData(readResult.data);
-      setBackupInfo({
-        ...infoResult,
-        fileName: result.fileName,
-        fileSize: result.fileSize
-      });
+      setPasswordAction('restore');
+      setShowPasswordInput(true);
       
     } catch (error) {
       Alert.alert('Error', 'Failed to process backup file: ' + error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const analyzeBackupWithPassword = async (backupData, backupPassword, fileName, fileSize) => {
+    try {
+      // Get backup information with password
+      const infoResult = await getBackupInfo(backupData, backupPassword);
+      
+      if (!infoResult.success) {
+        return { success: false, error: infoResult.error };
+      }
+
+      setBackupInfo({
+        ...infoResult,
+        fileName: fileName,
+        fileSize: fileSize
+      });
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
     }
   };
 
@@ -139,8 +172,8 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
         return;
       }
 
-      if (!selectedBackupData) {
-        Alert.alert('Error', 'No backup file selected');
+      if (!selectedBackupData || !backupInfo) {
+        Alert.alert('Error', 'No backup file selected or analyzed');
         return;
       }
 
@@ -173,7 +206,8 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
     try {
       setLoading(true);
       
-      const result = await restoreFromBackup(selectedBackupData, restoreOptions);
+      // Use the stored password for restoration
+      const result = await restoreFromBackup(selectedBackupData, password, restoreOptions);
       
       if (!result.success) {
         Alert.alert('Restore Failed', result.error);
@@ -191,8 +225,7 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
             text: 'OK', 
             onPress: () => {
               // Clear selected backup and close modal
-              setSelectedBackupData(null);
-              setBackupInfo(null);
+              clearSelection();
               onClose();
               // Notify parent to refresh grids
               if (onGridsUpdated) {
@@ -213,10 +246,54 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
   const clearSelection = () => {
     setSelectedBackupData(null);
     setBackupInfo(null);
+    setPassword('');
+    setPasswordError('');
+    setShowPasswordInput(false);
+    setPasswordAction(null);
     setRestoreOptions({
       replaceAll: false,
       overwriteExisting: false
     });
+  };
+
+  const handlePasswordSubmit = async () => {
+    if (!password.trim()) {
+      setPasswordError('Password is required');
+      return;
+    }
+
+    setPasswordError('');
+    setLoading(true);
+
+    try {
+      if (passwordAction === 'backup') {
+        setShowPasswordInput(false);
+        await performBackup(password);
+      } else if (passwordAction === 'restore') {
+        // Analyze backup with provided password
+        const tempFileInfo = { fileName: 'Selected File', fileSize: 0 }; // We'll improve this
+        const analysisResult = await analyzeBackupWithPassword(selectedBackupData, password, tempFileInfo.fileName, tempFileInfo.fileSize);
+        
+        if (!analysisResult.success) {
+          setPasswordError('Invalid password or corrupted backup file');
+          return;
+        }
+        
+        setShowPasswordInput(false);
+      }
+    } catch (error) {
+      setPasswordError('Failed to process: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordCancel = () => {
+    setPassword('');
+    setPasswordError('');
+    setShowPasswordInput(false);
+    setPasswordAction(null);
+    setSelectedBackupData(null);
   };
 
   const formatDate = (dateString) => {
@@ -259,8 +336,8 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
             <View style={[styles.securityNotice, { backgroundColor: theme.surface }]}>
               <Text style={[styles.securityIcon, { color: theme.primary }]}>🔐</Text>
               <Text style={[styles.securityText, { color: theme.text }]}>
-                All backups are encrypted and protected by {biometricType || 'device authentication'}. 
-                Backup files can only be restored on this device.
+                All backups are encrypted with your chosen password and protected by {biometricType || 'device authentication'}. 
+                You can restore backup files on any device using the same password.
               </Text>
             </View>
 
@@ -405,6 +482,68 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
               )}
             </View>
           </ScrollView>
+
+          {/* Password Input Modal */}
+          {showPasswordInput && (
+            <View style={[styles.passwordOverlay, { backgroundColor: theme.modal.overlay }]}>
+              <View style={[styles.passwordModal, { backgroundColor: theme.modal.background }]}>
+                <Text style={[styles.passwordTitle, { color: theme.primary }]}>
+                  {passwordAction === 'backup' ? 'Create Backup Password' : 'Enter Backup Password'}
+                </Text>
+                <Text style={[styles.passwordSubtitle, { color: theme.textSecondary }]}>
+                  {passwordAction === 'backup' 
+                    ? 'Create a password to encrypt your backup. You\'ll need this password to restore your grids.'
+                    : 'Enter the password used when this backup was created.'
+                  }
+                </Text>
+                
+                <TextInput
+                  style={[styles.passwordInput, { 
+                    backgroundColor: theme.surface, 
+                    color: theme.text,
+                    borderColor: passwordError ? theme.error : theme.primary
+                  }]}
+                  value={password}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    if (passwordError) setPasswordError('');
+                  }}
+                  placeholder="Enter password"
+                  placeholderTextColor={theme.textSecondary}
+                  secureTextEntry
+                  autoFocus
+                />
+                
+                {passwordError ? (
+                  <Text style={[styles.passwordError, { color: theme.error }]}>
+                    {passwordError}
+                  </Text>
+                ) : null}
+                
+                <View style={styles.passwordButtons}>
+                  <TouchableOpacity
+                    style={[styles.passwordButton, styles.cancelButton, { backgroundColor: theme.surface }]}
+                    onPress={handlePasswordCancel}
+                    disabled={loading}
+                  >
+                    <Text style={[styles.passwordButtonText, { color: theme.textSecondary }]}>
+                      Cancel
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={[styles.passwordButton, styles.confirmButton, { backgroundColor: theme.primary }]}
+                    onPress={handlePasswordSubmit}
+                    disabled={loading || !password.trim()}
+                  >
+                    <Text style={[styles.passwordButtonText, { color: 'white' }]}>
+                      {passwordAction === 'backup' ? 'Create Backup' : 'Analyze Backup'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          )}
 
           {/* Loading Overlay */}
           {loading && (
@@ -559,6 +698,73 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 10,
   },
+  passwordOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  passwordModal: {
+    width: '90%',
+    maxWidth: 400,
+    padding: 20,
+    borderRadius: 15,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+  },
+  passwordTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  passwordSubtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  passwordInput: {
+    borderWidth: 2,
+    borderRadius: 10,
+    padding: 15,
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  passwordError: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  passwordButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  passwordButton: {
+    flex: 1,
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  confirmButton: {
+    // No additional styles needed
+  },
+  passwordButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
   loadingOverlay: {
     position: 'absolute',
     top: 0,
@@ -567,6 +773,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 999,
   },
   loadingText: {
     marginTop: 10,

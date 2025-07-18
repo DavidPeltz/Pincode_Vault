@@ -4,8 +4,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import { getGrids, saveGrid } from './storage';
 import { encryptBackupData, decryptBackupData, validateBackupFile } from './encryption';
 
-// Create encrypted backup file
-export const createBackup = async () => {
+// Create encrypted backup file with user password
+export const createBackup = async (password) => {
   try {
     // Get all grids from storage
     const grids = await getGrids();
@@ -17,8 +17,8 @@ export const createBackup = async () => {
       };
     }
     
-    // Encrypt the data
-    const encryptionResult = await encryptBackupData(grids);
+    // Encrypt the data with user password
+    const encryptionResult = await encryptBackupData(grids, password);
     
     if (!encryptionResult.success) {
       return encryptionResult;
@@ -141,11 +141,11 @@ export const readBackupFile = async (fileUri) => {
   }
 };
 
-// Restore grids from backup
-export const restoreFromBackup = async (encryptedData, options = {}) => {
+// Restore grids from backup with user password
+export const restoreFromBackup = async (encryptedData, password, options = {}) => {
   try {
-    // Decrypt the backup data
-    const decryptionResult = await decryptBackupData(encryptedData);
+    // Decrypt the backup data with user password
+    const decryptionResult = await decryptBackupData(encryptedData, password);
     
     if (!decryptionResult.success) {
       return decryptionResult;
@@ -216,16 +216,16 @@ export const restoreFromBackup = async (encryptedData, options = {}) => {
   }
 };
 
-// Get backup info without restoring
-export const getBackupInfo = async (encryptedData) => {
+// Get backup info without restoring (requires password to decrypt)
+export const getBackupInfo = async (encryptedData, password) => {
   try {
-    const decryptionResult = await decryptBackupData(encryptedData);
+    const decryptionResult = await decryptBackupData(encryptedData, password);
     
     if (!decryptionResult.success) {
       return decryptionResult;
     }
     
-    const { data: grids, version, timestamp } = decryptionResult;
+    const { data: grids, version, timestamp, encryptionType } = decryptionResult;
     const gridKeys = Object.keys(grids || {});
     
     return {
@@ -233,6 +233,7 @@ export const getBackupInfo = async (encryptedData) => {
       gridCount: gridKeys.length,
       version: version,
       timestamp: timestamp,
+      encryptionType: encryptionType,
       gridTitles: gridKeys.map(id => grids[id]?.title || `Grid ${id}`)
     };
   } catch (error) {
