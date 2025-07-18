@@ -1,26 +1,8 @@
 import { Buffer } from 'buffer';
 import * as Crypto from 'expo-crypto';
 
-// Generate a device-specific salt based on device characteristics
-const generateDeviceSalt = async () => {
-  try {
-    // Use a combination of random bytes and a consistent device identifier
-    const randomBytes = await Crypto.getRandomBytesAsync(16);
-    const deviceIdentifier = 'pinvault-backup-key'; // Could use device ID if available
-    
-    // Combine them to create a unique salt
-    const combined = deviceIdentifier + Buffer.from(randomBytes).toString('hex');
-    const hash = await Crypto.digestStringAsync(
-      Crypto.CryptoDigestAlgorithm.SHA256,
-      combined
-    );
-    
-    return hash.substring(0, 32); // 32 character salt
-  } catch (error) {
-    console.error('Error generating device salt:', error);
-    throw error;
-  }
-};
+// Use a static salt for consistent key derivation across devices
+const BACKUP_SALT = 'pinvault-backup-v1.2-cross-device-salt-2025';
 
 // Derive encryption key using PBKDF2-like approach
 const deriveKey = async (password, salt) => {
@@ -56,11 +38,14 @@ const xorEncryptDecrypt = (data, key) => {
   return result.toString('base64');
 };
 
-// Encrypt backup data
-export const encryptBackupData = async (data, userPassword = 'default-pin-vault-key') => {
+// Encrypt backup data with user password
+export const encryptBackupData = async (data, userPassword) => {
   try {
-    const salt = await generateDeviceSalt();
-    const key = await deriveKey(userPassword, salt);
+    if (!userPassword || userPassword.trim().length === 0) {
+      throw new Error('Password is required for backup encryption');
+    }
+
+    const key = await deriveKey(userPassword, BACKUP_SALT);
     
     // Convert data to JSON string
     const jsonData = JSON.stringify(data);
@@ -70,7 +55,8 @@ export const encryptBackupData = async (data, userPassword = 'default-pin-vault-
       version: '1.2.0',
       timestamp: new Date().toISOString(),
       data: jsonData,
-      salt: salt
+      encryptionType: 'password-based',
+      saltInfo: 'static-cross-device'
     };
     
     const backupString = JSON.stringify(backupObject);
@@ -95,9 +81,13 @@ export const encryptBackupData = async (data, userPassword = 'default-pin-vault-
   }
 };
 
-// Decrypt backup data
-export const decryptBackupData = async (encryptedData, userPassword = 'default-pin-vault-key') => {
+// Decrypt backup data with user password
+export const decryptBackupData = async (encryptedData, userPassword) => {
   try {
+    if (!userPassword || userPassword.trim().length === 0) {
+      throw new Error('Password is required for backup decryption');
+    }
+
     // Check if this is a valid PIN Vault backup
     if (!encryptedData.startsWith('PINVAULT_BACKUP_V1.2:')) {
       throw new Error('Invalid backup file format');
@@ -106,10 +96,8 @@ export const decryptBackupData = async (encryptedData, userPassword = 'default-p
     // Remove header
     const encrypted = encryptedData.replace('PINVAULT_BACKUP_V1.2:', '');
     
-    // We need to try decryption with device salt
-    // Since we don't know the original salt, we'll generate it the same way
-    const salt = await generateDeviceSalt();
-    const key = await deriveKey(userPassword, salt);
+    // Use the same static salt for decryption
+    const key = await deriveKey(userPassword, BACKUP_SALT);
     
     // Decrypt
     const decrypted = xorEncryptDecrypt(encrypted, key);
@@ -130,7 +118,8 @@ export const decryptBackupData = async (encryptedData, userPassword = 'default-p
       success: true,
       data: data,
       version: backupObject.version,
-      timestamp: backupObject.timestamp
+      timestamp: backupObject.timestamp,
+      encryptionType: backupObject.encryptionType || 'legacy'
     };
   } catch (error) {
     console.error('Decryption error:', error);
