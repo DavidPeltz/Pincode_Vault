@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext } from 'react';
+import React, { useState } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -11,19 +11,9 @@ import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import ThemeToggle from './components/ThemeToggle';
 import InfoButton from './components/InfoButton';
 import BackupButton from './components/BackupButton';
+import GridRefreshContext from './contexts/GridRefreshContext';
 
 const Stack = createStackNavigator();
-
-// Create context for grid refresh functionality
-const GridRefreshContext = createContext();
-
-export const useGridRefresh = () => {
-  const context = useContext(GridRefreshContext);
-  if (!context) {
-    throw new Error('useGridRefresh must be used within a GridRefreshProvider');
-  }
-  return context;
-};
 
 function AppNavigator() {
   const { theme, isDarkMode } = useTheme();
