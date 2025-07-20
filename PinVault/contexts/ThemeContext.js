@@ -29,7 +29,7 @@ const lightTheme = {
   gridColors: {
     red: '#FF0000',
     green: '#00FF00',
-    blue: '#0000FF',
+    blue: '#6BB6FF',
     yellow: '#FFFF00'
   },
   modal: {
