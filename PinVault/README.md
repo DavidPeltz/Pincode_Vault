@@ -234,7 +234,7 @@ npm run web      # Web browser
 
 ## Screenshots
 
-*Coming soon - Screenshots of the v1.2 interface with backup system*
+*Coming soon - Screenshots of the v1.3 interface with enhanced navigation*
 
 ## Changelog
 
@@ -320,7 +320,7 @@ We welcome contributions! Areas of interest:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
 ## Support
 
@@ -330,7 +330,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Disclaimer
 
-**Important Security Notice**: While PIN Vault v1.2 provides multiple layers of security including biometric authentication, visual obfuscation, and encrypted backups, users should:
+**Important Security Notice**: While PIN Vault v1.3 provides multiple layers of security including biometric authentication, visual obfuscation, and encrypted backups, users should:
 
 - Understand that this app is designed for convenience, not maximum security
 - Use strong passwords for backup encryption
@@ -361,4 +361,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-*PIN Vault v1.2 - Secure, Local, Private PIN Storage with Encrypted Backups* 🔐
+*PIN Vault v1.3 - Secure, Local, Private PIN Storage with Enhanced Navigation* 🔐
