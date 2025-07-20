@@ -43,12 +43,10 @@ const Gallery = ({ navigation }) => {
       const newIndex = Math.round(offset / width);
       const clampedIndex = Math.max(0, Math.min(newIndex, grids.length - 1));
       setCurrentIndex(clampedIndex);
-    }, 50);
+    }, 100);
   }, [grids.length, width]);
 
   const handleSwipeStart = useCallback((event) => {
-    if (isCustomScrollingRef.current) return;
-    
     swipeStartRef.current = {
       x: event.nativeEvent.contentOffset.x,
       time: Date.now()
@@ -56,52 +54,55 @@ const Gallery = ({ navigation }) => {
   }, []);
 
   const handleSwipeEnd = useCallback((event) => {
-    if (isCustomScrollingRef.current) return;
-    
     const endX = event.nativeEvent.contentOffset.x;
     const endTime = Date.now();
     const startX = swipeStartRef.current.x;
     const startTime = swipeStartRef.current.time;
     
     const distance = Math.abs(endX - startX);
-    const timeElapsed = endTime - startTime;
+    const timeElapsed = Math.max(1, endTime - startTime); // Prevent division by zero
     const velocity = distance / timeElapsed; // pixels per millisecond
     
-    // Only apply custom behavior if there was significant movement
-    if (distance < 50) return;
+    // Calculate which grid we should snap to based on current position
+    const currentPosition = endX;
+    const nearestIndex = Math.round(currentPosition / width);
+    const clampedNearestIndex = Math.max(0, Math.min(nearestIndex, grids.length - 1));
     
-    const direction = endX < startX ? 1 : -1; // 1 for next (right swipe = left move), -1 for prev (left swipe = right move)
-    let targetIndex = currentIndex;
+    let targetIndex = clampedNearestIndex;
     
-    // Determine swipe behavior based on velocity and distance
-    // Two options only: 1 grid at a time OR jump to end
-    if (velocity > 4.5 && distance > 300) {
-      // Very forceful swipe - go to end (increased threshold)
-      targetIndex = direction > 0 ? grids.length - 1 : 0;
-    } else if (velocity > 0.6 && distance > 60) {
-      // Normal swipe - one grid at a time (lowered threshold for easier single moves)
-      targetIndex = currentIndex + direction;
-    } else {
-      // Very gentle touch - no movement (let default snap behavior handle it)
-      return;
+    // Only override with gesture logic if there was significant movement
+    if (distance > 30) {
+      const direction = endX < startX ? 1 : -1; // 1 for next, -1 for prev
+      
+      // Very forceful swipe - go to end
+      if (velocity > 3.5 && distance > 200) {
+        targetIndex = direction > 0 ? grids.length - 1 : 0;
+      } 
+      // Normal swipe with sufficient velocity - move one grid
+      else if (velocity > 0.4 && distance > 50) {
+        targetIndex = currentIndex + direction;
+        targetIndex = Math.max(0, Math.min(targetIndex, grids.length - 1));
+      }
+      // Slow drag - snap to nearest based on position
+      else {
+        // Use the calculated nearest index
+        targetIndex = clampedNearestIndex;
+      }
     }
     
-    // Clamp to valid range
-    targetIndex = Math.max(0, Math.min(targetIndex, grids.length - 1));
-    
-    // Only scroll if target is different from current
-    if (targetIndex !== currentIndex && flatListRef.current) {
+    // Always snap to a grid position
+    if (flatListRef.current) {
       isCustomScrollingRef.current = true;
       flatListRef.current.scrollToOffset({
         offset: targetIndex * width,
         animated: true
       });
       
-      // Reset custom scrolling flag after animation
+      // Update index and reset flag
       setTimeout(() => {
-        isCustomScrollingRef.current = false;
         setCurrentIndex(targetIndex);
-      }, 300);
+        isCustomScrollingRef.current = false;
+      }, 250);
     }
   }, [currentIndex, grids.length, width]);
 
@@ -413,11 +414,8 @@ const Gallery = ({ navigation }) => {
         renderItem={renderGridItem}
         keyExtractor={(item) => item.id}
         horizontal
-        pagingEnabled={false}
         showsHorizontalScrollIndicator={false}
-        snapToInterval={width}
-        snapToAlignment="start"
-        decelerationRate="normal"
+        decelerationRate="fast"
         bounces={false}
         contentContainerStyle={styles.flatListContainer}
         getItemLayout={(data, index) => ({
@@ -429,7 +427,20 @@ const Gallery = ({ navigation }) => {
         onScrollEndDrag={handleSwipeEnd}
         onMomentumScrollEnd={(event) => {
           if (!isCustomScrollingRef.current) {
-            updateCurrentIndex(event.nativeEvent.contentOffset.x);
+            // Snap to nearest grid if momentum scroll ended between grids
+            const position = event.nativeEvent.contentOffset.x;
+            const nearestIndex = Math.round(position / width);
+            const clampedIndex = Math.max(0, Math.min(nearestIndex, grids.length - 1));
+            
+            if (Math.abs(position - (clampedIndex * width)) > 5) {
+              // Not properly aligned, snap to nearest grid
+              flatListRef.current?.scrollToOffset({
+                offset: clampedIndex * width,
+                animated: true
+              });
+            }
+            
+            setCurrentIndex(clampedIndex);
           }
         }}
       />
