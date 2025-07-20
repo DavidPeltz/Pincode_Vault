@@ -1,8 +1,9 @@
 import { Buffer } from 'buffer';
 import * as Crypto from 'expo-crypto';
 
-// Use a static salt for consistent key derivation across devices
-const BACKUP_SALT = 'pinvault-backup-v1.3-cross-device-salt-2025';
+// Use version-specific salts for consistent key derivation across devices
+const BACKUP_SALT_V12 = 'pinvault-backup-v1.2-cross-device-salt-2025';
+const BACKUP_SALT_V13 = 'pinvault-backup-v1.3-cross-device-salt-2025';
 
 // Derive encryption key using PBKDF2-like approach
 const deriveKey = async (password, salt) => {
@@ -57,7 +58,7 @@ export const encryptBackupData = async (data, userPassword) => {
       throw new Error('Password is required for backup encryption');
     }
 
-    const key = await deriveKey(userPassword, BACKUP_SALT);
+    const key = await deriveKey(userPassword, BACKUP_SALT_V13);
     
     // Convert data to JSON string
     const jsonData = JSON.stringify(data);
@@ -105,16 +106,19 @@ export const decryptBackupData = async (encryptedData, userPassword) => {
       throw new Error('Invalid backup file format');
     }
     
-    // Remove header (support both v1.2 and v1.3 formats)
+    // Remove header and determine correct salt based on backup version
     let encrypted;
+    let saltToUse;
     if (encryptedData.startsWith('PINVAULT_BACKUP_V1.3:')) {
       encrypted = encryptedData.replace('PINVAULT_BACKUP_V1.3:', '');
+      saltToUse = BACKUP_SALT_V13;
     } else {
       encrypted = encryptedData.replace('PINVAULT_BACKUP_V1.2:', '');
+      saltToUse = BACKUP_SALT_V12;
     }
     
-    // Use the same static salt for decryption
-    const key = await deriveKey(userPassword, BACKUP_SALT);
+    // Use the version-appropriate salt for decryption
+    const key = await deriveKey(userPassword, saltToUse);
     
     // Decrypt
     const backupString = xorDecrypt(encrypted, key);
