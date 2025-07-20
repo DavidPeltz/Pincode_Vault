@@ -60,51 +60,29 @@ const Gallery = ({ navigation }) => {
     const startTime = swipeStartRef.current.time;
     
     const distance = Math.abs(endX - startX);
-    const timeElapsed = Math.max(1, endTime - startTime); // Prevent division by zero
-    const velocity = distance / timeElapsed; // pixels per millisecond
+    const timeElapsed = Math.max(1, endTime - startTime);
+    const velocity = distance / timeElapsed;
     
-    // Calculate which grid we should snap to based on current position
-    const currentPosition = endX;
-    const nearestIndex = Math.round(currentPosition / width);
-    const clampedNearestIndex = Math.max(0, Math.min(nearestIndex, grids.length - 1));
-    
-    let targetIndex = clampedNearestIndex;
-    
-    // Only override with gesture logic if there was significant movement
-    if (distance > 30) {
-      const direction = endX < startX ? 1 : -1; // 1 for next, -1 for prev
+    // Only handle very forceful swipes to ends - let paging handle normal scrolling
+    if (velocity > 4.0 && distance > 250) {
+      const direction = endX < startX ? 1 : -1;
+      const targetIndex = direction > 0 ? grids.length - 1 : 0;
       
-      // Very forceful swipe - go to end
-      if (velocity > 3.5 && distance > 200) {
-        targetIndex = direction > 0 ? grids.length - 1 : 0;
-      } 
-      // Normal swipe with sufficient velocity - move one grid
-      else if (velocity > 0.4 && distance > 50) {
-        targetIndex = currentIndex + direction;
-        targetIndex = Math.max(0, Math.min(targetIndex, grids.length - 1));
-      }
-      // Slow drag - snap to nearest based on position
-      else {
-        // Use the calculated nearest index
-        targetIndex = clampedNearestIndex;
+      if (flatListRef.current) {
+        isCustomScrollingRef.current = true;
+        flatListRef.current.scrollToOffset({
+          offset: targetIndex * width,
+          animated: true
+        });
+        
+        setTimeout(() => {
+          setCurrentIndex(targetIndex);
+          isCustomScrollingRef.current = false;
+        }, 300);
       }
     }
-    
-    // Always snap to a grid position
-    if (flatListRef.current) {
-      isCustomScrollingRef.current = true;
-      flatListRef.current.scrollToOffset({
-        offset: targetIndex * width,
-        animated: true
-      });
-      
-      // Update index and reset flag
-      setTimeout(() => {
-        setCurrentIndex(targetIndex);
-        isCustomScrollingRef.current = false;
-      }, 250);
-    }
-  }, [currentIndex, grids.length, width]);
+    // Otherwise let pagingEnabled handle normal scrolling
+  }, [grids.length, width]);
 
   useFocusEffect(
     useCallback(() => {
@@ -414,6 +392,7 @@ const Gallery = ({ navigation }) => {
         renderItem={renderGridItem}
         keyExtractor={(item) => item.id}
         horizontal
+        pagingEnabled={true}
         showsHorizontalScrollIndicator={false}
         decelerationRate="fast"
         bounces={false}
@@ -427,19 +406,9 @@ const Gallery = ({ navigation }) => {
         onScrollEndDrag={handleSwipeEnd}
         onMomentumScrollEnd={(event) => {
           if (!isCustomScrollingRef.current) {
-            // Snap to nearest grid if momentum scroll ended between grids
             const position = event.nativeEvent.contentOffset.x;
-            const nearestIndex = Math.round(position / width);
-            const clampedIndex = Math.max(0, Math.min(nearestIndex, grids.length - 1));
-            
-            if (Math.abs(position - (clampedIndex * width)) > 5) {
-              // Not properly aligned, snap to nearest grid
-              flatListRef.current?.scrollToOffset({
-                offset: clampedIndex * width,
-                animated: true
-              });
-            }
-            
+            const newIndex = Math.round(position / width);
+            const clampedIndex = Math.max(0, Math.min(newIndex, grids.length - 1));
             setCurrentIndex(clampedIndex);
           }
         }}
