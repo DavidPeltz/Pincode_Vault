@@ -1,8 +1,18 @@
-# PIN Vault v1.3 - Secure PIN Storage App
+# PIN Vault v1.4 - Secure PIN Storage App
 
 A mobile app built with React Native and Expo that allows users to securely store their bank and credit card PIN codes using a unique visual grid system with biometric authentication protection and secure backup capabilities.
 
-## 🚀 What's New in v1.3
+## 🚀 What's New in v1.4
+
+### 🔧 Critical Gallery Navigation Fixes
+- **Fixed scroll bouncing**: Eliminated conflicting scroll behaviors causing swipes to bounce back
+- **Improved gentle scrolling**: Slow swipes now reliably snap to the nearest grid instead of getting stuck
+- **Enhanced swipe reliability**: Removed competing FlatList properties that interfered with custom gesture detection
+- **Better position-based snapping**: Gentle drags now intelligently snap to the nearest grid based on final position
+- **Reduced thresholds**: Lowered velocity requirements (>0.4) for easier single-grid navigation
+- **Maintained power gestures**: Very forceful swipes (velocity >3.5) still jump to beginning/end
+
+## 🚀 What Was New in v1.3
 
 ### 📱 Enhanced Gallery Navigation
 - **Improved Swipe Sensitivity**: Customized swipe detection with two options - single grid navigation or jump to beginning/end
@@ -18,7 +28,7 @@ A mobile app built with React Native and Expo that allows users to securely stor
 ### 🔧 Bug Fixes & Reliability
 - **Fixed Backup Restore**: "Replace All" option now properly clears existing grids before restoring
 - **Improved Data Integrity**: Added `clearAllGrids()` function for reliable complete data replacement
-- **Backward Compatibility**: Maintains support for v1.2 backup files while using v1.3 format for new backups
+- **Backward Compatibility**: Maintains support for v1.2 and v1.3 backup files while using v1.4 format for new backups
 
 ## 🚀 What Was New in v1.2
 
@@ -234,11 +244,20 @@ npm run web      # Web browser
 
 ## Screenshots
 
-*Coming soon - Screenshots of the v1.3 interface with enhanced navigation*
+*Coming soon - Screenshots of the v1.4 interface with improved navigation*
 
 ## Changelog
 
-### v1.3.0 (Latest) - Enhanced Navigation & User Experience
+### v1.4.0 (Latest) - Gallery Navigation Reliability Fixes
+- ✅ **Fixed gallery scroll bouncing** - eliminated conflicting scroll behaviors
+- ✅ **Improved gentle swipe reliability** - slow drags now snap to nearest grid properly
+- ✅ **Enhanced gesture detection** - removed competing FlatList properties causing conflicts
+- ✅ **Better position-based snapping** - intelligent grid alignment based on final position
+- ✅ **Lowered swipe thresholds** - easier single-grid navigation with reduced velocity requirements
+- ✅ **Maintained backward compatibility** - supports v1.2, v1.3, and v1.4 backup formats
+- ✅ **Preserved power gestures** - very forceful swipes still jump to beginning/end
+
+### v1.3.0 - Enhanced Navigation & User Experience
 - ✅ **Improved grid gallery swiping** with custom velocity-based detection
 - ✅ **Fixed swiping reliability** with consistent grid centering and smooth navigation
 - ✅ **Added smart swipe sensitivity** with two options: single grid or jump to end
@@ -330,7 +349,7 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Disclaimer
 
-**Important Security Notice**: While PIN Vault v1.3 provides multiple layers of security including biometric authentication, visual obfuscation, and encrypted backups, users should:
+**Important Security Notice**: While PIN Vault v1.4 provides multiple layers of security including biometric authentication, visual obfuscation, and encrypted backups, users should:
 
 - Understand that this app is designed for convenience, not maximum security
 - Use strong passwords for backup encryption
@@ -361,4 +380,4 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ---
 
-*PIN Vault v1.3 - Secure, Local, Private PIN Storage with Enhanced Navigation* 🔐
+*PIN Vault v1.4 - Secure, Local, Private PIN Storage with Reliable Navigation* 🔐

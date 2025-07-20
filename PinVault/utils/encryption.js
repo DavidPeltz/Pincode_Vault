@@ -4,6 +4,7 @@ import * as Crypto from 'expo-crypto';
 // Use version-specific salts for consistent key derivation across devices
 const BACKUP_SALT_V12 = 'pinvault-backup-v1.2-cross-device-salt-2025';
 const BACKUP_SALT_V13 = 'pinvault-backup-v1.3-cross-device-salt-2025';
+const BACKUP_SALT_V14 = 'pinvault-backup-v1.4-cross-device-salt-2025';
 
 // Derive encryption key using PBKDF2-like approach
 const deriveKey = async (password, salt) => {
@@ -58,14 +59,14 @@ export const encryptBackupData = async (data, userPassword) => {
       throw new Error('Password is required for backup encryption');
     }
 
-    const key = await deriveKey(userPassword, BACKUP_SALT_V13);
+    const key = await deriveKey(userPassword, BACKUP_SALT_V14);
     
     // Convert data to JSON string
     const jsonData = JSON.stringify(data);
     
     // Add timestamp and version info
     const backupObject = {
-      version: '1.3.0',
+      version: '1.4.0',
       timestamp: new Date().toISOString(),
       data: jsonData,
       encryptionType: 'password-based',
@@ -78,7 +79,7 @@ export const encryptBackupData = async (data, userPassword) => {
     const encrypted = xorEncrypt(backupString, key);
     
     // Add a header to identify this as a PIN Vault backup
-    const finalBackup = `PINVAULT_BACKUP_V1.3:${encrypted}`;
+    const finalBackup = `PINVAULT_BACKUP_V1.4:${encrypted}`;
     
     return {
       success: true,
@@ -102,14 +103,17 @@ export const decryptBackupData = async (encryptedData, userPassword) => {
     }
 
     // Check if this is a valid PIN Vault backup
-    if (!encryptedData.startsWith('PINVAULT_BACKUP_V1.2:') && !encryptedData.startsWith('PINVAULT_BACKUP_V1.3:')) {
+    if (!encryptedData.startsWith('PINVAULT_BACKUP_V1.2:') && !encryptedData.startsWith('PINVAULT_BACKUP_V1.3:') && !encryptedData.startsWith('PINVAULT_BACKUP_V1.4:')) {
       throw new Error('Invalid backup file format');
     }
     
     // Remove header and determine correct salt based on backup version
     let encrypted;
     let saltToUse;
-    if (encryptedData.startsWith('PINVAULT_BACKUP_V1.3:')) {
+    if (encryptedData.startsWith('PINVAULT_BACKUP_V1.4:')) {
+      encrypted = encryptedData.replace('PINVAULT_BACKUP_V1.4:', '');
+      saltToUse = BACKUP_SALT_V14;
+    } else if (encryptedData.startsWith('PINVAULT_BACKUP_V1.3:')) {
       encrypted = encryptedData.replace('PINVAULT_BACKUP_V1.3:', '');
       saltToUse = BACKUP_SALT_V13;
     } else {
@@ -170,7 +174,7 @@ export const validateBackupFile = (encryptedData) => {
       return { valid: false, error: 'Backup data must be a string' };
     }
     
-    if (!encryptedData.startsWith('PINVAULT_BACKUP_V1.2:') && !encryptedData.startsWith('PINVAULT_BACKUP_V1.3:')) {
+    if (!encryptedData.startsWith('PINVAULT_BACKUP_V1.2:') && !encryptedData.startsWith('PINVAULT_BACKUP_V1.3:') && !encryptedData.startsWith('PINVAULT_BACKUP_V1.4:')) {
       return { valid: false, error: 'Not a valid PIN Vault backup file' };
     }
     
