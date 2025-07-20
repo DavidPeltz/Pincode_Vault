@@ -1,8 +1,26 @@
-# PIN Vault v1.2 - Secure PIN Storage App
+# PIN Vault v1.3 - Secure PIN Storage App
 
 A mobile app built with React Native and Expo that allows users to securely store their bank and credit card PIN codes using a unique visual grid system with biometric authentication protection and secure backup capabilities.
 
-## 🚀 What's New in v1.2
+## 🚀 What's New in v1.3
+
+### 📱 Enhanced Gallery Navigation
+- **Improved Swipe Sensitivity**: Customized swipe detection with two options - single grid navigation or jump to beginning/end
+- **Reliable Grid Centering**: Fixed swiping issues for consistent, smooth navigation between grids
+- **Smart Gesture Recognition**: Velocity-based swipe detection prevents accidental multi-grid jumps
+- **Optimized Scroll Performance**: Debounced updates and improved FlatList configuration for smoother experience
+
+### 🎨 Visual Improvements
+- **Better Color Contrast**: Lightened blue grid cells in light mode for improved digit visibility
+- **Enhanced Accessibility**: Black text now clearly readable on all background colors
+- **Consistent Theming**: Maintained dark mode compatibility while improving light mode readability
+
+### 🔧 Bug Fixes & Reliability
+- **Fixed Backup Restore**: "Replace All" option now properly clears existing grids before restoring
+- **Improved Data Integrity**: Added `clearAllGrids()` function for reliable complete data replacement
+- **Backward Compatibility**: Maintains support for v1.2 backup files while using v1.3 format for new backups
+
+## 🚀 What Was New in v1.2
 
 ### 🔐 Secure Backup & Restore System
 - **Encrypted Backups**: Password-protected backup files with PBKDF2-based encryption (10,000 rounds)
@@ -220,7 +238,17 @@ npm run web      # Web browser
 
 ## Changelog
 
-### v1.2.0 (Latest) - Secure Backup & Restore
+### v1.3.0 (Latest) - Enhanced Navigation & User Experience
+- ✅ **Improved grid gallery swiping** with custom velocity-based detection
+- ✅ **Fixed swiping reliability** with consistent grid centering and smooth navigation
+- ✅ **Added smart swipe sensitivity** with two options: single grid or jump to end
+- ✅ **Enhanced blue cell visibility** in light mode for better text contrast
+- ✅ **Fixed backup restore "Replace All"** to properly clear existing grids before restore
+- ✅ **Added backward compatibility** for v1.2 backup files while using v1.3 format
+- ✅ **Improved accessibility** with better color contrast and readability
+- ✅ **Optimized scroll performance** with debounced updates and enhanced FlatList configuration
+
+### v1.2.0 - Secure Backup & Restore
 - ✅ **Added secure backup system** with password-based encryption
 - ✅ **Implemented cross-device backup compatibility** for device migration
 - ✅ **Added user-accessible storage** on Android using Storage Access Framework
