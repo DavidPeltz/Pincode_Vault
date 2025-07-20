@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import * as Crypto from 'expo-crypto';
 
 // Use a static salt for consistent key derivation across devices
-const BACKUP_SALT = 'pinvault-backup-v1.2-cross-device-salt-2025';
+const BACKUP_SALT = 'pinvault-backup-v1.3-cross-device-salt-2025';
 
 // Derive encryption key using PBKDF2-like approach
 const deriveKey = async (password, salt) => {
@@ -64,7 +64,7 @@ export const encryptBackupData = async (data, userPassword) => {
     
     // Add timestamp and version info
     const backupObject = {
-      version: '1.2.0',
+      version: '1.3.0',
       timestamp: new Date().toISOString(),
       data: jsonData,
       encryptionType: 'password-based',
@@ -77,7 +77,7 @@ export const encryptBackupData = async (data, userPassword) => {
     const encrypted = xorEncrypt(backupString, key);
     
     // Add a header to identify this as a PIN Vault backup
-    const finalBackup = `PINVAULT_BACKUP_V1.2:${encrypted}`;
+    const finalBackup = `PINVAULT_BACKUP_V1.3:${encrypted}`;
     
     return {
       success: true,
@@ -101,12 +101,17 @@ export const decryptBackupData = async (encryptedData, userPassword) => {
     }
 
     // Check if this is a valid PIN Vault backup
-    if (!encryptedData.startsWith('PINVAULT_BACKUP_V1.2:')) {
+    if (!encryptedData.startsWith('PINVAULT_BACKUP_V1.2:') && !encryptedData.startsWith('PINVAULT_BACKUP_V1.3:')) {
       throw new Error('Invalid backup file format');
     }
     
-    // Remove header
-    const encrypted = encryptedData.replace('PINVAULT_BACKUP_V1.2:', '');
+    // Remove header (support both v1.2 and v1.3 formats)
+    let encrypted;
+    if (encryptedData.startsWith('PINVAULT_BACKUP_V1.3:')) {
+      encrypted = encryptedData.replace('PINVAULT_BACKUP_V1.3:', '');
+    } else {
+      encrypted = encryptedData.replace('PINVAULT_BACKUP_V1.2:', '');
+    }
     
     // Use the same static salt for decryption
     const key = await deriveKey(userPassword, BACKUP_SALT);
@@ -161,7 +166,7 @@ export const validateBackupFile = (encryptedData) => {
       return { valid: false, error: 'Backup data must be a string' };
     }
     
-    if (!encryptedData.startsWith('PINVAULT_BACKUP_V1.2:')) {
+    if (!encryptedData.startsWith('PINVAULT_BACKUP_V1.2:') && !encryptedData.startsWith('PINVAULT_BACKUP_V1.3:')) {
       return { valid: false, error: 'Not a valid PIN Vault backup file' };
     }
     

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -25,10 +25,24 @@ const Gallery = ({ navigation }) => {
   const [grids, setGrids] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const flatListRef = useRef(null);
+  const scrollTimeoutRef = useRef(null);
   const { authenticate, authenticationInProgress, biometricType, isAuthAvailable } = useAuth();
   const { theme } = useTheme();
   const { setGridRefreshCallback } = useGridRefresh();
   const { safeBottomPadding, isButtonNavigation } = useNavigationBarHeight();
+
+  const updateCurrentIndex = useCallback((offset) => {
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    
+    scrollTimeoutRef.current = setTimeout(() => {
+      const newIndex = Math.round(offset / width);
+      const clampedIndex = Math.max(0, Math.min(newIndex, grids.length - 1));
+      setCurrentIndex(clampedIndex);
+    }, 50);
+  }, [grids.length, width]);
 
   useFocusEffect(
     useCallback(() => {
@@ -41,6 +55,14 @@ const Gallery = ({ navigation }) => {
     setGridRefreshCallback(() => loadGrids);
   }, [setGridRefreshCallback]);
 
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const loadGrids = async () => {
     setLoading(true);
     try {
@@ -50,6 +72,12 @@ const Gallery = ({ navigation }) => {
       );
       setGrids(gridArray);
       setCurrentIndex(0);
+      // Ensure FlatList scrolls to the beginning when grids are loaded
+      setTimeout(() => {
+        if (flatListRef.current && gridArray.length > 0) {
+          flatListRef.current.scrollToOffset({ offset: 0, animated: false });
+        }
+      }, 100);
     } catch (error) {
       console.error('Error loading grids:', error);
       Alert.alert('Error', 'Failed to load saved grids.');
@@ -318,14 +346,17 @@ const Gallery = ({ navigation }) => {
       </View>
 
       <FlatList
+        ref={flatListRef}
         data={grids}
         renderItem={renderGridItem}
         keyExtractor={(item) => item.id}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        snapToAlignment="center"
+        snapToInterval={width}
+        snapToAlignment="start"
         decelerationRate="fast"
+        bounces={false}
         contentContainerStyle={styles.flatListContainer}
         getItemLayout={(data, index) => ({
           length: width,
@@ -333,8 +364,10 @@ const Gallery = ({ navigation }) => {
           index,
         })}
         onMomentumScrollEnd={(event) => {
-          const newIndex = Math.round(event.nativeEvent.contentOffset.x / width);
-          setCurrentIndex(newIndex);
+          updateCurrentIndex(event.nativeEvent.contentOffset.x);
+        }}
+        onScrollEndDrag={(event) => {
+          updateCurrentIndex(event.nativeEvent.contentOffset.x);
         }}
       />
 
@@ -443,13 +476,13 @@ const styles = StyleSheet.create({
   },
   flatListContainer: {
     paddingVertical: 20,
-    alignItems: 'center',
   },
   gridCard: {
     width: width,
     paddingHorizontal: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    flex: 1,
   },
   gridContent: {
     width: '100%',
