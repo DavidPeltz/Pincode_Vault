@@ -27,6 +27,8 @@ const Gallery = ({ navigation }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef(null);
   const scrollTimeoutRef = useRef(null);
+  const swipeStartRef = useRef({ x: 0, time: 0 });
+  const isCustomScrollingRef = useRef(false);
   const { authenticate, authenticationInProgress, biometricType, isAuthAvailable } = useAuth();
   const { theme } = useTheme();
   const { setGridRefreshCallback } = useGridRefresh();
@@ -44,6 +46,68 @@ const Gallery = ({ navigation }) => {
     }, 50);
   }, [grids.length, width]);
 
+  const handleSwipeStart = useCallback((event) => {
+    if (isCustomScrollingRef.current) return;
+    
+    swipeStartRef.current = {
+      x: event.nativeEvent.contentOffset.x,
+      time: Date.now()
+    };
+  }, []);
+
+  const handleSwipeEnd = useCallback((event) => {
+    if (isCustomScrollingRef.current) return;
+    
+    const endX = event.nativeEvent.contentOffset.x;
+    const endTime = Date.now();
+    const startX = swipeStartRef.current.x;
+    const startTime = swipeStartRef.current.time;
+    
+    const distance = Math.abs(endX - startX);
+    const timeElapsed = endTime - startTime;
+    const velocity = distance / timeElapsed; // pixels per millisecond
+    
+    // Only apply custom behavior if there was significant movement
+    if (distance < 50) return;
+    
+    const direction = endX < startX ? 1 : -1; // 1 for next (right swipe = left move), -1 for prev (left swipe = right move)
+    let targetIndex = currentIndex;
+    
+    // Determine swipe behavior based on velocity and distance
+    if (velocity > 3.0 && distance > 250) {
+      // Very forceful swipe - go to end
+      targetIndex = direction > 0 ? grids.length - 1 : 0;
+    } else if (velocity > 1.8 && distance > 150) {
+      // Moderate force - skip multiple grids (2-4 grids based on velocity)
+      const skipCount = Math.min(4, Math.max(2, Math.floor(velocity)));
+      targetIndex = currentIndex + (direction * skipCount);
+    } else if (velocity > 0.8 && distance > 80) {
+      // Normal swipe - one grid at a time
+      targetIndex = currentIndex + direction;
+    } else {
+      // Very gentle touch - no movement (let default snap behavior handle it)
+      return;
+    }
+    
+    // Clamp to valid range
+    targetIndex = Math.max(0, Math.min(targetIndex, grids.length - 1));
+    
+    // Only scroll if target is different from current
+    if (targetIndex !== currentIndex && flatListRef.current) {
+      isCustomScrollingRef.current = true;
+      flatListRef.current.scrollToOffset({
+        offset: targetIndex * width,
+        animated: true
+      });
+      
+      // Reset custom scrolling flag after animation
+      setTimeout(() => {
+        isCustomScrollingRef.current = false;
+        setCurrentIndex(targetIndex);
+      }, 300);
+    }
+  }, [currentIndex, grids.length, width]);
+
   useFocusEffect(
     useCallback(() => {
       loadGrids();
@@ -60,6 +124,7 @@ const Gallery = ({ navigation }) => {
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
+      isCustomScrollingRef.current = false;
     };
   }, []);
 
@@ -351,11 +416,11 @@ const Gallery = ({ navigation }) => {
         renderItem={renderGridItem}
         keyExtractor={(item) => item.id}
         horizontal
-        pagingEnabled
+        pagingEnabled={false}
         showsHorizontalScrollIndicator={false}
         snapToInterval={width}
         snapToAlignment="start"
-        decelerationRate="fast"
+        decelerationRate="normal"
         bounces={false}
         contentContainerStyle={styles.flatListContainer}
         getItemLayout={(data, index) => ({
@@ -363,11 +428,12 @@ const Gallery = ({ navigation }) => {
           offset: width * index,
           index,
         })}
+        onScrollBeginDrag={handleSwipeStart}
+        onScrollEndDrag={handleSwipeEnd}
         onMomentumScrollEnd={(event) => {
-          updateCurrentIndex(event.nativeEvent.contentOffset.x);
-        }}
-        onScrollEndDrag={(event) => {
-          updateCurrentIndex(event.nativeEvent.contentOffset.x);
+          if (!isCustomScrollingRef.current) {
+            updateCurrentIndex(event.nativeEvent.contentOffset.x);
+          }
         }}
       />
 
