@@ -74,15 +74,12 @@ const Gallery = ({ navigation }) => {
     let targetIndex = currentIndex;
     
     // Determine swipe behavior based on velocity and distance
-    if (velocity > 3.0 && distance > 250) {
-      // Very forceful swipe - go to end
+    // Two options only: 1 grid at a time OR jump to end
+    if (velocity > 4.5 && distance > 300) {
+      // Very forceful swipe - go to end (increased threshold)
       targetIndex = direction > 0 ? grids.length - 1 : 0;
-    } else if (velocity > 1.8 && distance > 150) {
-      // Moderate force - skip multiple grids (2-4 grids based on velocity)
-      const skipCount = Math.min(4, Math.max(2, Math.floor(velocity)));
-      targetIndex = currentIndex + (direction * skipCount);
-    } else if (velocity > 0.8 && distance > 80) {
-      // Normal swipe - one grid at a time
+    } else if (velocity > 0.6 && distance > 60) {
+      // Normal swipe - one grid at a time (lowered threshold for easier single moves)
       targetIndex = currentIndex + direction;
     } else {
       // Very gentle touch - no movement (let default snap behavior handle it)
