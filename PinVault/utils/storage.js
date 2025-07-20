@@ -36,6 +36,16 @@ export const deleteGrid = async (gridId) => {
   }
 };
 
+export const clearAllGrids = async () => {
+  try {
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({}));
+    return true;
+  } catch (error) {
+    console.error('Error clearing all grids:', error);
+    return false;
+  }
+};
+
 export const generateRandomGrid = () => {
   const colors = ['red', 'blue', 'green', 'yellow'];
   const grid = [];

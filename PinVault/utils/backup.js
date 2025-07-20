@@ -1,7 +1,7 @@
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
-import { getGrids, saveGrid } from './storage';
+import { getGrids, saveGrid, clearAllGrids } from './storage';
 import { encryptBackupData, decryptBackupData, validateBackupFile } from './encryption';
 
 // Create encrypted backup file for sharing (private app directory)
@@ -262,13 +262,22 @@ export const restoreFromBackup = async (encryptedData, password, options = {}) =
       };
     }
     
-    // If options.replaceAll is true, we'll replace all existing grids
+        // If options.replaceAll is true, we'll replace all existing grids
     // Otherwise, we'll merge (keeping existing grids with same IDs)
     let restoredCount = 0;
     let skippedCount = 0;
-    
+
     if (options.replaceAll) {
-      // Clear existing data first (by saving each grid)
+      // Clear ALL existing grids first, then restore only the backup grids
+      const clearResult = await clearAllGrids();
+      if (!clearResult) {
+        return {
+          success: false,
+          error: 'Failed to clear existing grids'
+        };
+      }
+      
+      // Now restore all grids from backup
       for (const gridId of gridKeys) {
         const saveResult = await saveGrid(grids[gridId]);
         if (saveResult) {
