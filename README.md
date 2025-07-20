@@ -6,11 +6,11 @@ A mobile app built with React Native and Expo that allows users to securely stor
 
 ### 🔧 Critical Gallery Navigation Fixes
 - **Fixed scroll bouncing**: Eliminated conflicting scroll behaviors causing swipes to bounce back
-- **Improved gentle scrolling**: Slow swipes now reliably snap to the nearest grid instead of getting stuck
-- **Enhanced swipe reliability**: Removed competing FlatList properties that interfered with custom gesture detection
-- **Better position-based snapping**: Gentle drags now intelligently snap to the nearest grid based on final position
-- **Reduced thresholds**: Lowered velocity requirements (>0.4) for easier single-grid navigation
-- **Maintained power gestures**: Very forceful swipes (velocity >3.5) still jump to beginning/end
+- **Reliable single-grid scrolling**: Restored native paging behavior for smooth, predictable navigation
+- **Simplified gesture handling**: Removed complex custom swipe detection that caused conflicts
+- **Consistent behavior**: Now uses standard iOS/Android scrolling patterns for better UX
+- **Removed scroll-to-end**: Eliminated unreliable power gesture feature in favor of stability
+- **Improved reliability**: Single-grid navigation now works consistently without getting stuck
 
 ## 🚀 What Was New in v1.3
 
@@ -83,7 +83,7 @@ A mobile app built with React Native and Expo that allows users to securely stor
 - **Graceful Fallbacks**: Handles devices without biometric capabilities
 
 ### 🎨 Gallery View
-- **Swipe Navigation**: Horizontally swipe through your saved grids
+- **Reliable Swipe Navigation**: Smoothly scroll through your saved grids one at a time
 - **PIN Display**: Clearly see your PIN extracted from the grid
 - **Edit/Delete**: Manage your grids with intuitive controls (requires authentication)
 - **Pagination**: Visual indicators show your position in the gallery
@@ -250,12 +250,12 @@ npm run web      # Web browser
 
 ### v1.4.0 (Latest) - Gallery Navigation Reliability Fixes
 - ✅ **Fixed gallery scroll bouncing** - eliminated conflicting scroll behaviors
-- ✅ **Improved gentle swipe reliability** - slow drags now snap to nearest grid properly
-- ✅ **Enhanced gesture detection** - removed competing FlatList properties causing conflicts
-- ✅ **Better position-based snapping** - intelligent grid alignment based on final position
-- ✅ **Lowered swipe thresholds** - easier single-grid navigation with reduced velocity requirements
+- ✅ **Restored reliable single-grid scrolling** - uses native paging for consistent navigation
+- ✅ **Simplified gesture handling** - removed complex custom detection causing conflicts
+- ✅ **Improved stability** - standard iOS/Android scrolling patterns for better UX
+- ✅ **Removed unreliable features** - eliminated scroll-to-end gesture in favor of stability
 - ✅ **Maintained backward compatibility** - supports v1.2, v1.3, and v1.4 backup formats
-- ✅ **Preserved power gestures** - very forceful swipes still jump to beginning/end
+- ✅ **Enhanced user experience** - predictable, smooth single-grid navigation
 
 ### v1.3.0 - Enhanced Navigation & User Experience
 - ✅ **Improved grid gallery swiping** with custom velocity-based detection
