@@ -159,7 +159,14 @@ const GridEditor = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background, paddingBottom: safeBottomPadding }]}>
-      <View style={styles.content}>
+      <TouchableOpacity 
+        style={styles.content}
+        activeOpacity={1}
+        onPress={() => {
+          // Dismiss keyboard when user touches anywhere outside input fields
+          Keyboard.dismiss();
+        }}
+      >
         
         {/* Top Section: Card Name and PIN Preview */}
         <View style={styles.topSection}>
@@ -245,7 +252,14 @@ const GridEditor = ({ navigation, route }) => {
         </View>
 
         {/* Grid Section */}
-        <View style={styles.gridSection}>
+        <TouchableOpacity 
+          style={styles.gridSection}
+          activeOpacity={1}
+          onPress={() => {
+            // Dismiss keyboard when user touches grid area
+            Keyboard.dismiss();
+          }}
+        >
           <PinGrid
             grid={grid}
             onGridUpdate={handleGridUpdate}
@@ -253,7 +267,7 @@ const GridEditor = ({ navigation, route }) => {
             showValues={true}
             useInlineInput={useInlineInput}
           />
-        </View>
+        </TouchableOpacity>
 
         {/* Compact Instructions */}
         <View style={[styles.compactInstructions, { backgroundColor: theme.surface }]}>
@@ -277,7 +291,7 @@ const GridEditor = ({ navigation, route }) => {
         >
           <Text style={styles.saveButtonText}>Save Grid</Text>
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };

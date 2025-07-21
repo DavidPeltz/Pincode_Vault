@@ -210,31 +210,87 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   // Render number pad for quick access (Android-optimized)
   const renderQuickNumberPad = () => (
     <View style={styles.quickNumberPad}>
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((digit) => (
+      {/* First row: 1, 2, 3 */}
+      <View style={styles.numberRow}>
+        {[1, 2, 3].map((digit) => (
+          <TouchableOpacity
+            key={digit}
+            style={[styles.quickButton, { backgroundColor: theme.primary }]}
+            onPress={() => handleValueSubmit(digit.toString())}
+            activeOpacity={0.7}
+            android_ripple={{
+              color: 'rgba(255,255,255,0.2)',
+              borderless: false
+            }}
+          >
+            <Text style={styles.quickButtonText}>{digit}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      
+      {/* Second row: 4, 5, 6 */}
+      <View style={styles.numberRow}>
+        {[4, 5, 6].map((digit) => (
+          <TouchableOpacity
+            key={digit}
+            style={[styles.quickButton, { backgroundColor: theme.primary }]}
+            onPress={() => handleValueSubmit(digit.toString())}
+            activeOpacity={0.7}
+            android_ripple={{
+              color: 'rgba(255,255,255,0.2)',
+              borderless: false
+            }}
+          >
+            <Text style={styles.quickButtonText}>{digit}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      
+      {/* Third row: 7, 8, 9 */}
+      <View style={styles.numberRow}>
+        {[7, 8, 9].map((digit) => (
+          <TouchableOpacity
+            key={digit}
+            style={[styles.quickButton, { backgroundColor: theme.primary }]}
+            onPress={() => handleValueSubmit(digit.toString())}
+            activeOpacity={0.7}
+            android_ripple={{
+              color: 'rgba(255,255,255,0.2)',
+              borderless: false
+            }}
+          >
+            <Text style={styles.quickButtonText}>{digit}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      
+      {/* Fourth row: 0 and Clear */}
+      <View style={styles.numberRow}>
         <TouchableOpacity
-          key={digit}
           style={[styles.quickButton, { backgroundColor: theme.primary }]}
-          onPress={() => handleValueSubmit(digit.toString())}
+          onPress={() => handleValueSubmit('0')}
           activeOpacity={0.7}
           android_ripple={{
             color: 'rgba(255,255,255,0.2)',
             borderless: false
           }}
         >
-          <Text style={styles.quickButtonText}>{digit}</Text>
+          <Text style={styles.quickButtonText}>0</Text>
         </TouchableOpacity>
-      ))}
-      <TouchableOpacity
-        style={[styles.quickButton, { backgroundColor: theme.warning }]}
-        onPress={() => handleClearCell()}
-        activeOpacity={0.7}
-        android_ripple={{
-          color: 'rgba(255,255,255,0.2)',
-          borderless: false
-        }}
-      >
-        <Text style={styles.quickButtonText}>✕</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.quickButton, { backgroundColor: theme.warning }]}
+          onPress={() => handleClearCell()}
+          activeOpacity={0.7}
+          android_ripple={{
+            color: 'rgba(255,255,255,0.2)',
+            borderless: false
+          }}
+        >
+          <Text style={styles.quickButtonText}>✕</Text>
+        </TouchableOpacity>
+        {/* Empty space for symmetry */}
+        <View style={styles.quickButton} />
+      </View>
     </View>
   );
 
@@ -263,38 +319,32 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
           >
             <Text style={[styles.modalTitle, { color: theme.text }]}>Enter Digit (0-9)</Text>
             
-            <View style={styles.inputContainer}>
+            {/* Hidden TextInput for auto-submit functionality only */}
+            <View style={styles.hiddenInputContainer}>
               <TextInput
                 ref={inputRef}
-                style={[styles.input, { 
-                  backgroundColor: theme.surface, 
-                  color: theme.text, 
-                  borderColor: theme.primary 
-                }]}
+                style={styles.hiddenInput}
                 value={inputValue}
                 onChangeText={handleValueChange}
                 keyboardType="number-pad"
                 maxLength={1}
-                placeholder="0-9"
-                placeholderTextColor={theme.textSecondary}
-                returnKeyType="done"
-                onSubmitEditing={handleKeyboardSubmit}
-                selectTextOnFocus={true}
                 autoCorrect={false}
                 autoCapitalize="none"
                 blurOnSubmit={true}
+                // Hide the native keyboard completely
+                showSoftInputOnFocus={false}
+                caretHidden={true}
                 // Android-specific optimizations
                 underlineColorAndroid="transparent"
                 disableFullscreenUI={true}
-                showSoftInputOnFocus={true}
               />
             </View>
             
             <Text style={[styles.instruction, { color: theme.textSecondary }]}>
-              Digit will auto-submit when entered
+              Tap a digit below to enter
             </Text>
             
-            {/* Quick number pad for even faster input */}
+            {/* Quick number pad for all input */}
             {renderQuickNumberPad()}
             
             <View style={styles.modalButtons}>
@@ -317,16 +367,6 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
                 }}
               >
                 <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, { backgroundColor: theme.success }]}
-                onPress={handleValueSubmit}
-                android_ripple={{
-                  color: 'rgba(255,255,255,0.2)',
-                  borderless: false
-                }}
-              >
-                <Text style={styles.buttonText}>OK</Text>
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -399,12 +439,8 @@ const styles = StyleSheet.create({
     width: width * 0.85,
     maxWidth: 400,
   },
-  inputContainer: {
-    width: '100%',
-    marginVertical: 10,
-  },
   instruction: {
-    fontSize: 10,
+    fontSize: 12,
     textAlign: 'center',
     marginBottom: 15,
     fontStyle: 'italic',
@@ -416,38 +452,33 @@ const styles = StyleSheet.create({
     color: '#2C3E50',
     textAlign: 'center',
   },
-  input: {
-    borderWidth: 2,
-    borderRadius: 12,
-    padding: 15,
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    width: '100%',
-    height: 70,
+  quickNumberPad: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 15,
+    minWidth: 200,
+  },
+  numberRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 4,
+    gap: 12,
+  },
+  quickButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 2,
-    elevation: 2,
-  },
-  quickNumberPad: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginVertical: 10,
-    gap: 8,
-  },
-  quickButton: {
-    width: 45,
-    height: 45,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 2,
   },
   quickButtonText: {
     color: 'white',
@@ -471,6 +502,18 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  hiddenInputContainer: {
+    width: 0,
+    height: 0,
+    opacity: 0,
+    position: 'absolute',
+  },
+  hiddenInput: {
+    width: 0,
+    height: 0,
+    opacity: 0,
+    position: 'absolute',
   },
 });
 
