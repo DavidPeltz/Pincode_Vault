@@ -9,7 +9,8 @@ import {
   ScrollView,
   SafeAreaView,
   Switch,
-  Keyboard
+  Keyboard,
+  Platform
 } from 'react-native';
 import PinGrid from './PinGrid';
 import { generateRandomGrid, fillEmptyCells, saveGrid } from '../utils/storage';
@@ -184,6 +185,9 @@ const GridEditor = ({ navigation, route }) => {
               autoCapitalize="words"
               keyboardType="default"
               blurOnSubmit={true}
+              // Android-specific optimizations
+              underlineColorAndroid="transparent"
+              disableFullscreenUI={Platform.OS === 'android'}
             />
           </View>
 

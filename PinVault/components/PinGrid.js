@@ -8,7 +8,9 @@ import {
   Modal,
   TextInput,
   Dimensions,
-  Keyboard
+  Keyboard,
+  Platform,
+  BackHandler
 } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -25,26 +27,42 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     return theme.gridColors[color] || '#CCCCCC';
   };
 
-  // Auto-focus input when modal opens
+  // Auto-focus input when modal opens (Android optimization)
   useEffect(() => {
-    if (modalVisible && inputRef.current) {
-      // Small delay to ensure modal is fully rendered
+    if (modalVisible && inputRef.current && !useInlineInput) {
+      // Longer delay for Android to ensure modal is fully rendered
       const timer = setTimeout(() => {
         inputRef.current?.focus();
-      }, 100);
+      }, Platform.OS === 'android' ? 250 : 100);
       return () => clearTimeout(timer);
     }
-  }, [modalVisible]);
+  }, [modalVisible, useInlineInput]);
 
-  // Auto-dismiss keyboard when modal closes
+  // Auto-dismiss keyboard when modal closes (Android optimization)
   useEffect(() => {
     if (!modalVisible) {
       Keyboard.dismiss();
     }
   }, [modalVisible]);
 
+  // Android hardware back button handling
+  useEffect(() => {
+    if (Platform.OS === 'android' && modalVisible) {
+      const backAction = () => {
+        closeModal();
+        return true; // Prevent default back action
+      };
+
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+      return () => backHandler.remove();
+    }
+  }, [modalVisible]);
+
   const handleCellPress = (cellIndex) => {
     if (!isEditable) return;
+    
+    // Dismiss any existing keyboard first (Android optimization)
+    Keyboard.dismiss();
     
     if (useInlineInput) {
       // Show inline number picker instead of modal
@@ -98,10 +116,11 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
       setInputValue(text);
       
       // Auto-submit when a digit is entered (streamlined UX)
+      // Shorter delay on Android for faster feel
       if (text.length === 1 && /^[0-9]$/.test(text)) {
         setTimeout(() => {
           handleValueSubmit(text);
-        }, 200); // Small delay to show the input briefly
+        }, Platform.OS === 'android' ? 150 : 200);
       }
     }
   };
@@ -125,10 +144,21 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   };
 
   const closeModal = () => {
-    Keyboard.dismiss();
-    setModalVisible(false);
-    setSelectedCell(null);
-    setInputValue('');
+    // Force keyboard dismissal on Android
+    if (Platform.OS === 'android') {
+      Keyboard.dismiss();
+      // Small delay to ensure keyboard is dismissed before closing modal
+      setTimeout(() => {
+        setModalVisible(false);
+        setSelectedCell(null);
+        setInputValue('');
+      }, 50);
+    } else {
+      Keyboard.dismiss();
+      setModalVisible(false);
+      setSelectedCell(null);
+      setInputValue('');
+    }
   };
 
   const handleKeyboardSubmit = () => {
@@ -161,6 +191,11 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
         onPress={() => handleCellPress(index)}
         disabled={!isEditable}
         activeOpacity={0.7}
+        // Android-specific touch feedback
+        android_ripple={{
+          color: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+          borderless: false
+        }}
       >
         <Text style={[
           styles.cellText,
@@ -172,7 +207,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     );
   };
 
-  // Render number pad for quick access (optional enhancement)
+  // Render number pad for quick access (Android-optimized)
   const renderQuickNumberPad = () => (
     <View style={styles.quickNumberPad}>
       {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((digit) => (
@@ -180,6 +215,11 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
           key={digit}
           style={[styles.quickButton, { backgroundColor: theme.primary }]}
           onPress={() => handleValueSubmit(digit.toString())}
+          activeOpacity={0.7}
+          android_ripple={{
+            color: 'rgba(255,255,255,0.2)',
+            borderless: false
+          }}
         >
           <Text style={styles.quickButtonText}>{digit}</Text>
         </TouchableOpacity>
@@ -187,6 +227,11 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
       <TouchableOpacity
         style={[styles.quickButton, { backgroundColor: theme.warning }]}
         onPress={() => handleClearCell()}
+        activeOpacity={0.7}
+        android_ripple={{
+          color: 'rgba(255,255,255,0.2)',
+          borderless: false
+        }}
       >
         <Text style={styles.quickButtonText}>✕</Text>
       </TouchableOpacity>
@@ -204,6 +249,8 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
         transparent={true}
         visible={modalVisible}
         onRequestClose={handleModalRequestClose}
+        hardwareAccelerated={true} // Android optimization
+        statusBarTranslucent={true} // Android optimization
       >
         <TouchableOpacity 
           style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}
@@ -236,6 +283,10 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
                 autoCorrect={false}
                 autoCapitalize="none"
                 blurOnSubmit={true}
+                // Android-specific optimizations
+                underlineColorAndroid="transparent"
+                disableFullscreenUI={true}
+                showSoftInputOnFocus={true}
               />
             </View>
             
@@ -250,18 +301,30 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
               <TouchableOpacity
                 style={[styles.button, { backgroundColor: theme.warning }]}
                 onPress={handleClearCell}
+                android_ripple={{
+                  color: 'rgba(255,255,255,0.2)',
+                  borderless: false
+                }}
               >
                 <Text style={styles.buttonText}>Clear</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, { backgroundColor: theme.error }]}
                 onPress={closeModal}
+                android_ripple={{
+                  color: 'rgba(255,255,255,0.2)',
+                  borderless: false
+                }}
               >
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, { backgroundColor: theme.success }]}
                 onPress={handleValueSubmit}
+                android_ripple={{
+                  color: 'rgba(255,255,255,0.2)',
+                  borderless: false
+                }}
               >
                 <Text style={styles.buttonText}>OK</Text>
               </TouchableOpacity>
