@@ -8,7 +8,6 @@ import {
   TextInput,
   ScrollView,
   SafeAreaView,
-  Switch,
   Keyboard,
   Platform
 } from 'react-native';
@@ -22,7 +21,7 @@ const GridEditor = ({ navigation, route }) => {
   const [cardName, setCardName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [hasEnteredPin, setHasEnteredPin] = useState(false);
-  const [useInlineInput, setUseInlineInput] = useState(false); // New setting for input mode
+
   const { theme } = useTheme();
   const { safeBottomPadding } = useNavigationBarHeight();
   const cardNameInputRef = useRef(null);
@@ -205,21 +204,7 @@ const GridEditor = ({ navigation, route }) => {
           )}
         </View>
 
-        {/* Input Mode Settings */}
-        <View style={[styles.settingsSection, { backgroundColor: theme.surface }]}>
-          <View style={styles.settingRow}>
-            <Text style={[styles.settingLabel, { color: theme.text }]}>Quick Input Mode</Text>
-            <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
-              {useInlineInput ? 'Use picker menu (fastest)' : 'Use keyboard input (auto-submit)'}
-            </Text>
-            <Switch
-              value={useInlineInput}
-              onValueChange={setUseInlineInput}
-              trackColor={{ false: theme.textSecondary, true: theme.primary }}
-              thumbColor={useInlineInput ? theme.success : theme.background}
-            />
-          </View>
-        </View>
+
 
         {/* Action Buttons Row */}
         <View style={styles.actionButtons}>
@@ -265,17 +250,13 @@ const GridEditor = ({ navigation, route }) => {
             onGridUpdate={handleGridUpdate}
             isEditable={true}
             showValues={true}
-            useInlineInput={useInlineInput}
           />
         </TouchableOpacity>
 
         {/* Compact Instructions */}
         <View style={[styles.compactInstructions, { backgroundColor: theme.surface }]}>
           <Text style={[styles.instructionText, { color: theme.textSecondary }]}>
-            {useInlineInput 
-              ? 'Tap cells → Select from menu • Ultra-fast input' 
-              : 'Tap cells → Type digit • Auto-submits when entered'
-            }
+            Tap cells → Type or tap digit • Auto-submits when entered
           </Text>
           <Text style={[styles.betaIndicator, { color: theme.warning }]}>
             🧪 v1.5 Beta - Enhanced Input Experience
@@ -337,26 +318,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 1,
   },
-  settingsSection: {
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
-  },
-  settingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  settingLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    flex: 1,
-  },
-  settingDescription: {
-    fontSize: 11,
-    flex: 2,
-    marginHorizontal: 8,
-  },
+
   actionButtons: {
     flexDirection: 'row',
     gap: 8,

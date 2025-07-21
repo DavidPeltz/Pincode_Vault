@@ -16,7 +16,7 @@ import { useTheme } from '../contexts/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
-const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, showPinHighlight = true, useInlineInput = false }) => {
+const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, showPinHighlight = true }) => {
   const [selectedCell, setSelectedCell] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -29,14 +29,14 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   // Auto-focus input when modal opens (Android optimization)
   useEffect(() => {
-    if (modalVisible && inputRef.current && !useInlineInput) {
+    if (modalVisible && inputRef.current) {
       // Longer delay for Android to ensure modal is fully rendered
       const timer = setTimeout(() => {
         inputRef.current?.focus();
       }, Platform.OS === 'android' ? 250 : 100);
       return () => clearTimeout(timer);
     }
-  }, [modalVisible, useInlineInput]);
+  }, [modalVisible]);
 
   // Auto-dismiss keyboard when modal closes (Android optimization)
   useEffect(() => {
@@ -64,40 +64,9 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     // Dismiss any existing keyboard first (Android optimization)
     Keyboard.dismiss();
     
-    if (useInlineInput) {
-      // Show inline number picker instead of modal
-      handleInlineNumberPicker(cellIndex);
-    } else {
-      setSelectedCell(cellIndex);
-      setInputValue(grid[cellIndex].value?.toString() || '');
-      setModalVisible(true);
-    }
-  };
-
-  const handleInlineNumberPicker = (cellIndex) => {
-    // Create a simple alert with number options for ultra-fast input
-    const currentValue = grid[cellIndex].value;
-    const options = ['Clear', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    
-    Alert.alert(
-      'Select Digit',
-      `Choose a digit for this cell`,
-      [
-        ...options.map((option, index) => ({
-          text: option,
-          onPress: () => {
-            if (option === 'Clear') {
-              updateCellValue(cellIndex, null, false);
-            } else {
-              updateCellValue(cellIndex, parseInt(option), true);
-            }
-          },
-          style: option === 'Clear' ? 'destructive' : 'default'
-        })),
-        { text: 'Cancel', style: 'cancel' }
-      ],
-      { cancelable: true }
-    );
+    setSelectedCell(cellIndex);
+    setInputValue(grid[cellIndex].value?.toString() || '');
+    setModalVisible(true);
   };
 
   const updateCellValue = (cellIndex, value, isPinDigit) => {
@@ -319,32 +288,38 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
           >
             <Text style={[styles.modalTitle, { color: theme.text }]}>Enter Digit (0-9)</Text>
             
-            {/* Hidden TextInput for auto-submit functionality only */}
-            <View style={styles.hiddenInputContainer}>
+            <View style={styles.inputContainer}>
               <TextInput
                 ref={inputRef}
-                style={styles.hiddenInput}
+                style={[styles.input, { 
+                  backgroundColor: theme.surface, 
+                  color: theme.text, 
+                  borderColor: theme.primary 
+                }]}
                 value={inputValue}
                 onChangeText={handleValueChange}
                 keyboardType="number-pad"
                 maxLength={1}
+                placeholder="0-9"
+                placeholderTextColor={theme.textSecondary}
+                returnKeyType="done"
+                onSubmitEditing={handleKeyboardSubmit}
+                selectTextOnFocus={true}
                 autoCorrect={false}
                 autoCapitalize="none"
                 blurOnSubmit={true}
-                // Hide the native keyboard completely
-                showSoftInputOnFocus={false}
-                caretHidden={true}
                 // Android-specific optimizations
                 underlineColorAndroid="transparent"
                 disableFullscreenUI={true}
+                showSoftInputOnFocus={true}
               />
             </View>
             
             <Text style={[styles.instruction, { color: theme.textSecondary }]}>
-              Tap a digit below to enter
+              Type digit or tap number below • Auto-submits when entered
             </Text>
             
-            {/* Quick number pad for all input */}
+            {/* Quick number pad for visual input */}
             {renderQuickNumberPad()}
             
             <View style={styles.modalButtons}>
@@ -452,6 +427,28 @@ const styles = StyleSheet.create({
     color: '#2C3E50',
     textAlign: 'center',
   },
+  inputContainer: {
+    width: '100%',
+    marginVertical: 10,
+  },
+  input: {
+    borderWidth: 2,
+    borderRadius: 12,
+    padding: 15,
+    fontSize: 32,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    width: '100%',
+    height: 70,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
   quickNumberPad: {
     flexDirection: 'column',
     justifyContent: 'center',
@@ -503,18 +500,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  hiddenInputContainer: {
-    width: 0,
-    height: 0,
-    opacity: 0,
-    position: 'absolute',
-  },
-  hiddenInput: {
-    width: 0,
-    height: 0,
-    opacity: 0,
-    position: 'absolute',
-  },
+
 });
 
 export default PinGrid;
