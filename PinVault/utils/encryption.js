@@ -67,7 +67,7 @@ export const encryptBackupData = async (data, userPassword) => {
     
     // Add timestamp and version info
     const backupObject = {
-      version: '1.5.0-beta',
+      version: '1.5.0',
       timestamp: new Date().toISOString(),
       data: jsonData,
       encryptionType: 'password-based',

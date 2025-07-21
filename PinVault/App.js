@@ -74,7 +74,7 @@ function AppNavigator() {
             name="Gallery"
             component={Gallery}
             options={({ navigation }) => ({
-              title: 'PIN Vault v1.5β',
+              title: 'PIN Vault v1.5',
               headerTitleAlign: 'center',
               headerStyle: {
                 backgroundColor: theme.surface,
@@ -92,7 +92,7 @@ function AppNavigator() {
             name="GridEditor"
             component={GridEditor}
             options={({ navigation }) => ({
-              title: 'PIN Grid Editor v1.5β',
+              title: 'PIN Grid Editor v1.5',
               headerTitleAlign: 'center',
               headerStyle: {
                 backgroundColor: theme.primary,

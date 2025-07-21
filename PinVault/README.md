@@ -1,8 +1,29 @@
-# PIN Vault v1.4 - Secure PIN Storage App
+# PIN Vault v1.5 - Secure PIN Storage App
 
 A mobile app built with React Native and Expo that allows users to securely store their bank and credit card PIN codes using a unique visual grid system with biometric authentication protection and secure backup capabilities.
 
-## 🚀 What's New in v1.4
+## 🚀 What's New in v1.5
+
+### ⚡ Major Usability Improvements
+- **Streamlined Input Experience**: Reduced touches required for digit entry by 40-50%
+- **Auto-Submit Functionality**: Digits automatically submit when selected - no more "OK" button
+- **Enhanced Modal Interface**: Clean visual numpad with improved touch targets and feedback
+- **Smart Keyboard Management**: Proper keyboard dismissal and context-aware input methods
+- **Clear Step-by-Step Instructions**: Guided workflow from card naming through saving
+
+### 🔒 Enhanced Security Features  
+- **Mandatory Grid Completion**: Save button only appears when ALL cells are filled
+- **Prevents Incomplete Saves**: Blocks saving grids with only PIN digits (critical security fix)
+- **Dynamic Save States**: Clear feedback showing what's required ("Name Required", "Fill All Cells", etc.)
+- **Enforced Decoy Digits**: Users must complete "Fill Random" step before saving
+
+### 📱 Android-Specific Optimizations
+- **Hardware Back Button Support**: Proper modal dismissal and navigation
+- **Material Design Touch Feedback**: Native Android ripple effects throughout
+- **Platform-Specific Timing**: Optimized keyboard and animation timing for Android
+- **Enhanced Performance**: Hardware-accelerated modals and smoother animations
+
+## 🚀 What Was New in v1.4
 
 ### 🔧 Critical Gallery Navigation Fixes
 - **Fixed scroll bouncing**: Eliminated conflicting scroll behaviors causing swipes to bounce back

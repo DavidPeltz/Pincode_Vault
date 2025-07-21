@@ -281,9 +281,7 @@ const GridEditor = ({ navigation, route }) => {
           <Text style={[styles.instructionStep, { color: theme.textSecondary }]}>
             5. <Text style={{ fontWeight: 'bold' }}>Save Grid</Text> when all cells are filled
           </Text>
-          <Text style={[styles.betaIndicator, { color: theme.warning }]}>
-            🧪 v1.5 Beta - Enhanced Input Experience
-          </Text>
+
         </View>
 
         {/* Save Button */}
@@ -376,12 +374,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     paddingHorizontal: 8,
   },
-  betaIndicator: {
-    fontSize: 10,
-    textAlign: 'center',
-    fontWeight: 'bold',
-    marginTop: 8,
-  },
+
   button: {
     padding: 12,
     borderRadius: 8,
