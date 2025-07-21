@@ -266,7 +266,7 @@ const GridEditor = ({ navigation, route }) => {
             3. <Text style={{ fontWeight: 'bold' }}>Tap numbers</Text> in the popup to select digits
           </Text>
           <Text style={[styles.instructionStep, { color: theme.textSecondary }]}>
-            4. <Text style={{ fontWeight: 'bold' }}>Fill Random</Text> to add decoy digits (optional)
+            4. <Text style={{ fontWeight: 'bold' }}>Fill Random</Text> to add decoy digits
           </Text>
           <Text style={[styles.instructionStep, { color: theme.textSecondary }]}>
             5. <Text style={{ fontWeight: 'bold' }}>Save Grid</Text> to store your PIN card securely
