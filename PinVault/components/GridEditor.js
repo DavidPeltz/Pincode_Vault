@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,9 @@ import {
   Alert,
   TextInput,
   ScrollView,
-  SafeAreaView
+  SafeAreaView,
+  Switch,
+  Keyboard
 } from 'react-native';
 import PinGrid from './PinGrid';
 import { generateRandomGrid, fillEmptyCells, saveGrid } from '../utils/storage';
@@ -19,8 +21,10 @@ const GridEditor = ({ navigation, route }) => {
   const [cardName, setCardName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [hasEnteredPin, setHasEnteredPin] = useState(false);
+  const [useInlineInput, setUseInlineInput] = useState(false); // New setting for input mode
   const { theme } = useTheme();
   const { safeBottomPadding } = useNavigationBarHeight();
+  const cardNameInputRef = useRef(null);
 
   useEffect(() => {
     if (route.params?.gridData) {
@@ -39,6 +43,16 @@ const GridEditor = ({ navigation, route }) => {
   const handleGridUpdate = (updatedGrid) => {
     setGrid(updatedGrid);
     setHasEnteredPin(updatedGrid.some(cell => cell.isPinDigit));
+  };
+
+  const handleCardNameSubmit = () => {
+    // Dismiss keyboard when user finishes entering card name
+    Keyboard.dismiss();
+  };
+
+  const handleCardNameFocus = () => {
+    // Ensure we're using the text keyboard for card names
+    cardNameInputRef.current?.focus();
   };
 
   const handleFillRandomDigits = () => {
@@ -151,6 +165,7 @@ const GridEditor = ({ navigation, route }) => {
           <View style={styles.nameContainer}>
             <Text style={[styles.label, { color: theme.text }]}>Card Name:</Text>
             <TextInput
+              ref={cardNameInputRef}
               style={[styles.nameInput, { 
                 backgroundColor: theme.surface, 
                 color: theme.text, 
@@ -162,6 +177,13 @@ const GridEditor = ({ navigation, route }) => {
               placeholder="Enter card name"
               placeholderTextColor={theme.textSecondary}
               maxLength={50}
+              returnKeyType="done"
+              onSubmitEditing={handleCardNameSubmit}
+              onFocus={handleCardNameFocus}
+              autoCorrect={true}
+              autoCapitalize="words"
+              keyboardType="default"
+              blurOnSubmit={true}
             />
           </View>
 
@@ -172,7 +194,23 @@ const GridEditor = ({ navigation, route }) => {
           )}
         </View>
 
-        {/* Action Buttons Row - Fill Random moved to top row */}
+        {/* Input Mode Settings */}
+        <View style={[styles.settingsSection, { backgroundColor: theme.surface }]}>
+          <View style={styles.settingRow}>
+            <Text style={[styles.settingLabel, { color: theme.text }]}>Quick Input Mode</Text>
+            <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
+              {useInlineInput ? 'Use picker menu (fastest)' : 'Use keyboard input (auto-submit)'}
+            </Text>
+            <Switch
+              value={useInlineInput}
+              onValueChange={setUseInlineInput}
+              trackColor={{ false: theme.textSecondary, true: theme.primary }}
+              thumbColor={useInlineInput ? theme.success : theme.background}
+            />
+          </View>
+        </View>
+
+        {/* Action Buttons Row */}
         <View style={styles.actionButtons}>
           <TouchableOpacity
             style={[
@@ -209,13 +247,17 @@ const GridEditor = ({ navigation, route }) => {
             onGridUpdate={handleGridUpdate}
             isEditable={true}
             showValues={true}
+            useInlineInput={useInlineInput}
           />
         </View>
 
         {/* Compact Instructions */}
         <View style={[styles.compactInstructions, { backgroundColor: theme.surface }]}>
           <Text style={[styles.instructionText, { color: theme.textSecondary }]}>
-            Tap cells to enter PIN • Fill with random digits • Save with name
+            {useInlineInput 
+              ? 'Tap cells → Select from menu • Ultra-fast input' 
+              : 'Tap cells → Type digit • Auto-submits when entered'
+            }
           </Text>
         </View>
 
@@ -273,6 +315,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     letterSpacing: 1,
+  },
+  settingsSection: {
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+  },
+  settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  settingLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    flex: 1,
+  },
+  settingDescription: {
+    fontSize: 11,
+    flex: 2,
+    marginHorizontal: 8,
   },
   actionButtons: {
     flexDirection: 'row',

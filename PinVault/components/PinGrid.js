@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,13 +7,14 @@ import {
   Alert,
   Modal,
   TextInput,
-  Dimensions
+  Dimensions,
+  Keyboard
 } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
-const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, showPinHighlight = true }) => {
+const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, showPinHighlight = true, useInlineInput = false }) => {
   const [selectedCell, setSelectedCell] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -24,23 +25,94 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     return theme.gridColors[color] || '#CCCCCC';
   };
 
+  // Auto-focus input when modal opens
+  useEffect(() => {
+    if (modalVisible && inputRef.current) {
+      // Small delay to ensure modal is fully rendered
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [modalVisible]);
+
+  // Auto-dismiss keyboard when modal closes
+  useEffect(() => {
+    if (!modalVisible) {
+      Keyboard.dismiss();
+    }
+  }, [modalVisible]);
+
   const handleCellPress = (cellIndex) => {
     if (!isEditable) return;
     
-    setSelectedCell(cellIndex);
-    setInputValue(grid[cellIndex].value?.toString() || '');
-    setModalVisible(true);
+    if (useInlineInput) {
+      // Show inline number picker instead of modal
+      handleInlineNumberPicker(cellIndex);
+    } else {
+      setSelectedCell(cellIndex);
+      setInputValue(grid[cellIndex].value?.toString() || '');
+      setModalVisible(true);
+    }
   };
 
-  const handleValueSubmit = () => {
-    if (inputValue === '' || (inputValue >= '0' && inputValue <= '9')) {
-      const updatedGrid = [...grid];
-      updatedGrid[selectedCell] = {
-        ...updatedGrid[selectedCell],
-        value: inputValue === '' ? null : parseInt(inputValue),
-        isPinDigit: inputValue !== ''
-      };
-      onGridUpdate(updatedGrid);
+  const handleInlineNumberPicker = (cellIndex) => {
+    // Create a simple alert with number options for ultra-fast input
+    const currentValue = grid[cellIndex].value;
+    const options = ['Clear', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    
+    Alert.alert(
+      'Select Digit',
+      `Choose a digit for this cell`,
+      [
+        ...options.map((option, index) => ({
+          text: option,
+          onPress: () => {
+            if (option === 'Clear') {
+              updateCellValue(cellIndex, null, false);
+            } else {
+              updateCellValue(cellIndex, parseInt(option), true);
+            }
+          },
+          style: option === 'Clear' ? 'destructive' : 'default'
+        })),
+        { text: 'Cancel', style: 'cancel' }
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const updateCellValue = (cellIndex, value, isPinDigit) => {
+    const updatedGrid = [...grid];
+    updatedGrid[cellIndex] = {
+      ...updatedGrid[cellIndex],
+      value: value,
+      isPinDigit: isPinDigit
+    };
+    onGridUpdate(updatedGrid);
+  };
+
+  const handleValueChange = (text) => {
+    // Only allow single digits
+    if (text === '' || (text.length === 1 && /^[0-9]$/.test(text))) {
+      setInputValue(text);
+      
+      // Auto-submit when a digit is entered (streamlined UX)
+      if (text.length === 1 && /^[0-9]$/.test(text)) {
+        setTimeout(() => {
+          handleValueSubmit(text);
+        }, 200); // Small delay to show the input briefly
+      }
+    }
+  };
+
+  const handleValueSubmit = (value = inputValue) => {
+    if (value === '' || (value >= '0' && value <= '9')) {
+      updateCellValue(
+        selectedCell, 
+        value === '' ? null : parseInt(value),
+        value !== ''
+      );
       closeModal();
     } else {
       Alert.alert('Invalid Input', 'Please enter a digit from 0 to 9');
@@ -48,18 +120,12 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   };
 
   const handleClearCell = () => {
-    const updatedGrid = [...grid];
-    updatedGrid[selectedCell] = {
-      ...updatedGrid[selectedCell],
-      value: null,
-      isPinDigit: false
-    };
-    onGridUpdate(updatedGrid);
+    updateCellValue(selectedCell, null, false);
     closeModal();
   };
 
   const closeModal = () => {
-    inputRef.current?.blur(); // Dismiss keyboard
+    Keyboard.dismiss();
     setModalVisible(false);
     setSelectedCell(null);
     setInputValue('');
@@ -67,6 +133,11 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   const handleKeyboardSubmit = () => {
     handleValueSubmit();
+  };
+
+  // Handle hardware back button on Android
+  const handleModalRequestClose = () => {
+    closeModal();
   };
 
   const renderCell = (cell, index) => {
@@ -89,6 +160,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
         ]}
         onPress={() => handleCellPress(index)}
         disabled={!isEditable}
+        activeOpacity={0.7}
       >
         <Text style={[
           styles.cellText,
@@ -100,6 +172,27 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     );
   };
 
+  // Render number pad for quick access (optional enhancement)
+  const renderQuickNumberPad = () => (
+    <View style={styles.quickNumberPad}>
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((digit) => (
+        <TouchableOpacity
+          key={digit}
+          style={[styles.quickButton, { backgroundColor: theme.primary }]}
+          onPress={() => handleValueSubmit(digit.toString())}
+        >
+          <Text style={styles.quickButtonText}>{digit}</Text>
+        </TouchableOpacity>
+      ))}
+      <TouchableOpacity
+        style={[styles.quickButton, { backgroundColor: theme.warning }]}
+        onPress={() => handleClearCell()}
+      >
+        <Text style={styles.quickButtonText}>✕</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.grid}>
@@ -107,20 +200,23 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
       </View>
 
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={closeModal}
+        onRequestClose={handleModalRequestClose}
       >
-        <View style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}>
-          <View style={[styles.modalContent, { backgroundColor: theme.modal.background }]}>
+        <TouchableOpacity 
+          style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}
+          activeOpacity={1}
+          onPress={closeModal}
+        >
+          <TouchableOpacity 
+            style={[styles.modalContent, { backgroundColor: theme.modal.background }]}
+            activeOpacity={1}
+          >
             <Text style={[styles.modalTitle, { color: theme.text }]}>Enter Digit (0-9)</Text>
             
-            <TouchableOpacity
-              style={styles.inputTouchArea}
-              onPress={() => inputRef.current?.focus()}
-              activeOpacity={1}
-            >
+            <View style={styles.inputContainer}>
               <TextInput
                 ref={inputRef}
                 style={[styles.input, { 
@@ -129,22 +225,26 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
                   borderColor: theme.primary 
                 }]}
                 value={inputValue}
-                onChangeText={setInputValue}
+                onChangeText={handleValueChange}
                 keyboardType="number-pad"
                 maxLength={1}
-                placeholder="Tap to enter"
+                placeholder="0-9"
                 placeholderTextColor={theme.textSecondary}
                 returnKeyType="done"
                 onSubmitEditing={handleKeyboardSubmit}
                 selectTextOnFocus={true}
                 autoCorrect={false}
                 autoCapitalize="none"
+                blurOnSubmit={true}
               />
-            </TouchableOpacity>
+            </View>
             
             <Text style={[styles.instruction, { color: theme.textSecondary }]}>
-              Tap the input above to open keyboard and enter your PIN digit
+              Digit will auto-submit when entered
             </Text>
+            
+            {/* Quick number pad for even faster input */}
+            {renderQuickNumberPad()}
             
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -166,8 +266,8 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
                 <Text style={styles.buttonText}>OK</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     </View>
   );
@@ -223,7 +323,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     borderRadius: 20,
-    padding: 30,
+    padding: 25,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -236,14 +336,14 @@ const styles = StyleSheet.create({
     width: width * 0.85,
     maxWidth: 400,
   },
-  inputTouchArea: {
+  inputContainer: {
     width: '100%',
     marginVertical: 10,
   },
   instruction: {
     fontSize: 10,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 15,
     fontStyle: 'italic',
   },
   modalTitle: {
@@ -256,12 +356,12 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 2,
     borderRadius: 12,
-    padding: 20,
+    padding: 15,
     fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
     width: '100%',
-    height: 90,
+    height: 70,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -271,11 +371,32 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
+  quickNumberPad: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginVertical: 10,
+    gap: 8,
+  },
+  quickButton: {
+    width: 45,
+    height: 45,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 2,
+  },
+  quickButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
     gap: 10,
+    marginTop: 10,
   },
   button: {
     borderRadius: 10,
@@ -283,7 +404,6 @@ const styles = StyleSheet.create({
     elevation: 2,
     flex: 1,
   },
-
   buttonText: {
     color: 'white',
     fontWeight: 'bold',

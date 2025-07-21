@@ -548,6 +548,16 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
                     placeholderTextColor={theme.textSecondary}
                     secureTextEntry={!showPassword}
                     autoFocus
+                    returnKeyType="done"
+                    onSubmitEditing={() => {
+                      if (password.trim()) {
+                        handlePasswordConfirm();
+                      }
+                    }}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                    keyboardType="default"
+                    blurOnSubmit={true}
                   />
                   <TouchableOpacity
                     style={styles.eyeButton}
