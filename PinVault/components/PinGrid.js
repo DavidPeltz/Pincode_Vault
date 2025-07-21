@@ -27,16 +27,8 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     return theme.gridColors[color] || '#CCCCCC';
   };
 
-  // Auto-focus input when modal opens (Android optimization)
-  useEffect(() => {
-    if (modalVisible && inputRef.current) {
-      // Longer delay for Android to ensure modal is fully rendered
-      const timer = setTimeout(() => {
-        inputRef.current?.focus();
-      }, Platform.OS === 'android' ? 250 : 100);
-      return () => clearTimeout(timer);
-    }
-  }, [modalVisible]);
+  // No auto-focus needed since we're using visual numpad only
+  // useEffect for focus removed since TextInput is disabled
 
   // Auto-dismiss keyboard when modal closes (Android optimization)
   useEffect(() => {
@@ -80,17 +72,9 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   };
 
   const handleValueChange = (text) => {
-    // Only allow single digits
+    // Update display value only (no auto-submit since keyboard is disabled)
     if (text === '' || (text.length === 1 && /^[0-9]$/.test(text))) {
       setInputValue(text);
-      
-      // Auto-submit when a digit is entered (streamlined UX)
-      // Shorter delay on Android for faster feel
-      if (text.length === 1 && /^[0-9]$/.test(text)) {
-        setTimeout(() => {
-          handleValueSubmit(text);
-        }, Platform.OS === 'android' ? 150 : 200);
-      }
     }
   };
 
@@ -177,91 +161,98 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   };
 
   // Render number pad for quick access (Android-optimized)
-  const renderQuickNumberPad = () => (
-    <View style={styles.quickNumberPad}>
-      {/* First row: 1, 2, 3 */}
-      <View style={styles.numberRow}>
-        {[1, 2, 3].map((digit) => (
+  const renderQuickNumberPad = () => {
+    const handleNumberPress = (digit) => {
+      setInputValue(digit.toString());
+      setTimeout(() => handleValueSubmit(digit.toString()), 300);
+    };
+
+    return (
+      <View style={styles.quickNumberPad}>
+        {/* First row: 1, 2, 3 */}
+        <View style={styles.numberRow}>
+          {[1, 2, 3].map((digit) => (
+            <TouchableOpacity
+              key={digit}
+              style={[styles.quickButton, { backgroundColor: theme.primary }]}
+              onPress={() => handleNumberPress(digit)}
+              activeOpacity={0.7}
+              android_ripple={{
+                color: 'rgba(255,255,255,0.2)',
+                borderless: false
+              }}
+            >
+              <Text style={styles.quickButtonText}>{digit}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        
+        {/* Second row: 4, 5, 6 */}
+        <View style={styles.numberRow}>
+          {[4, 5, 6].map((digit) => (
+            <TouchableOpacity
+              key={digit}
+              style={[styles.quickButton, { backgroundColor: theme.primary }]}
+              onPress={() => handleNumberPress(digit)}
+              activeOpacity={0.7}
+              android_ripple={{
+                color: 'rgba(255,255,255,0.2)',
+                borderless: false
+              }}
+            >
+              <Text style={styles.quickButtonText}>{digit}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        
+        {/* Third row: 7, 8, 9 */}
+        <View style={styles.numberRow}>
+          {[7, 8, 9].map((digit) => (
+            <TouchableOpacity
+              key={digit}
+              style={[styles.quickButton, { backgroundColor: theme.primary }]}
+              onPress={() => handleNumberPress(digit)}
+              activeOpacity={0.7}
+              android_ripple={{
+                color: 'rgba(255,255,255,0.2)',
+                borderless: false
+              }}
+            >
+              <Text style={styles.quickButtonText}>{digit}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        
+        {/* Fourth row: 0 and Clear */}
+        <View style={styles.numberRow}>
           <TouchableOpacity
-            key={digit}
             style={[styles.quickButton, { backgroundColor: theme.primary }]}
-            onPress={() => handleValueSubmit(digit.toString())}
+            onPress={() => handleNumberPress(0)}
             activeOpacity={0.7}
             android_ripple={{
               color: 'rgba(255,255,255,0.2)',
               borderless: false
             }}
           >
-            <Text style={styles.quickButtonText}>{digit}</Text>
+            <Text style={styles.quickButtonText}>0</Text>
           </TouchableOpacity>
-        ))}
-      </View>
-      
-      {/* Second row: 4, 5, 6 */}
-      <View style={styles.numberRow}>
-        {[4, 5, 6].map((digit) => (
           <TouchableOpacity
-            key={digit}
-            style={[styles.quickButton, { backgroundColor: theme.primary }]}
-            onPress={() => handleValueSubmit(digit.toString())}
+            style={[styles.quickButton, { backgroundColor: theme.warning }]}
+            onPress={() => handleClearCell()}
             activeOpacity={0.7}
             android_ripple={{
               color: 'rgba(255,255,255,0.2)',
               borderless: false
             }}
           >
-            <Text style={styles.quickButtonText}>{digit}</Text>
+            <Text style={styles.quickButtonText}>✕</Text>
           </TouchableOpacity>
-        ))}
+          {/* Empty space for symmetry */}
+          <View style={styles.quickButton} />
+        </View>
       </View>
-      
-      {/* Third row: 7, 8, 9 */}
-      <View style={styles.numberRow}>
-        {[7, 8, 9].map((digit) => (
-          <TouchableOpacity
-            key={digit}
-            style={[styles.quickButton, { backgroundColor: theme.primary }]}
-            onPress={() => handleValueSubmit(digit.toString())}
-            activeOpacity={0.7}
-            android_ripple={{
-              color: 'rgba(255,255,255,0.2)',
-              borderless: false
-            }}
-          >
-            <Text style={styles.quickButtonText}>{digit}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      
-      {/* Fourth row: 0 and Clear */}
-      <View style={styles.numberRow}>
-        <TouchableOpacity
-          style={[styles.quickButton, { backgroundColor: theme.primary }]}
-          onPress={() => handleValueSubmit('0')}
-          activeOpacity={0.7}
-          android_ripple={{
-            color: 'rgba(255,255,255,0.2)',
-            borderless: false
-          }}
-        >
-          <Text style={styles.quickButtonText}>0</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.quickButton, { backgroundColor: theme.warning }]}
-          onPress={() => handleClearCell()}
-          activeOpacity={0.7}
-          android_ripple={{
-            color: 'rgba(255,255,255,0.2)',
-            borderless: false
-          }}
-        >
-          <Text style={styles.quickButtonText}>✕</Text>
-        </TouchableOpacity>
-        {/* Empty space for symmetry */}
-        <View style={styles.quickButton} />
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -308,15 +299,18 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
                 autoCorrect={false}
                 autoCapitalize="none"
                 blurOnSubmit={true}
+                // Disable native keyboard - only show modal numpad
+                showSoftInputOnFocus={false}
+                caretHidden={true}
+                editable={false}
                 // Android-specific optimizations
                 underlineColorAndroid="transparent"
                 disableFullscreenUI={true}
-                showSoftInputOnFocus={true}
               />
             </View>
             
             <Text style={[styles.instruction, { color: theme.textSecondary }]}>
-              Type digit or tap number below • Auto-submits when entered
+              Tap a number below • Auto-submits when selected
             </Text>
             
             {/* Quick number pad for visual input */}

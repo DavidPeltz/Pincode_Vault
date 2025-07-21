@@ -253,10 +253,17 @@ const GridEditor = ({ navigation, route }) => {
           />
         </TouchableOpacity>
 
-        {/* Compact Instructions */}
+        {/* Detailed Instructions */}
         <View style={[styles.compactInstructions, { backgroundColor: theme.surface }]}>
-          <Text style={[styles.instructionText, { color: theme.textSecondary }]}>
-            Tap cells → Type or tap digit • Auto-submits when entered
+          <Text style={[styles.instructionTitle, { color: theme.text }]}>How to Create Your PIN Grid:</Text>
+          <Text style={[styles.instructionStep, { color: theme.textSecondary }]}>
+            1. <Text style={{ fontWeight: 'bold' }}>Name your card</Text> in the field above
+          </Text>
+          <Text style={[styles.instructionStep, { color: theme.textSecondary }]}>
+            2. <Text style={{ fontWeight: 'bold' }}>Tap grid cells</Text> to enter your PIN digits
+          </Text>
+          <Text style={[styles.instructionStep, { color: theme.textSecondary }]}>
+            3. <Text style={{ fontWeight: 'bold' }}>Tap numbers</Text> in the popup to select digits
           </Text>
           <Text style={[styles.betaIndicator, { color: theme.warning }]}>
             🧪 v1.5 Beta - Enhanced Input Experience
@@ -335,16 +342,24 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     alignItems: 'center',
   },
-  instructionText: {
-    fontSize: 12,
+  instructionTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
     textAlign: 'center',
-    lineHeight: 16,
+    marginBottom: 8,
+  },
+  instructionStep: {
+    fontSize: 12,
+    textAlign: 'left',
+    lineHeight: 18,
+    marginBottom: 4,
+    paddingHorizontal: 8,
   },
   betaIndicator: {
     fontSize: 10,
     textAlign: 'center',
     fontWeight: 'bold',
-    marginTop: 4,
+    marginTop: 8,
   },
   button: {
     padding: 12,
