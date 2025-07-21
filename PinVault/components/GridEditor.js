@@ -88,6 +88,11 @@ const GridEditor = ({ navigation, route }) => {
       return;
     }
 
+    if (!isGridComplete()) {
+      Alert.alert('Incomplete Grid', 'Please fill all cells with digits before saving. Use "Fill Random" to add decoy digits.');
+      return;
+    }
+
     const gridData = {
       id: route.params?.gridData?.id || Date.now().toString(),
       name: cardName.trim(),
@@ -154,6 +159,11 @@ const GridEditor = ({ navigation, route }) => {
       .sort((a, b) => a.id - b.id)
       .map(cell => cell.value)
       .join('');
+  };
+
+  const isGridComplete = () => {
+    // Check if all 40 cells (8x5 grid) have values
+    return grid.length === 40 && grid.every(cell => cell.value !== null && cell.value !== undefined);
   };
 
   return (
@@ -266,10 +276,10 @@ const GridEditor = ({ navigation, route }) => {
             3. <Text style={{ fontWeight: 'bold' }}>Tap numbers</Text> in the popup to select digits
           </Text>
           <Text style={[styles.instructionStep, { color: theme.textSecondary }]}>
-            4. <Text style={{ fontWeight: 'bold' }}>Fill Random</Text> to add decoy digits
+            4. <Text style={{ fontWeight: 'bold' }}>Fill Random</Text> to complete all cells with decoy digits
           </Text>
           <Text style={[styles.instructionStep, { color: theme.textSecondary }]}>
-            5. <Text style={{ fontWeight: 'bold' }}>Save Grid</Text> to store your PIN card securely
+            5. <Text style={{ fontWeight: 'bold' }}>Save Grid</Text> when all cells are filled
           </Text>
           <Text style={[styles.betaIndicator, { color: theme.warning }]}>
             🧪 v1.5 Beta - Enhanced Input Experience
@@ -277,17 +287,22 @@ const GridEditor = ({ navigation, route }) => {
         </View>
 
         {/* Save Button */}
-        <TouchableOpacity
-          style={[
-            styles.saveButton,
-            { backgroundColor: (!hasEnteredPin || !cardName.trim()) ? theme.textSecondary : theme.green },
-            (!hasEnteredPin || !cardName.trim()) && styles.disabledButton
-          ]}
-          onPress={handleSave}
-          disabled={!hasEnteredPin || !cardName.trim()}
-        >
-          <Text style={styles.saveButtonText}>Save Grid</Text>
-        </TouchableOpacity>
+        {isGridComplete() && hasEnteredPin && cardName.trim() ? (
+          <TouchableOpacity
+            style={[styles.saveButton, { backgroundColor: theme.green }]}
+            onPress={handleSave}
+          >
+            <Text style={styles.saveButtonText}>Save Grid</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={[styles.saveButton, { backgroundColor: theme.textSecondary }, styles.disabledButton]}>
+            <Text style={styles.saveButtonText}>
+              {!cardName.trim() ? 'Name Required' : 
+               !hasEnteredPin ? 'PIN Required' : 
+               !isGridComplete() ? 'Fill All Cells' : 'Save Grid'}
+            </Text>
+          </View>
+        )}
       </TouchableOpacity>
     </SafeAreaView>
   );
