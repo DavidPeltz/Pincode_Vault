@@ -131,7 +131,7 @@ export default function InfoButton() {
                   Version & Privacy
                 </Text>
                 <Text style={[styles.sectionText, { color: theme.textSecondary }]}>
-                  Version: 1.4.0{'\n'}
+                  Version: 1.5 Beta{'\n'}
                   Your PIN data is stored locally on your device and never transmitted to external servers. The app uses your device's available authentication methods (PIN, Pattern, Password, Face ID, or Fingerprint) for additional security.
                 </Text>
               </View>

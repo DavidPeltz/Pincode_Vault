@@ -277,6 +277,9 @@ const GridEditor = ({ navigation, route }) => {
               : 'Tap cells → Type digit • Auto-submits when entered'
             }
           </Text>
+          <Text style={[styles.betaIndicator, { color: theme.warning }]}>
+            🧪 v1.5 Beta - Enhanced Input Experience
+          </Text>
         </View>
 
         {/* Save Button */}
@@ -374,6 +377,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
     lineHeight: 16,
+  },
+  betaIndicator: {
+    fontSize: 10,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    marginTop: 4,
   },
   button: {
     padding: 12,
