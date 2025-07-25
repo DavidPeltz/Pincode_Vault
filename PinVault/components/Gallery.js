@@ -2,22 +2,21 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   Alert,
-  ScrollView,
-  SafeAreaView,
   FlatList,
   Dimensions,
-  ActivityIndicator
+  ActivityIndicator,
+  SafeAreaView,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import PinGrid from './PinGrid';
 import { getGrids, deleteGrid } from '../utils/storage';
 import { useAuth } from './AuthProvider';
 import { useTheme } from '../contexts/ThemeContext';
 import { useGridRefresh } from '../contexts/GridRefreshContext';
 import { useNavigationBarHeight } from '../hooks/useNavigationBarHeight';
+import EmptyState from './gallery/EmptyState';
+import GridCard from './gallery/GridCard';
 
 const { width } = Dimensions.get('window');
 
@@ -185,76 +184,25 @@ const Gallery = ({ navigation }) => {
     );
   };
 
-  const renderGridItem = ({ item, index }) => {
-    const formatDate = (dateString) => {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    };
-
-    return (
-              <View style={styles.gridCard}>
-          <View style={styles.gridContent}>
-            <View style={[styles.cardHeader, { backgroundColor: theme.surface }]}>
-              <Text style={[styles.cardTitle, { color: theme.text }]}>{item.name}</Text>
-              <Text style={[styles.cardDate, { color: theme.textSecondary }]}>
-                Updated: {formatDate(item.updatedAt)}
-              </Text>
-            </View>
-
-          <PinGrid
-            grid={item.grid}
-            onGridUpdate={() => {}} // Read-only in gallery
-            isEditable={false}
-            showValues={true}
-            showPinHighlight={false}
-          />
-
-                      <View style={styles.cardActions}>
-              <TouchableOpacity
-                style={[
-                  styles.actionButton, 
-                  { backgroundColor: theme.primary },
-                  authenticationInProgress && styles.disabledButton
-                ]}
-                onPress={() => handleEdit(item)}
-                disabled={authenticationInProgress}
-              >
-                {authenticationInProgress ? (
-                  <ActivityIndicator color="white" size="small" />
-                ) : (
-                  <Text style={styles.actionButtonText}>
-                    {isAuthAvailable ? 'Edit (Auth Required)' : 'Edit'}
-                  </Text>
-                )}
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                style={[
-                  styles.actionButton, 
-                  { backgroundColor: theme.danger },
-                  authenticationInProgress && styles.disabledButton
-                ]}
-                onPress={() => handleDelete(item)}
-                disabled={authenticationInProgress}
-              >
-                {authenticationInProgress ? (
-                  <ActivityIndicator color="white" size="small" />
-                ) : (
-                  <Text style={styles.actionButtonText}>
-                    {isAuthAvailable ? 'Delete (Auth Required)' : 'Delete'}
-                  </Text>
-                )}
-              </TouchableOpacity>
-            </View>
-        </View>
-      </View>
-    );
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
+
+  const renderGridItem = ({ item, index }) => (
+    <GridCard
+      item={item}
+      index={index}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+      formatDate={formatDate}
+    />
+  );
 
   if (loading) {
     return (
@@ -268,112 +216,22 @@ const Gallery = ({ navigation }) => {
 
   if (grids.length === 0) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.background, paddingBottom: safeBottomPadding }]}>
-        <ScrollView contentContainerStyle={styles.centeredScrollable}>
-          <View style={styles.centered}>
-            <Text style={[styles.emptyTitle, { color: theme.text }]}>Welcome to PIN Vault</Text>
-            
-            {/* App Overview Section */}
-            <View style={[styles.overviewSection, { backgroundColor: theme.surface }]}>
-              <Text style={[styles.sectionTitle, { color: theme.primary }]}>
-                About PIN Vault
-              </Text>
-              <Text style={[styles.overviewText, { color: theme.textSecondary }]}>
-                PIN Vault is a secure mobile app designed to help you safely store and manage your bank and credit card PIN codes using a visual grid system. Your PINs are hidden among random digits and protected with device authentication (PIN, Pattern, Password, Face ID, or Fingerprint).
-              </Text>
-            </View>
-
-            {/* Backup & Restore Section */}
-            <View style={[styles.overviewSection, { backgroundColor: theme.surface }]}>
-              <Text style={[styles.sectionTitle, { color: theme.primary }]}>
-                Backup & Restore
-              </Text>
-              <Text style={[styles.overviewText, { color: theme.textSecondary }]}>
-                Securely backup your PIN grids to password-protected files that can be shared across devices. Use the backup button in the header to export your grids or import existing backups when setting up PIN Vault on a new device. All backup files are encrypted for your security.
-              </Text>
-            </View>
-
-            {/* Authentication Setup Warning - Only show if auth not available */}
-            {!isAuthAvailable && (
-              <View style={[styles.authSetupSection, { backgroundColor: theme.surface, borderColor: theme.warning }]}>
-                <Text style={[styles.sectionTitle, { color: theme.warning }]}>
-                  🔒 Setup Required
-                </Text>
-                <Text style={[styles.overviewText, { color: theme.textSecondary }]}>
-                  Before you can create PIN grids, you need to set up device authentication. Please go to your device settings and configure one of the following security methods:
-                </Text>
-                <View style={styles.authMethodsList}>
-                  <Text style={[styles.authMethod, { color: theme.textSecondary }]}>• Device PIN</Text>
-                  <Text style={[styles.authMethod, { color: theme.textSecondary }]}>• Pattern Lock</Text>
-                  <Text style={[styles.authMethod, { color: theme.textSecondary }]}>• Password</Text>
-                  <Text style={[styles.authMethod, { color: theme.textSecondary }]}>• Face ID (iOS)</Text>
-                  <Text style={[styles.authMethod, { color: theme.textSecondary }]}>• Fingerprint</Text>
-                </View>
-                <Text style={[styles.authSetupNote, { color: theme.textSecondary }]}>
-                  Once device authentication is configured, restart PIN Vault to begin creating secure PIN grids.
-                </Text>
-              </View>
-            )}
-
-            {/* Instructions Section */}
-            <View style={[styles.instructionsSection, { backgroundColor: theme.surface }]}>
-              <Text style={[styles.sectionTitle, { color: theme.primary }]}>
-                How to Use PIN Vault
-              </Text>
-              <Text style={[styles.instructionText, { color: theme.textSecondary }]}>
-                1. Tap colored cells to enter your PIN digits (0-9)
-              </Text>
-              <Text style={[styles.instructionText, { color: theme.textSecondary }]}>
-                2. Fill remaining cells with random digits for security
-              </Text>
-              <Text style={[styles.instructionText, { color: theme.textSecondary }]}>
-                3. Save your grid with a memorable name
-              </Text>
-            </View>
-
-            <Text style={[styles.emptyMessage, { color: theme.textSecondary }]}>
-              {isAuthAvailable 
-                ? 'Ready to get started? Create your first PIN grid below.'
-                : 'Once device authentication is set up, you can create your first PIN grid.'
-              }
-            </Text>
-            
-            <TouchableOpacity
-              style={[
-                styles.createButton, 
-                { backgroundColor: isAuthAvailable ? theme.primary : theme.textSecondary },
-                (authenticationInProgress || !isAuthAvailable) && styles.disabledButton
-              ]}
-              onPress={async () => {
-                if (!isAuthAvailable) {
-                  Alert.alert(
-                    'Authentication Setup Required',
-                    'To create PIN grids, you must first set up device authentication (PIN, Pattern, Password, Face ID, or Fingerprint) in your device settings. Once configured, restart PIN Vault to begin.',
-                    [{ text: 'OK' }]
-                  );
-                  return;
-                }
-                const authenticated = await authenticate('Authenticate to create a new PIN grid');
-                if (authenticated) {
-                  navigation.navigate('GridEditor');
-                }
-              }}
-              disabled={authenticationInProgress || !isAuthAvailable}
-            >
-              {authenticationInProgress ? (
-                <ActivityIndicator color="white" size="small" />
-              ) : (
-                <Text style={styles.createButtonText}>
-                  {isAuthAvailable 
-                    ? 'Create First Grid (Auth Required)'
-                    : 'Setup Authentication Required'
-                  }
-                </Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+      <EmptyState 
+        onCreateNew={async () => {
+          if (!isAuthAvailable) {
+            Alert.alert(
+              'Authentication Setup Required',
+              'To create PIN grids, you must first set up device authentication (PIN, Pattern, Password, Face ID, or Fingerprint) in your device settings. Once configured, restart PIN Vault to begin.',
+              [{ text: 'OK' }]
+            );
+            return;
+          }
+          const authenticated = await authenticate('Authenticate to create a new PIN grid');
+          if (authenticated) {
+            navigation.navigate('GridEditor');
+          }
+        }}
+      />
     );
   }
 
