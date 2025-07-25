@@ -4,14 +4,21 @@ import PasswordInput from '../../../components/backup/PasswordInput';
 
 // Mock the theme context
 const mockTheme = {
-  colors: {
+  theme: {
     background: '#FFFFFF',
     surface: '#F5F5F5',
     text: '#000000',
+    textSecondary: '#666666',
     primary: '#2196F3',
     border: '#E0E0E0',
     error: '#F44336',
+    modal: {
+      background: '#FFFFFF',
+      overlay: 'rgba(0, 0, 0, 0.5)',
+    },
   },
+  isDarkMode: false,
+  toggleTheme: jest.fn(),
 };
 
 jest.mock('../../../contexts/ThemeContext', () => ({

@@ -6,8 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { saveGrid, getGrids } from '../../utils/storage';
 import { encryptBackupData, decryptBackupData } from '../../utils/encryption';
 import {
-  createLocalBackup,
-  createShareableBackup,
+  createBackupForLocal as createLocalBackup,
+  createBackupForSharing as createShareableBackup,
   restoreFromBackup,
 } from '../../utils/backup';
 
