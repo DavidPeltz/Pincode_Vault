@@ -1,10 +1,36 @@
-# PIN Vault v1.5 - Secure PIN Storage App
+# PIN Vault v1.6 - Secure PIN Storage App
 
 A mobile app built with React Native and Expo that allows users to securely
 store their bank and credit card PIN codes using a unique visual grid system
 with biometric authentication protection and secure backup capabilities.
 
-## 🚀 What's New in v1.5
+## 🚀 What's New in v1.6
+
+### 🧪 **Testing Infrastructure & Code Quality**
+
+- **Comprehensive Test Suite**: Unit, integration, and component tests with Jest and React Native Testing Library
+- **Backward Compatibility Testing**: Ensures seamless migration from older app versions and cross-device compatibility  
+- **Code Coverage**: 70%+ coverage requirement with detailed reporting
+- **ESLint Integration**: Automated code quality checks with React Native and JSDoc rules
+- **Prettier Formatting**: Consistent code style across the entire codebase
+- **Pre-commit Hooks**: Husky + lint-staged ensure code quality before commits
+
+### 📚 **Enhanced Documentation & Developer Experience**
+
+- **Comprehensive API Documentation**: Complete JSDoc coverage for all functions and components
+- **Development Guide**: Detailed setup instructions, workflows, and best practices
+- **Testing Guide**: Complete testing strategies and backward compatibility procedures
+- **PropTypes Integration**: Runtime type checking for all React components
+- **VS Code Integration**: Recommended extensions and workspace settings for optimal development
+
+### 🔧 **Code Architecture Improvements**
+
+- **Component Modularization**: Large components broken into focused, reusable sub-components
+- **Centralized Constants**: All magic numbers and configuration values extracted to dedicated constants file
+- **Improved Code Organization**: Clear separation of concerns and enhanced maintainability
+- **Type Safety**: Comprehensive PropTypes and JSDoc type definitions throughout codebase
+
+## 🚀 What Was New in v1.5
 
 ### ⚡ Major Usability Improvements
 
@@ -468,13 +494,48 @@ We welcome contributions! Areas of interest:
 
 ### Development Setup
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests and ensure code quality
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to your branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+1. **Prerequisites**
+   ```bash
+   # Install Node.js 16+ and npm
+   # Install Expo CLI globally
+   npm install -g @expo/cli
+   ```
+
+2. **Clone and Setup**
+   ```bash
+   git clone https://github.com/DavidPeltz/Pincode_Vault.git
+   cd Pincode_Vault/PinVault
+   npm install
+   ```
+
+3. **Development Scripts**
+   ```bash
+   # Start development server
+   npm start
+   
+   # Code quality and testing
+   npm run lint          # Run ESLint
+   npm run format        # Format with Prettier  
+   npm run quality       # Run all quality checks
+   npm run test          # Run test suite
+   npm run test:coverage # Run tests with coverage report
+   ```
+
+4. **Contributing Workflow**
+   - Fork the repository
+   - Create a feature branch (`git checkout -b feature/amazing-feature`)
+   - Make your changes following our code quality standards
+   - Ensure all tests pass and code meets linting requirements
+   - Commit your changes (pre-commit hooks will run automatically)
+   - Push to your branch (`git push origin feature/amazing-feature`)
+   - Open a Pull Request
+
+5. **Code Quality Standards**
+   - All code must pass ESLint checks
+   - Code must be formatted with Prettier
+   - New features require corresponding tests
+   - Maintain 70%+ test coverage
+   - Add JSDoc documentation for new functions
 
 ## License
 
