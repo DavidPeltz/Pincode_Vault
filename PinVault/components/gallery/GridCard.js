@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import PinGrid from '../PinGrid';
+import PropTypes from 'prop-types';
 
 const { width } = Dimensions.get('window');
 
@@ -107,6 +108,32 @@ export default function GridCard({ item, index, onEdit, onDelete, formatDate }) 
     </View>
   );
 }
+
+/**
+ * PropTypes for GridCard component
+ */
+GridCard.propTypes = {
+  /** Grid item data object containing grid information */
+  item: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    grid: PropTypes.array.isRequired,
+    createdAt: PropTypes.string.isRequired,
+    updatedAt: PropTypes.string,
+  }).isRequired,
+  
+  /** Grid index number for display */
+  index: PropTypes.number.isRequired,
+  
+  /** Callback function called when edit button is pressed */
+  onEdit: PropTypes.func.isRequired,
+  
+  /** Callback function called when delete button is pressed */
+  onDelete: PropTypes.func.isRequired,
+  
+  /** Function to format date strings for display */
+  formatDate: PropTypes.func.isRequired,
+};
 
 const styles = StyleSheet.create({
   gridItem: {

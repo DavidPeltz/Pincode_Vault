@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
+import PropTypes from 'prop-types';
 
 /**
  * Password input modal component for backup operations
@@ -134,6 +135,26 @@ export default function PasswordInput({ visible, action, onSubmit, onCancel, err
     </Modal>
   );
 }
+
+/**
+ * PropTypes for PasswordInput component
+ */
+PasswordInput.propTypes = {
+  /** Whether the modal is visible */
+  visible: PropTypes.bool.isRequired,
+  
+  /** The action type for the password input */
+  action: PropTypes.oneOf(['backup-local', 'backup-share', 'restore']),
+  
+  /** Callback function called when password is submitted */
+  onSubmit: PropTypes.func.isRequired,
+  
+  /** Callback function called when password input is cancelled */
+  onCancel: PropTypes.func.isRequired,
+  
+  /** Error message to display */
+  error: PropTypes.string,
+};
 
 const styles = StyleSheet.create({
   overlay: {

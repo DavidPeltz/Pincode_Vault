@@ -6,6 +6,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
+import PropTypes from 'prop-types';
 
 /**
  * Component for selecting restore options
@@ -84,6 +85,20 @@ export default function RestoreOptions({ options, onOptionsChange }) {
     </View>
   );
 }
+
+/**
+ * PropTypes for RestoreOptions component
+ */
+RestoreOptions.propTypes = {
+  /** Current restore options configuration */
+  options: PropTypes.shape({
+    replaceAll: PropTypes.bool.isRequired,
+    overwriteExisting: PropTypes.bool.isRequired,
+  }).isRequired,
+  
+  /** Callback function called when options change */
+  onOptionsChange: PropTypes.func.isRequired,
+};
 
 const styles = StyleSheet.create({
   container: {

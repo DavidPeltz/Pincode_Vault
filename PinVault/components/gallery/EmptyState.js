@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../AuthProvider';
+import PropTypes from 'prop-types';
 
 /**
  * Empty state component for when no grids are available
@@ -111,6 +112,14 @@ export default function EmptyState({ onCreateNew }) {
     </ScrollView>
   );
 }
+
+/**
+ * PropTypes for EmptyState component
+ */
+EmptyState.propTypes = {
+  /** Callback function called when create new grid button is pressed */
+  onCreateNew: PropTypes.func.isRequired,
+};
 
 const styles = StyleSheet.create({
   container: {

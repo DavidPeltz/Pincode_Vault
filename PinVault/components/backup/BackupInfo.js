@@ -5,6 +5,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
+import PropTypes from 'prop-types';
 
 /**
  * Component to display backup file information
@@ -91,6 +92,27 @@ export default function BackupInfo({ backupInfo, restoreOptions }) {
     </View>
   );
 }
+
+/**
+ * PropTypes for BackupInfo component
+ */
+BackupInfo.propTypes = {
+  /** Backup information object containing file metadata */
+  backupInfo: PropTypes.shape({
+    fileName: PropTypes.string,
+    version: PropTypes.string,
+    timestamp: PropTypes.string,
+    gridCount: PropTypes.number,
+    fileSize: PropTypes.number,
+    encryptionType: PropTypes.string,
+  }),
+  
+  /** Restore options configuration object */
+  restoreOptions: PropTypes.shape({
+    replaceAll: PropTypes.bool.isRequired,
+    overwriteExisting: PropTypes.bool.isRequired,
+  }).isRequired,
+};
 
 const styles = StyleSheet.create({
   container: {

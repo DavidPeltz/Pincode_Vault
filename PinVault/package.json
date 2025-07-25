@@ -20,6 +20,7 @@
     "expo-local-authentication": "^16.0.5",
     "expo-sharing": "~13.1.5",
     "expo-status-bar": "~2.2.3",
+    "prop-types": "^15.8.1",
     "react": "19.0.0",
     "react-native": "0.79.5",
     "react-native-gesture-handler": "^2.27.1",

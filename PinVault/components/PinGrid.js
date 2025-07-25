@@ -13,9 +13,44 @@ import {
   BackHandler
 } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import PropTypes from 'prop-types';
+
+/**
+ * @fileoverview Interactive PIN grid component for PIN Vault
+ * 
+ * Renders an 8x5 grid of colored cells that can be tapped to enter PIN digits.
+ * Supports both editable and read-only modes with visual feedback for PIN cells.
+ * Includes platform-specific optimizations for keyboard handling and user interaction.
+ */
 
 const { width, height } = Dimensions.get('window');
 
+/**
+ * Interactive PIN Grid Component
+ * 
+ * Displays a visual grid of colored cells for PIN entry and viewing.
+ * In editable mode, users can tap cells to enter digits. PIN cells are
+ * highlighted with special borders to distinguish them from decoy digits.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array<Object>} props.grid - Array of 40 grid cell objects
+ * @param {Function} props.onGridUpdate - Callback when grid is updated
+ * @param {boolean} [props.isEditable=true] - Whether grid cells can be edited
+ * @param {boolean} [props.showValues=true] - Whether to display cell values
+ * @param {boolean} [props.showPinHighlight=true] - Whether to highlight PIN cells
+ * 
+ * @example
+ * const [grid, setGrid] = useState(generateRandomGrid());
+ * 
+ * <PinGrid
+ *   grid={grid}
+ *   onGridUpdate={setGrid}
+ *   isEditable={true}
+ *   showValues={true}
+ *   showPinHighlight={true}
+ * />
+ */
 const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, showPinHighlight = true }) => {
   const [selectedCell, setSelectedCell] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -23,12 +58,19 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   const inputRef = useRef(null);
   const { theme, isDarkMode } = useTheme();
 
+  /**
+   * Gets the hex color code for a grid cell color name
+   * 
+   * @function getColorHex
+   * @param {string} color - Color name ('red', 'blue', 'green', 'yellow')
+   * @returns {string} Hex color code from current theme
+   * 
+   * @example
+   * const redColor = getColorHex('red'); // '#FF0000' in light mode
+   */
   const getColorHex = (color) => {
     return theme.gridColors[color] || '#CCCCCC';
   };
-
-  // No auto-focus needed since we're using visual numpad only
-  // useEffect for focus removed since TextInput is disabled
 
   // Auto-dismiss keyboard when modal closes (Android optimization)
   useEffect(() => {
@@ -50,6 +92,16 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     }
   }, [modalVisible]);
 
+  /**
+   * Handles cell press events to open digit input modal
+   * 
+   * @function handleCellPress
+   * @param {number} cellIndex - Index of the pressed cell (0-39)
+   * @returns {void}
+   * 
+   * @example
+   * handleCellPress(0); // Opens input modal for first cell
+   */
   const handleCellPress = (cellIndex) => {
     if (!isEditable) return;
     
@@ -61,6 +113,19 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     setModalVisible(true);
   };
 
+  /**
+   * Updates a specific cell's value and PIN digit status
+   * 
+   * @function updateCellValue
+   * @param {number} cellIndex - Index of the cell to update
+   * @param {number|null} value - New digit value (0-9) or null for empty
+   * @param {boolean} isPinDigit - Whether this cell contains a PIN digit
+   * @returns {void}
+   * 
+   * @example
+   * updateCellValue(5, 7, true); // Set cell 5 to digit 7 as PIN digit
+   * updateCellValue(10, null, false); // Clear cell 10
+   */
   const updateCellValue = (cellIndex, value, isPinDigit) => {
     const updatedGrid = [...grid];
     updatedGrid[cellIndex] = {
@@ -71,6 +136,13 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     onGridUpdate(updatedGrid);
   };
 
+  /**
+   * Handles input value changes in the modal text input
+   * 
+   * @function handleValueChange
+   * @param {string} text - New input text value
+   * @returns {void}
+   */
   const handleValueChange = (text) => {
     // Update display value only (no auto-submit since keyboard is disabled)
     if (text === '' || (text.length === 1 && /^[0-9]$/.test(text))) {
@@ -78,6 +150,17 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     }
   };
 
+  /**
+   * Submits the entered value and updates the grid
+   * 
+   * @function handleValueSubmit
+   * @param {string} [value=inputValue] - Value to submit (defaults to current input)
+   * @returns {void}
+   * 
+   * @example
+   * handleValueSubmit('5'); // Submit digit 5 to selected cell
+   * handleValueSubmit(''); // Clear the selected cell
+   */
   const handleValueSubmit = (value = inputValue) => {
     if (value === '' || (value >= '0' && value <= '9')) {
       updateCellValue(
@@ -91,11 +174,23 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     }
   };
 
+  /**
+   * Clears the selected cell value
+   * 
+   * @function handleClearCell
+   * @returns {void}
+   */
   const handleClearCell = () => {
     updateCellValue(selectedCell, null, false);
     closeModal();
   };
 
+  /**
+   * Closes the input modal with platform-specific keyboard handling
+   * 
+   * @function closeModal
+   * @returns {void}
+   */
   const closeModal = () => {
     // Force keyboard dismissal on Android
     if (Platform.OS === 'android') {
@@ -114,15 +209,38 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     }
   };
 
+  /**
+   * Handles keyboard submit event
+   * 
+   * @function handleKeyboardSubmit
+   * @returns {void}
+   */
   const handleKeyboardSubmit = () => {
     handleValueSubmit();
   };
 
-  // Handle hardware back button on Android
+  /**
+   * Handles modal request close (Android back button)
+   * 
+   * @function handleModalRequestClose
+   * @returns {void}
+   */
   const handleModalRequestClose = () => {
     closeModal();
   };
 
+  /**
+   * Renders a single grid cell with proper styling and interaction
+   * 
+   * @function renderCell
+   * @param {Object} cell - Cell data object
+   * @param {number} index - Cell index in the grid array
+   * @returns {React.ReactElement} Rendered cell component
+   * 
+   * @example
+   * const cell = { id: 0, color: 'red', value: 5, isPinDigit: true };
+   * const cellElement = renderCell(cell, 0);
+   */
   const renderCell = (cell, index) => {
     const row = Math.floor(index / 8);
     const col = index % 8;
@@ -160,8 +278,20 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     );
   };
 
-  // Render number pad for quick access (Android-optimized)
+  /**
+   * Renders the quick number pad for digit selection
+   * 
+   * @function renderQuickNumberPad
+   * @returns {React.ReactElement} Number pad component
+   */
   const renderQuickNumberPad = () => {
+    /**
+     * Handles number pad button press with auto-submit
+     * 
+     * @function handleNumberPress
+     * @param {number} digit - Selected digit (0-9)
+     * @returns {void}
+     */
     const handleNumberPress = (digit) => {
       setInputValue(digit.toString());
       setTimeout(() => handleValueSubmit(digit.toString()), 300);
@@ -223,8 +353,20 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
           ))}
         </View>
         
-        {/* Fourth row: 0 and Clear */}
+        {/* Fourth row: Clear, 0, OK */}
         <View style={styles.numberRow}>
+          <TouchableOpacity
+            style={[styles.quickButton, { backgroundColor: theme.textSecondary }]}
+            onPress={handleClearCell}
+            activeOpacity={0.7}
+            android_ripple={{
+              color: 'rgba(255,255,255,0.2)',
+              borderless: false
+            }}
+          >
+            <Text style={styles.quickButtonText}>Clear</Text>
+          </TouchableOpacity>
+          
           <TouchableOpacity
             style={[styles.quickButton, { backgroundColor: theme.primary }]}
             onPress={() => handleNumberPress(0)}
@@ -236,19 +378,18 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
           >
             <Text style={styles.quickButtonText}>0</Text>
           </TouchableOpacity>
+          
           <TouchableOpacity
-            style={[styles.quickButton, { backgroundColor: theme.warning }]}
-            onPress={() => handleClearCell()}
+            style={[styles.quickButton, { backgroundColor: theme.success }]}
+            onPress={() => handleValueSubmit()}
             activeOpacity={0.7}
             android_ripple={{
               color: 'rgba(255,255,255,0.2)',
               borderless: false
             }}
           >
-            <Text style={styles.quickButtonText}>✕</Text>
+            <Text style={styles.quickButtonText}>OK</Text>
           </TouchableOpacity>
-          {/* Empty space for symmetry */}
-          <View style={styles.quickButton} />
         </View>
       </View>
     );
@@ -260,241 +401,175 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
         {grid.map((cell, index) => renderCell(cell, index))}
       </View>
 
+      {/* Digit Input Modal */}
       <Modal
-        animationType="fade"
-        transparent={true}
         visible={modalVisible}
+        animationType="slide"
+        transparent={true}
         onRequestClose={handleModalRequestClose}
-        hardwareAccelerated={true} // Android optimization
-        statusBarTranslucent={true} // Android optimization
+        hardwareAccelerated={true}
       >
-        <TouchableOpacity 
-          style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}
-          activeOpacity={1}
-          onPress={closeModal}
-        >
-          <TouchableOpacity 
-            style={[styles.modalContent, { backgroundColor: theme.modal.background }]}
-            activeOpacity={1}
-          >
-            <Text style={[styles.modalTitle, { color: theme.text }]}>Enter Digit (0-9)</Text>
-            
-            <View style={styles.inputContainer}>
-              <TextInput
-                ref={inputRef}
-                style={[styles.input, { 
-                  backgroundColor: theme.surface, 
-                  color: theme.text, 
-                  borderColor: theme.primary 
-                }]}
-                value={inputValue}
-                onChangeText={handleValueChange}
-                keyboardType="number-pad"
-                maxLength={1}
-                placeholder="0-9"
-                placeholderTextColor={theme.textSecondary}
-                returnKeyType="done"
-                onSubmitEditing={handleKeyboardSubmit}
-                selectTextOnFocus={true}
-                autoCorrect={false}
-                autoCapitalize="none"
-                blurOnSubmit={true}
-                // Disable native keyboard - only show modal numpad
-                showSoftInputOnFocus={false}
-                caretHidden={true}
-                editable={false}
-                // Android-specific optimizations
-                underlineColorAndroid="transparent"
-                disableFullscreenUI={true}
-              />
-            </View>
-            
-            <Text style={[styles.instruction, { color: theme.textSecondary }]}>
-              Tap a number below • Auto-submits when selected
+        <View style={[styles.modalOverlay, { backgroundColor: theme.modal.overlay }]}>
+          <View style={[styles.modalContent, { backgroundColor: theme.modal.background }]}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>
+              Enter Digit for {grid[selectedCell]?.color} Cell
             </Text>
             
-            {/* Quick number pad for visual input */}
-            {renderQuickNumberPad()}
+            <TextInput
+              ref={inputRef}
+              style={[
+                styles.textInput,
+                {
+                  backgroundColor: theme.surface,
+                  borderColor: theme.border,
+                  color: theme.text,
+                }
+              ]}
+              value={inputValue}
+              onChangeText={handleValueChange}
+              placeholder="0-9 or leave empty"
+              placeholderTextColor={theme.textSecondary}
+              keyboardType="numeric"
+              maxLength={1}
+              showSoftInputOnFocus={false}
+              disableFullscreenUI={true}
+              underlineColorAndroid="transparent"
+              onSubmitEditing={handleKeyboardSubmit}
+            />
             
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.button, { backgroundColor: theme.warning }]}
-                onPress={handleClearCell}
-                android_ripple={{
-                  color: 'rgba(255,255,255,0.2)',
-                  borderless: false
-                }}
-              >
-                <Text style={styles.buttonText}>Clear</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, { backgroundColor: theme.error }]}
-                onPress={closeModal}
-                android_ripple={{
-                  color: 'rgba(255,255,255,0.2)',
-                  borderless: false
-                }}
-              >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
+            {renderQuickNumberPad()}
+          </View>
+        </View>
       </Modal>
     </View>
   );
 };
 
+/**
+ * PropTypes for PinGrid component
+ */
+PinGrid.propTypes = {
+  /** Array of 40 grid cell objects with id, color, value, and isPinDigit properties */
+  grid: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    color: PropTypes.oneOf(['red', 'blue', 'green', 'yellow']).isRequired,
+    value: PropTypes.number,
+    isPinDigit: PropTypes.bool.isRequired,
+  })).isRequired,
+  
+  /** Callback function called when grid is updated with new grid array */
+  onGridUpdate: PropTypes.func.isRequired,
+  
+  /** Whether grid cells can be edited by tapping */
+  isEditable: PropTypes.bool,
+  
+  /** Whether to display cell values (digits) */
+  showValues: PropTypes.bool,
+  
+  /** Whether to highlight PIN cells with special border */
+  showPinHighlight: PropTypes.bool,
+};
+
+/**
+ * Default props for PinGrid component
+ */
+PinGrid.defaultProps = {
+  isEditable: true,
+  showValues: true,
+  showPinHighlight: true,
+};
+
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    padding: 10,
+    justifyContent: 'center',
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    width: width * 0.9,
+    width: Math.min(width - 40, 320),
     aspectRatio: 8/5,
-    justifyContent: 'space-between',
   },
   cell: {
-    width: '11.5%',
+    width: '12.5%',
     aspectRatio: 1,
-    margin: '0.5%',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#DDD',
+    borderColor: '#000',
   },
   pinCell: {
     borderWidth: 3,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    borderStyle: 'solid',
   },
   cellText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  pinText: {
     fontSize: 18,
-    fontWeight: '900',
+    fontWeight: 'bold',
     color: '#000',
   },
-  modalContainer: {
+  pinText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
   modalContent: {
-    borderRadius: 20,
-    padding: 25,
-    alignItems: 'center',
+    width: '100%',
+    maxWidth: 350,
+    padding: 20,
+    borderRadius: 15,
+    elevation: 10,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    width: width * 0.85,
-    maxWidth: 400,
-  },
-  instruction: {
-    fontSize: 12,
-    textAlign: 'center',
-    marginBottom: 15,
-    fontStyle: 'italic',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#2C3E50',
     textAlign: 'center',
+    marginBottom: 20,
+    textTransform: 'capitalize',
   },
-  inputContainer: {
-    width: '100%',
-    marginVertical: 10,
-  },
-  input: {
+  textInput: {
     borderWidth: 2,
-    borderRadius: 12,
+    borderRadius: 10,
     padding: 15,
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: 24,
     textAlign: 'center',
-    width: '100%',
-    height: 70,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    marginBottom: 20,
+    fontWeight: 'bold',
   },
   quickNumberPad: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 15,
-    minWidth: 200,
+    width: '100%',
   },
   numberRow: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginVertical: 4,
-    gap: 12,
+    justifyContent: 'space-between',
+    marginBottom: 10,
   },
   quickButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
+    flex: 1,
+    aspectRatio: 2,
     justifyContent: 'center',
     alignItems: 'center',
+    marginHorizontal: 5,
+    borderRadius: 8,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
-    shadowRadius: 2,
+    shadowRadius: 3,
   },
   quickButtonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    gap: 10,
-    marginTop: 10,
-  },
-  button: {
-    borderRadius: 10,
-    padding: 10,
-    elevation: 2,
-    flex: 1,
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-
 });
 
 export default PinGrid;
