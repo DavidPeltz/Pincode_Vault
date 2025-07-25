@@ -225,6 +225,41 @@ describe('Backup/Restore Integration', () => {
 });
 ```
 
+#### 5. Backward Compatibility Tests
+
+**Location**: `__tests__/integration/backwardCompatibility.test.js`
+
+Test compatibility with legacy backup formats and cross-device scenarios.
+
+```javascript
+// Example: Legacy format test
+describe('Legacy Backup Support', () => {
+  it('should restore v1.2.0 backup format', async () => {
+    const legacyBackup = v12BackupFixture;
+    
+    const result = await restoreFromBackup(
+      legacyBackup,
+      'password',
+      { replaceAll: true }
+    );
+    
+    expect(result.success).toBe(true);
+    expect(result.version).toBe('1.2.0');
+    expect(result.migrated).toBe(true);
+  });
+  
+  it('should handle iOS to Android migration', async () => {
+    const iosBackup = createiOSBackup();
+    
+    // Simulate Android environment
+    const result = await restoreOnAndroid(iosBackup, 'password');
+    
+    expect(result.success).toBe(true);
+    expect(result.crossPlatform).toBe(true);
+  });
+});
+```
+
 ## Running Tests
 
 ### Available Scripts
@@ -669,6 +704,92 @@ jobs:
 ### Coverage Reporting
 
 Integrate with coverage services like Codecov or Coveralls for tracking coverage over time.
+
+## Backward Compatibility Testing
+
+### Why Backward Compatibility Matters
+
+PIN Vault users rely on being able to restore their data across:
+- **App updates** (v1.2 → v1.6)
+- **Device changes** (iPhone → Android)
+- **Platform migrations** (iOS 15 → iOS 17)
+- **Emergency recovery** (old backup files)
+
+### What We Test
+
+#### 1. Legacy Backup Formats
+
+- **v1.2.0**: Simple JSON structure with basic grid arrays
+- **v1.3.0**: Introduction of encryption and device metadata
+- **v1.4.0**: Enhanced security with auth settings
+- **v1.5.0**: Full metadata and compatibility info
+- **Future versions**: Forward compatibility with warnings
+
+#### 2. Cross-Platform Scenarios
+
+- **iOS → Android**: Device-specific settings migration
+- **Android → iOS**: Platform feature compatibility
+- **Different OS versions**: API compatibility
+- **Hardware differences**: Biometric availability
+
+#### 3. Data Format Evolution
+
+- **Array to object migration**: Storage format changes
+- **Cell format evolution**: Simple numbers to rich objects
+- **Authentication migration**: Biometric preferences
+- **Theme and UI preferences**: Cross-device settings
+
+### Test Fixtures
+
+The test suite includes realistic backup examples:
+
+```javascript
+import { 
+  v12Backup,
+  v13Backup, 
+  v14Backup,
+  v15Backup,
+  iosBackup,
+  androidBackup,
+  corruptedBackup
+} from '../fixtures/legacyBackups';
+
+// Test with real legacy data
+it('should restore v1.3 iOS backup on Android', async () => {
+  const result = await restoreFromBackup(
+    JSON.stringify(v13Backup),
+    'testPassword',
+    { replaceAll: true }
+  );
+  
+  expect(result.success).toBe(true);
+  expect(result.warnings).toContain('cross-platform');
+});
+```
+
+### Migration Testing Strategy
+
+1. **Version Boundaries**: Test exact version transitions
+2. **Data Integrity**: Verify no data loss during migration
+3. **Error Handling**: Graceful degradation for incompatible features
+4. **Performance**: Large legacy backups should restore efficiently
+5. **User Experience**: Clear warnings and migration feedback
+
+### Running Backward Compatibility Tests
+
+```bash
+# Run all backward compatibility tests
+npm test -- __tests__/integration/backwardCompatibility.test.js
+
+# Test specific legacy version
+npm test -- --testNamePattern="v1.2.0"
+
+# Test cross-platform scenarios
+npm test -- --testNamePattern="iOS.*Android"
+
+# Performance test with large legacy backup
+npm test -- --testNamePattern="large legacy"
+```
 
 ---
 
