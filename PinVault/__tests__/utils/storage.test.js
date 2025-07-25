@@ -1,97 +1,121 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  saveGrid,
-  getGrids,
-  deleteGrid,
-  clearAllGrids,
-  generateRandomGrid,
-  fillEmptyCells,
+import { 
+  saveGrid, 
+  getGrids, 
+  deleteGrid, 
+  clearAllGrids, 
+  generateRandomGrid, 
+  fillEmptyCells 
 } from '../../utils/storage';
 
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage');
 
 describe('Storage Utils', () => {
+  const mockGridData = {
+    id: 'test_grid_1',
+    name: 'Test Grid',
+    grid: Array.from({ length: 40 }, (_, i) => ({
+      id: i,
+      value: i < 10 ? i : null,
+      color: ['red', 'blue', 'green', 'yellow'][i % 4],
+      isPinDigit: i < 4
+    })),
+    createdAt: '2023-01-01T00:00:00.000Z',
+    updatedAt: '2023-01-01T00:00:00.000Z'
+  };
+
+  const mockGridsObject = {
+    'grid_1': {
+      id: 'grid_1',
+      name: 'Grid 1',
+      grid: Array.from({ length: 40 }, (_, i) => ({
+        id: i,
+        value: i % 10,
+        color: ['red', 'blue', 'green', 'yellow'][i % 4],
+        isPinDigit: false
+      })),
+      createdAt: '2023-01-01T00:00:00.000Z',
+      updatedAt: '2023-01-01T00:00:00.000Z'
+    },
+    'grid_2': {
+      id: 'grid_2',
+      name: 'Grid 2',
+      grid: Array.from({ length: 40 }, (_, i) => ({
+        id: i,
+        value: (i + 5) % 10,
+        color: ['red', 'blue', 'green', 'yellow'][i % 4],
+        isPinDigit: false
+      })),
+      createdAt: '2023-01-02T00:00:00.000Z',
+      updatedAt: '2023-01-02T00:00:00.000Z'
+    }
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('saveGrid', () => {
     it('should save a new grid successfully', async () => {
-      const mockGrid = {
-        id: '1',
-        name: 'Test Grid',
-        grid: [[1, 2], [3, 4]],
-        createdAt: '2023-01-01',
-      };
-
-      AsyncStorage.getItem.mockResolvedValue(JSON.stringify([]));
+      AsyncStorage.getItem.mockResolvedValue('{}'); // Empty storage
       AsyncStorage.setItem.mockResolvedValue();
 
-      const result = await saveGrid(mockGrid.name, mockGrid.grid);
+      const result = await saveGrid(mockGridData);
 
       expect(result).toBe(true);
-      expect(AsyncStorage.getItem).toHaveBeenCalledWith('savedGrids');
+      expect(AsyncStorage.getItem).toHaveBeenCalledWith('PIN_GRIDS');
       expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        'savedGrids',
-        expect.stringContaining(mockGrid.name)
+        'PIN_GRIDS',
+        JSON.stringify({ [mockGridData.id]: mockGridData })
       );
     });
 
     it('should update existing grid successfully', async () => {
-      const existingGrid = {
-        id: '1',
-        name: 'Test Grid',
-        grid: [[1, 2], [3, 4]],
-        createdAt: '2023-01-01',
-      };
-
-      const updatedGrid = {
-        ...existingGrid,
-        grid: [[5, 6], [7, 8]],
-      };
-
-      AsyncStorage.getItem.mockResolvedValue(JSON.stringify([existingGrid]));
+      const existingGrids = { 'other_grid': { id: 'other_grid', name: 'Other' } };
+      AsyncStorage.getItem.mockResolvedValue(JSON.stringify(existingGrids));
       AsyncStorage.setItem.mockResolvedValue();
 
-      const result = await saveGrid(updatedGrid.name, updatedGrid.grid, existingGrid.id);
+      const updatedGridData = { ...mockGridData, name: 'Updated Grid' };
+      const result = await saveGrid(updatedGridData);
 
       expect(result).toBe(true);
       expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        'savedGrids',
-        expect.stringContaining('"grid":[[5,6],[7,8]]')
+        'PIN_GRIDS',
+        JSON.stringify({
+          ...existingGrids,
+          [updatedGridData.id]: updatedGridData
+        })
       );
     });
 
     it('should handle save errors gracefully', async () => {
-      AsyncStorage.getItem.mockRejectedValue(new Error('Storage error'));
+      AsyncStorage.getItem.mockResolvedValue('{}');
+      AsyncStorage.setItem.mockRejectedValue(new Error('Storage error'));
 
-      const result = await saveGrid('Test Grid', [[1, 2], [3, 4]]);
+      const result = await saveGrid(mockGridData);
 
       expect(result).toBe(false);
     });
   });
 
   describe('getGrids', () => {
-    it('should return empty array when no grids exist', async () => {
+    it('should return empty object when no grids exist', async () => {
       AsyncStorage.getItem.mockResolvedValue(null);
 
       const result = await getGrids();
 
-      expect(result).toEqual([]);
+      expect(result).toEqual({});
+      expect(AsyncStorage.getItem).toHaveBeenCalledWith('PIN_GRIDS');
     });
 
     it('should return parsed grids from storage', async () => {
-      const mockGrids = [
-        { id: '1', name: 'Grid 1', grid: [[1, 2], [3, 4]] },
-        { id: '2', name: 'Grid 2', grid: [[5, 6], [7, 8]] },
-      ];
-
-      AsyncStorage.getItem.mockResolvedValue(JSON.stringify(mockGrids));
+      AsyncStorage.getItem.mockResolvedValue(JSON.stringify(mockGridsObject));
 
       const result = await getGrids();
 
-      expect(result).toEqual(mockGrids);
+      expect(result).toEqual(mockGridsObject);
+      expect(AsyncStorage.getItem).toHaveBeenCalledWith('PIN_GRIDS');
     });
 
     it('should handle parsing errors', async () => {
@@ -99,35 +123,55 @@ describe('Storage Utils', () => {
 
       const result = await getGrids();
 
-      expect(result).toEqual([]);
+      expect(result).toEqual({});
+    });
+
+    it('should handle storage errors', async () => {
+      AsyncStorage.getItem.mockRejectedValue(new Error('Storage error'));
+
+      const result = await getGrids();
+
+      expect(result).toEqual({});
     });
   });
 
   describe('deleteGrid', () => {
     it('should delete grid successfully', async () => {
-      const mockGrids = [
-        { id: '1', name: 'Grid 1', grid: [[1, 2], [3, 4]] },
-        { id: '2', name: 'Grid 2', grid: [[5, 6], [7, 8]] },
-      ];
-
-      AsyncStorage.getItem.mockResolvedValue(JSON.stringify(mockGrids));
+      AsyncStorage.getItem.mockResolvedValue(JSON.stringify(mockGridsObject));
       AsyncStorage.setItem.mockResolvedValue();
 
-      const result = await deleteGrid('1');
+      const result = await deleteGrid('grid_1');
+
+      const expectedGrids = { ...mockGridsObject };
+      delete expectedGrids['grid_1'];
 
       expect(result).toBe(true);
       expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        'savedGrids',
-        JSON.stringify([mockGrids[1]])
+        'PIN_GRIDS',
+        JSON.stringify(expectedGrids)
       );
     });
 
     it('should handle delete errors', async () => {
-      AsyncStorage.getItem.mockRejectedValue(new Error('Storage error'));
+      AsyncStorage.getItem.mockResolvedValue('{}');
+      AsyncStorage.setItem.mockRejectedValue(new Error('Storage error'));
 
-      const result = await deleteGrid('1');
+      const result = await deleteGrid('grid_1');
 
       expect(result).toBe(false);
+    });
+
+    it('should handle deleting non-existent grid', async () => {
+      AsyncStorage.getItem.mockResolvedValue(JSON.stringify(mockGridsObject));
+      AsyncStorage.setItem.mockResolvedValue();
+
+      const result = await deleteGrid('non_existent_grid');
+
+      expect(result).toBe(true);
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+        'PIN_GRIDS',
+        JSON.stringify(mockGridsObject)
+      );
     });
   });
 
@@ -138,7 +182,7 @@ describe('Storage Utils', () => {
       const result = await clearAllGrids();
 
       expect(result).toBe(true);
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith('savedGrids', '[]');
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith('PIN_GRIDS', '{}');
     });
 
     it('should handle clear errors', async () => {
@@ -151,81 +195,114 @@ describe('Storage Utils', () => {
   });
 
   describe('generateRandomGrid', () => {
-    it('should generate a grid with correct dimensions', () => {
-      const rows = 5;
-      const cols = 5;
-      const grid = generateRandomGrid(rows, cols);
+    it('should generate a grid with correct number of cells', async () => {
+      const grid = generateRandomGrid();
 
-      expect(grid).toHaveLength(rows);
-      expect(grid[0]).toHaveLength(cols);
+      expect(Array.isArray(grid)).toBe(true);
+      expect(grid).toHaveLength(40); // 8x5 grid
+      
+      // Check first cell structure
+      expect(grid[0]).toHaveProperty('id');
+      expect(grid[0]).toHaveProperty('value');
+      expect(grid[0]).toHaveProperty('color');
+      expect(grid[0]).toHaveProperty('isPinDigit');
     });
 
-    it('should generate a grid with numbers 0-9', () => {
-      const grid = generateRandomGrid(3, 3);
+    it('should generate grid cells with correct properties', async () => {
+      const grid = generateRandomGrid();
       
-      grid.forEach(row => {
-        row.forEach(cell => {
-          expect(cell).toBeGreaterThanOrEqual(0);
-          expect(cell).toBeLessThanOrEqual(9);
-        });
+      grid.forEach((cell, index) => {
+        expect(cell.id).toBe(index);
+        expect(['red', 'blue', 'green', 'yellow']).toContain(cell.color);
+        expect(typeof cell.isPinDigit).toBe('boolean');
+        
+        if (cell.value !== null) {
+          expect(cell.value).toBeGreaterThanOrEqual(0);
+          expect(cell.value).toBeLessThanOrEqual(9);
+        }
       });
     });
 
-    it('should generate different grids on subsequent calls', () => {
-      const grid1 = generateRandomGrid(3, 3);
-      const grid2 = generateRandomGrid(3, 3);
+    it('should generate different grids on subsequent calls', async () => {
+      const grid1 = generateRandomGrid();
+      const grid2 = generateRandomGrid();
 
-      // Very unlikely to be identical
-      expect(grid1).not.toEqual(grid2);
+      // Grids should have different color arrangements
+      const colors1 = grid1.map(cell => cell.color).join('');
+      const colors2 = grid2.map(cell => cell.color).join('');
+      
+      expect(colors1).not.toBe(colors2);
+    });
+
+    it('should include some empty cells', async () => {
+      const grid = generateRandomGrid();
+      
+      const emptyCells = grid.filter(cell => cell.value === null);
+      expect(emptyCells.length).toBeGreaterThan(0);
     });
   });
 
   describe('fillEmptyCells', () => {
-    it('should fill empty cells with random numbers', () => {
+    it('should fill empty cells with random numbers', async () => {
       const gridWithEmpties = [
-        [1, '', 3],
-        ['', 5, ''],
-        [7, 8, ''],
+        { id: 0, value: 1, color: 'red', isPinDigit: false },
+        { id: 1, value: null, color: 'blue', isPinDigit: false },
+        { id: 2, value: 3, color: 'green', isPinDigit: false },
+        { id: 3, value: null, color: 'yellow', isPinDigit: false },
       ];
 
       const filledGrid = fillEmptyCells(gridWithEmpties);
 
-      expect(filledGrid[0][1]).not.toBe('');
-      expect(filledGrid[1][0]).not.toBe('');
-      expect(filledGrid[1][2]).not.toBe('');
-      expect(filledGrid[2][2]).not.toBe('');
-      expect(typeof filledGrid[0][1]).toBe('number');
+      expect(filledGrid[0].value).toBe(1); // Preserved
+      expect(filledGrid[1].value).not.toBe(null); // Filled
+      expect(filledGrid[1].value).toBeGreaterThanOrEqual(0);
+      expect(filledGrid[1].value).toBeLessThanOrEqual(9);
+      expect(filledGrid[2].value).toBe(3); // Preserved
+      expect(filledGrid[3].value).not.toBe(null); // Filled
+      expect(filledGrid[3].value).toBeGreaterThanOrEqual(0);
+      expect(filledGrid[3].value).toBeLessThanOrEqual(9);
     });
 
-    it('should preserve existing numbers', () => {
-      const originalGrid = [
-        [1, 2, 3],
-        [4, '', 6],
-        [7, 8, 9],
+    it('should preserve existing numbers', async () => {
+      const gridWithValues = [
+        { id: 0, value: 1, color: 'red', isPinDigit: false },
+        { id: 1, value: 2, color: 'blue', isPinDigit: false },
+        { id: 2, value: 3, color: 'green', isPinDigit: false },
       ];
 
-      const filledGrid = fillEmptyCells(originalGrid);
+      const result = fillEmptyCells(gridWithValues);
 
-      expect(filledGrid[0][0]).toBe(1);
-      expect(filledGrid[0][1]).toBe(2);
-      expect(filledGrid[0][2]).toBe(3);
-      expect(filledGrid[1][0]).toBe(4);
-      expect(filledGrid[1][2]).toBe(6);
-      expect(filledGrid[2][0]).toBe(7);
-      expect(filledGrid[2][1]).toBe(8);
-      expect(filledGrid[2][2]).toBe(9);
+      expect(result[0].value).toBe(1);
+      expect(result[1].value).toBe(2);
+      expect(result[2].value).toBe(3);
     });
 
-    it('should handle grid with no empty cells', () => {
+    it('should handle grid with no empty cells', async () => {
       const completeGrid = [
-        [1, 2, 3],
-        [4, 5, 6],
-        [7, 8, 9],
+        { id: 0, value: 1, color: 'red', isPinDigit: false },
+        { id: 1, value: 2, color: 'blue', isPinDigit: false },
+        { id: 2, value: 3, color: 'green', isPinDigit: false },
       ];
 
       const result = fillEmptyCells(completeGrid);
 
       expect(result).toEqual(completeGrid);
+    });
+
+    it('should maintain cell structure', async () => {
+      const gridWithEmpties = [
+        { id: 0, value: null, color: 'red', isPinDigit: true },
+        { id: 1, value: null, color: 'blue', isPinDigit: false },
+      ];
+
+      const filledGrid = fillEmptyCells(gridWithEmpties);
+
+      filledGrid.forEach((cell, index) => {
+        expect(cell.id).toBe(index);
+        expect(cell.color).toBe(gridWithEmpties[index].color);
+        expect(cell.isPinDigit).toBe(gridWithEmpties[index].isPinDigit);
+        expect(cell.value).not.toBe(null);
+      });
     });
   });
 });
