@@ -10,16 +10,16 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
-import { useAuth } from './AuthProvider';
-import { 
+import {
   createBackupForSharing,
-  createBackupForLocal, 
-  shareBackup, 
-  pickBackupFile, 
-  readBackupFile, 
-  restoreFromBackup, 
-  getBackupInfo 
+  createBackupForLocal,
+  shareBackup,
+  pickBackupFile,
+  readBackupFile,
+  restoreFromBackup,
+  getBackupInfo,
 } from '../utils/backup';
+import { useAuth } from './AuthProvider';
 import PasswordInput from './backup/PasswordInput';
 import BackupInfo from './backup/BackupInfo';
 import RestoreOptions from './backup/RestoreOptions';
@@ -34,15 +34,15 @@ import RestoreOptions from './backup/RestoreOptions';
 export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
   const { theme } = useTheme();
   const { authenticate, authenticationInProgress } = useAuth();
-  
+
   const [loading, setLoading] = useState(false);
   const [backupInfo, setBackupInfo] = useState(null);
   const [selectedBackupData, setSelectedBackupData] = useState(null);
   const [restoreOptions, setRestoreOptions] = useState({
     replaceAll: false,
-    overwriteExisting: false
+    overwriteExisting: false,
   });
-  
+
   // Password input states
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [passwordAction, setPasswordAction] = useState(null);
@@ -51,36 +51,31 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
   const handleCreateBackup = async () => {
     try {
       setLoading(true);
-      
+
       const authReason = `Please authenticate to create a backup of your PIN grids`;
       const authenticated = await authenticate(authReason);
-      
+
       if (!authenticated) {
         return;
       }
 
-      Alert.alert(
-        'Backup Location',
-        'Where would you like to save your backup?',
-        [
-          { 
-            text: 'Keep Local',
-            onPress: () => {
-              setPasswordAction('backup-local');
-              setShowPasswordInput(true);
-            }
+      Alert.alert('Backup Location', 'Where would you like to save your backup?', [
+        {
+          text: 'Keep Local',
+          onPress: () => {
+            setPasswordAction('backup-local');
+            setShowPasswordInput(true);
           },
-          { 
-            text: 'Share/Export',
-            onPress: () => {
-              setPasswordAction('backup-share');
-              setShowPasswordInput(true);
-            }
+        },
+        {
+          text: 'Share/Export',
+          onPress: () => {
+            setPasswordAction('backup-share');
+            setShowPasswordInput(true);
           },
-          { text: 'Cancel', style: 'cancel' }
-        ]
-      );
-      
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ]);
     } catch (error) {
       Alert.alert('Error', 'Failed to prepare backup: ' + error.message);
     } finally {
@@ -88,18 +83,18 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
     }
   };
 
-  const performBackup = async (backupPassword) => {
+  const performBackup = async backupPassword => {
     try {
       setLoading(true);
 
       let result;
-      
+
       if (passwordAction === 'backup-local') {
         result = await createBackupForLocal(backupPassword);
       } else {
         result = await createBackupForSharing(backupPassword);
       }
-      
+
       if (result.success) {
         if (passwordAction === 'backup-share') {
           await handleShareBackup(result.filePath);
@@ -120,7 +115,7 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
     }
   };
 
-  const handleShareBackup = async (fileUri) => {
+  const handleShareBackup = async fileUri => {
     try {
       const shareResult = await shareBackup(fileUri);
       if (shareResult.success) {
@@ -134,26 +129,26 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
   const handleSelectBackupFile = async () => {
     try {
       setLoading(true);
-      
+
       const authReason = `Please authenticate to restore PIN grids from backup`;
       const authenticated = await authenticate(authReason);
-      
+
       if (!authenticated) {
         return;
       }
 
       const fileResult = await pickBackupFile();
-      
+
       if (fileResult.success) {
         const fileData = await readBackupFile(fileResult.fileUri);
-        
+
         if (fileData.success) {
           setSelectedBackupData({
             data: fileData.data,
             fileName: fileResult.fileName,
-            fileSize: fileResult.fileSize
+            fileSize: fileResult.fileSize,
           });
-          
+
           setPasswordAction('restore');
           setShowPasswordInput(true);
         } else {
@@ -170,12 +165,12 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
   const analyzeBackupWithPassword = async (backupData, backupPassword, fileName, fileSize) => {
     try {
       const analysisResult = await getBackupInfo(backupData, backupPassword);
-      
+
       if (analysisResult.success) {
         setBackupInfo({
           ...analysisResult.info,
-          fileName: fileName,
-          fileSize: fileSize
+          fileName,
+          fileSize,
         });
         return { success: true };
       } else {
@@ -197,15 +192,17 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
     Alert.alert(
       'Confirm Restore',
       `Are you sure you want to restore ${backupInfo.gridCount} grid(s) from this backup?${
-        restoreOptions.replaceAll ? '\n\n⚠️ WARNING: This will permanently delete all your current grids!' : ''
+        restoreOptions.replaceAll
+          ? '\n\n⚠️ WARNING: This will permanently delete all your current grids!'
+          : ''
       }`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Restore', 
+        {
+          text: 'Restore',
           style: restoreOptions.replaceAll ? 'destructive' : 'default',
-          onPress: performRestore 
-        }
+          onPress: performRestore,
+        },
       ]
     );
   };
@@ -227,14 +224,16 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
           `Successfully restored ${result.restoredCount} grid(s)!${
             result.skippedCount > 0 ? `\n\nSkipped ${result.skippedCount} duplicate(s)` : ''
           }`,
-          [{ 
-            text: 'OK',
-            onPress: () => {
-              clearSelection();
-              onGridsUpdated?.();
-              onClose();
-            }
-          }]
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                clearSelection();
+                onGridsUpdated?.();
+                onClose();
+              },
+            },
+          ]
         );
       } else {
         Alert.alert('Restore Failed', result.error || 'Unknown error occurred');
@@ -251,24 +250,24 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
     setSelectedBackupData(null);
     setRestoreOptions({
       replaceAll: false,
-      overwriteExisting: false
+      overwriteExisting: false,
     });
     setPasswordError('');
   };
 
-  const handlePasswordSubmit = async (password) => {
+  const handlePasswordSubmit = async password => {
     try {
       setPasswordError('');
       setShowPasswordInput(false);
-      
+
       if (passwordAction === 'restore') {
         const result = await analyzeBackupWithPassword(
-          selectedBackupData.data, 
-          password, 
-          selectedBackupData.fileName, 
+          selectedBackupData.data,
+          password,
+          selectedBackupData.fileName,
           selectedBackupData.fileSize
         );
-        
+
         if (!result.success) {
           setShowPasswordInput(true); // Show password input again
         }
@@ -292,33 +291,24 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
   };
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-    >
+    <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}>
         <View style={[styles.modalContent, { backgroundColor: theme.modal.background }]}>
-          
           {/* Header */}
           <View style={styles.header}>
-            <Text style={[styles.title, { color: theme.primary }]}>
-              Backup & Restore
-            </Text>
+            <Text style={[styles.title, { color: theme.primary }]}>Backup & Restore</Text>
             <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
               Securely backup and restore your PIN grids
             </Text>
           </View>
 
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-            
             {/* Security Notice */}
             <View style={[styles.securityNotice, { backgroundColor: theme.surface }]}>
               <Text style={[styles.securityIcon, { color: theme.primary }]}>🔐</Text>
               <Text style={[styles.securityText, { color: theme.text }]}>
-                All backups are encrypted with your chosen password and protected by device authentication. 
-                You can restore backup files on any device using the same password.
+                All backups are encrypted with your chosen password and protected by device
+                authentication. You can restore backup files on any device using the same password.
               </Text>
             </View>
 
@@ -328,7 +318,7 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
               <Text style={[styles.sectionDescription, { color: theme.textSecondary }]}>
                 Export your PIN grids to an encrypted backup file
               </Text>
-              
+
               <TouchableOpacity
                 style={[styles.actionButton, { backgroundColor: theme.primary }]}
                 onPress={handleCreateBackup}
@@ -348,7 +338,7 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
               <Text style={[styles.sectionDescription, { color: theme.textSecondary }]}>
                 Import PIN grids from an encrypted backup file
               </Text>
-              
+
               {!backupInfo ? (
                 <TouchableOpacity
                   style={[styles.actionButton, { backgroundColor: theme.success }]}
@@ -363,24 +353,21 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
                 </TouchableOpacity>
               ) : (
                 <View>
-                  <BackupInfo 
-                    backupInfo={backupInfo} 
-                    restoreOptions={restoreOptions}
-                  />
-                  
-                  <RestoreOptions 
-                    options={restoreOptions}
-                    onOptionsChange={setRestoreOptions}
-                  />
-                  
+                  <BackupInfo backupInfo={backupInfo} restoreOptions={restoreOptions} />
+
+                  <RestoreOptions options={restoreOptions} onOptionsChange={setRestoreOptions} />
+
                   <View style={styles.restoreActions}>
                     <TouchableOpacity
-                      style={[styles.actionButton, { backgroundColor: theme.textSecondary, flex: 1, marginRight: 10 }]}
+                      style={[
+                        styles.actionButton,
+                        { backgroundColor: theme.textSecondary, flex: 1, marginRight: 10 },
+                      ]}
                       onPress={clearSelection}
                     >
                       <Text style={styles.actionButtonText}>Cancel</Text>
                     </TouchableOpacity>
-                    
+
                     <TouchableOpacity
                       style={[styles.actionButton, { backgroundColor: theme.warning, flex: 1 }]}
                       onPress={handleRestoreBackup}
@@ -396,7 +383,6 @@ export default function BackupRestore({ visible, onClose, onGridsUpdated }) {
                 </View>
               )}
             </View>
-
           </ScrollView>
 
           {/* Close Button */}

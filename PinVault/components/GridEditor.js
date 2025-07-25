@@ -9,12 +9,12 @@ import {
   ScrollView,
   SafeAreaView,
   Keyboard,
-  Platform
+  Platform,
 } from 'react-native';
-import PinGrid from './PinGrid';
 import { generateRandomGrid, fillEmptyCells, saveGrid } from '../utils/storage';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNavigationBarHeight } from '../hooks/useNavigationBarHeight';
+import PinGrid from './PinGrid';
 
 const GridEditor = ({ navigation, route }) => {
   const [grid, setGrid] = useState([]);
@@ -40,7 +40,7 @@ const GridEditor = ({ navigation, route }) => {
     }
   }, [route.params]);
 
-  const handleGridUpdate = (updatedGrid) => {
+  const handleGridUpdate = updatedGrid => {
     setGrid(updatedGrid);
     setHasEnteredPin(updatedGrid.some(cell => cell.isPinDigit));
   };
@@ -57,7 +57,10 @@ const GridEditor = ({ navigation, route }) => {
 
   const handleFillRandomDigits = () => {
     if (!hasEnteredPin) {
-      Alert.alert('No PIN Entered', 'Please enter your PIN digits first before filling random digits.');
+      Alert.alert(
+        'No PIN Entered',
+        'Please enter your PIN digits first before filling random digits.'
+      );
       return;
     }
 
@@ -71,8 +74,8 @@ const GridEditor = ({ navigation, route }) => {
           onPress: () => {
             const filledGrid = fillEmptyCells(grid);
             setGrid(filledGrid);
-          }
-        }
+          },
+        },
       ]
     );
   };
@@ -89,45 +92,42 @@ const GridEditor = ({ navigation, route }) => {
     }
 
     if (!isGridComplete()) {
-      Alert.alert('Incomplete Grid', 'Please fill all cells with digits before saving. Use "Fill Random" to add decoy digits.');
+      Alert.alert(
+        'Incomplete Grid',
+        'Please fill all cells with digits before saving. Use "Fill Random" to add decoy digits.'
+      );
       return;
     }
 
     const gridData = {
       id: route.params?.gridData?.id || Date.now().toString(),
       name: cardName.trim(),
-      grid: grid,
+      grid,
       createdAt: route.params?.gridData?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     const success = await saveGrid(gridData);
     if (success) {
-      Alert.alert(
-        'Success',
-        `Grid saved successfully as "${cardName}"`,
-        [{ text: 'OK', onPress: () => navigation.goBack() }]
-      );
+      Alert.alert('Success', `Grid saved successfully as "${cardName}"`, [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
     } else {
       Alert.alert('Error', 'Failed to save grid. Please try again.');
     }
   };
 
   const handleNewGrid = () => {
-    Alert.alert(
-      'New Grid',
-      'Create a new random grid? This will lose current progress.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Create New',
-          onPress: () => {
-            setGrid(generateRandomGrid());
-            setHasEnteredPin(false);
-          }
-        }
-      ]
-    );
+    Alert.alert('New Grid', 'Create a new random grid? This will lose current progress.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Create New',
+        onPress: () => {
+          setGrid(generateRandomGrid());
+          setHasEnteredPin(false);
+        },
+      },
+    ]);
   };
 
   const handleClearGrid = () => {
@@ -143,12 +143,12 @@ const GridEditor = ({ navigation, route }) => {
             const clearedGrid = grid.map(cell => ({
               ...cell,
               value: null,
-              isPinDigit: false
+              isPinDigit: false,
             }));
             setGrid(clearedGrid);
             setHasEnteredPin(false);
-          }
-        }
+          },
+        },
       ]
     );
   };
@@ -163,12 +163,19 @@ const GridEditor = ({ navigation, route }) => {
 
   const isGridComplete = () => {
     // Check if all 40 cells (8x5 grid) have values
-    return grid.length === 40 && grid.every(cell => cell.value !== null && cell.value !== undefined);
+    return (
+      grid.length === 40 && grid.every(cell => cell.value !== null && cell.value !== undefined)
+    );
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background, paddingBottom: safeBottomPadding }]}>
-      <TouchableOpacity 
+    <SafeAreaView
+      style={[
+        styles.container,
+        { backgroundColor: theme.background, paddingBottom: safeBottomPadding },
+      ]}
+    >
+      <TouchableOpacity
         style={styles.content}
         activeOpacity={1}
         onPress={() => {
@@ -176,19 +183,21 @@ const GridEditor = ({ navigation, route }) => {
           Keyboard.dismiss();
         }}
       >
-        
         {/* Top Section: Card Name and PIN Preview */}
         <View style={styles.topSection}>
           <View style={styles.nameContainer}>
             <Text style={[styles.label, { color: theme.text }]}>Card Name:</Text>
             <TextInput
               ref={cardNameInputRef}
-              style={[styles.nameInput, { 
-                backgroundColor: theme.surface, 
-                color: theme.text, 
-                borderColor: theme.border,
-                placeholderTextColor: theme.textSecondary
-              }]}
+              style={[
+                styles.nameInput,
+                {
+                  backgroundColor: theme.surface,
+                  color: theme.text,
+                  borderColor: theme.border,
+                  placeholderTextColor: theme.textSecondary,
+                },
+              ]}
               value={cardName}
               onChangeText={setCardName}
               placeholder="Enter card name"
@@ -209,12 +218,12 @@ const GridEditor = ({ navigation, route }) => {
 
           {hasEnteredPin && (
             <View style={[styles.pinPreview, { backgroundColor: theme.surface }]}>
-              <Text style={[styles.pinLabel, { color: theme.primary }]}>Your PIN: {getPinDigits()}</Text>
+              <Text style={[styles.pinLabel, { color: theme.primary }]}>
+                Your PIN: {getPinDigits()}
+              </Text>
             </View>
           )}
         </View>
-
-
 
         {/* Action Buttons Row */}
         <View style={styles.actionButtons}>
@@ -223,7 +232,7 @@ const GridEditor = ({ navigation, route }) => {
               styles.button,
               styles.buttonThird,
               { backgroundColor: !hasEnteredPin ? theme.textSecondary : theme.orange },
-              !hasEnteredPin && styles.disabledButton
+              !hasEnteredPin && styles.disabledButton,
             ]}
             onPress={handleFillRandomDigits}
             disabled={!hasEnteredPin}
@@ -247,7 +256,7 @@ const GridEditor = ({ navigation, route }) => {
         </View>
 
         {/* Grid Section */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.gridSection}
           activeOpacity={1}
           onPress={() => {
@@ -265,7 +274,9 @@ const GridEditor = ({ navigation, route }) => {
 
         {/* Detailed Instructions */}
         <View style={[styles.compactInstructions, { backgroundColor: theme.surface }]}>
-          <Text style={[styles.instructionTitle, { color: theme.text }]}>How to Create Your PIN Grid:</Text>
+          <Text style={[styles.instructionTitle, { color: theme.text }]}>
+            How to Create Your PIN Grid:
+          </Text>
           <Text style={[styles.instructionStep, { color: theme.textSecondary }]}>
             1. <Text style={{ fontWeight: 'bold' }}>Name your card</Text> in the field above
           </Text>
@@ -276,12 +287,12 @@ const GridEditor = ({ navigation, route }) => {
             3. <Text style={{ fontWeight: 'bold' }}>Tap numbers</Text> in the popup to select digits
           </Text>
           <Text style={[styles.instructionStep, { color: theme.textSecondary }]}>
-            4. <Text style={{ fontWeight: 'bold' }}>Fill Random</Text> to complete all cells with decoy digits
+            4. <Text style={{ fontWeight: 'bold' }}>Fill Random</Text> to complete all cells with
+            decoy digits
           </Text>
           <Text style={[styles.instructionStep, { color: theme.textSecondary }]}>
             5. <Text style={{ fontWeight: 'bold' }}>Save Grid</Text> when all cells are filled
           </Text>
-
         </View>
 
         {/* Save Button */}
@@ -293,11 +304,21 @@ const GridEditor = ({ navigation, route }) => {
             <Text style={styles.saveButtonText}>Save Grid</Text>
           </TouchableOpacity>
         ) : (
-          <View style={[styles.saveButton, { backgroundColor: theme.textSecondary }, styles.disabledButton]}>
+          <View
+            style={[
+              styles.saveButton,
+              { backgroundColor: theme.textSecondary },
+              styles.disabledButton,
+            ]}
+          >
             <Text style={styles.saveButtonText}>
-              {!cardName.trim() ? 'Name Required' : 
-               !hasEnteredPin ? 'PIN Required' : 
-               !isGridComplete() ? 'Fill All Cells' : 'Save Grid'}
+              {!cardName.trim()
+                ? 'Name Required'
+                : !hasEnteredPin
+                  ? 'PIN Required'
+                  : !isGridComplete()
+                    ? 'Fill All Cells'
+                    : 'Save Grid'}
             </Text>
           </View>
         )}

@@ -1,12 +1,7 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
-import { useTheme } from '../../contexts/ThemeContext';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
+import { useTheme } from '../../contexts/ThemeContext';
 
 /**
  * Component for selecting restore options
@@ -31,26 +26,27 @@ export default function RestoreOptions({ options, onOptionsChange }) {
         <TouchableOpacity
           style={[
             styles.toggle,
-            { 
+            {
               backgroundColor: value ? theme.primary : theme.textSecondary,
               borderColor: value ? theme.primary : theme.border,
-            }
+            },
           ]}
           onPress={() => onToggle(!value)}
         >
           <Text style={styles.toggleText}>{value ? 'ON' : 'OFF'}</Text>
         </TouchableOpacity>
       </View>
-      
-      <Text style={[styles.optionDescription, { color: theme.textSecondary }]}>
-        {description}
-      </Text>
-      
+
+      <Text style={[styles.optionDescription, { color: theme.textSecondary }]}>{description}</Text>
+
       {value && warningText && (
-        <View style={[styles.warningContainer, { backgroundColor: theme.warning + '20', borderColor: theme.warning }]}>
-          <Text style={[styles.warningText, { color: theme.warning }]}>
-            ⚠️ {warningText}
-          </Text>
+        <View
+          style={[
+            styles.warningContainer,
+            { backgroundColor: theme.warning + '20', borderColor: theme.warning },
+          ]}
+        >
+          <Text style={[styles.warningText, { color: theme.warning }]}>⚠️ {warningText}</Text>
         </View>
       )}
     </View>
@@ -59,12 +55,12 @@ export default function RestoreOptions({ options, onOptionsChange }) {
   return (
     <View style={styles.container}>
       <Text style={[styles.sectionTitle, { color: theme.text }]}>⚙️ Restore Options</Text>
-      
+
       <OptionToggle
         title="Replace All Grids"
         description="Clear all existing grids before restoring. This will permanently delete your current grids."
         value={options.replaceAll}
-        onToggle={(value) => updateOption('replaceAll', value)}
+        onToggle={value => updateOption('replaceAll', value)}
         warningText="This will delete all your current grids permanently!"
       />
 
@@ -72,14 +68,14 @@ export default function RestoreOptions({ options, onOptionsChange }) {
         title="Overwrite Existing"
         description="Replace grids that have the same name as ones being restored. If disabled, duplicate names will be skipped."
         value={options.overwriteExisting}
-        onToggle={(value) => updateOption('overwriteExisting', value)}
+        onToggle={value => updateOption('overwriteExisting', value)}
         warningText="Grids with matching names will be replaced."
       />
 
       <View style={[styles.infoBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
         <Text style={[styles.infoText, { color: theme.textSecondary }]}>
-          💡 <Text style={{ fontWeight: 'bold' }}>Tip:</Text> If you're unsure, keep both options OFF to safely merge 
-          your backup with existing grids without losing any data.
+          💡 <Text style={{ fontWeight: 'bold' }}>Tip:</Text> If you're unsure, keep both options
+          OFF to safely merge your backup with existing grids without losing any data.
         </Text>
       </View>
     </View>
@@ -95,7 +91,7 @@ RestoreOptions.propTypes = {
     replaceAll: PropTypes.bool.isRequired,
     overwriteExisting: PropTypes.bool.isRequired,
   }).isRequired,
-  
+
   /** Callback function called when options change */
   onOptionsChange: PropTypes.func.isRequired,
 };

@@ -17,9 +17,8 @@ export const useNavigationBarHeight = () => {
   }, []);
 
   // Calculate navigation bar height
-  const navigationBarHeight = Platform.OS === 'android' 
-    ? Math.max(0, screenData.height - windowData.height)
-    : 0;
+  const navigationBarHeight =
+    Platform.OS === 'android' ? Math.max(0, screenData.height - windowData.height) : 0;
 
   // Determine if device is using gesture navigation
   // On Android, gesture navigation typically has navigationBarHeight < 20
@@ -33,6 +32,6 @@ export const useNavigationBarHeight = () => {
     isButtonNavigation,
     safeAreaInsets: insets,
     // Provide safe bottom padding that accounts for navigation type
-    safeBottomPadding: isButtonNavigation ? navigationBarHeight : insets.bottom
+    safeBottomPadding: isButtonNavigation ? navigationBarHeight : insets.bottom,
   };
 };

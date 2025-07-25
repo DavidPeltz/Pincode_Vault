@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 /**
  * @fileoverview Authentication provider for PIN Vault
- * 
+ *
  * This module provides biometric and device authentication capabilities using
  * Expo Local Authentication. It supports Face ID, Touch ID, fingerprint,
  * iris recognition, and device PIN/pattern/password authentication.
@@ -32,14 +32,14 @@ const AuthContext = createContext();
 
 /**
  * Custom hook to access authentication context
- * 
+ *
  * @function useAuth
  * @returns {AuthContextValue} Authentication context value
  * @throws {Error} If used outside of AuthProvider
- * 
+ *
  * @example
  * const { authenticate, isAuthenticated, biometricType } = useAuth();
- * 
+ *
  * const handleSecureAction = async () => {
  *   const success = await authenticate('Access secure feature');
  *   if (success) {
@@ -57,14 +57,14 @@ export const useAuth = () => {
 
 /**
  * Authentication Provider Component
- * 
+ *
  * Provides biometric and device authentication capabilities to child components.
  * Automatically detects available authentication methods and manages auth state.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - Child components to wrap with auth context
- * 
+ *
  * @example
  * <AuthProvider>
  *   <App />
@@ -82,14 +82,14 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Checks device authentication capabilities and updates state
-   * 
+   *
    * Determines what authentication methods are available on the device
    * and sets appropriate state variables for UI display and functionality.
-   * 
+   *
    * @async
    * @function checkAuthenticationAvailability
    * @returns {Promise<void>}
-   * 
+   *
    * @example
    * await checkAuthenticationAvailability();
    * console.log(biometricType); // 'Face ID', 'Fingerprint', etc.
@@ -136,15 +136,15 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Triggers device authentication with customizable prompt
-   * 
+   *
    * Initiates biometric or device authentication flow. Handles various
    * authentication states and provides appropriate user feedback.
-   * 
+   *
    * @async
    * @function authenticate
    * @param {string} [reason='Please authenticate to access PIN editing'] - Reason shown to user
    * @returns {Promise<boolean>} True if authentication successful, false otherwise
-   * 
+   *
    * @example
    * const success = await authenticate('Authenticate to delete grid');
    * if (success) {
@@ -169,7 +169,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       setAuthenticationInProgress(true);
-      
+
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: reason,
         fallbackLabel: 'Use Device PIN/Pattern',
@@ -198,13 +198,19 @@ export const AuthProvider = ({ children }) => {
             'Authentication is permanently disabled. Please use device settings to re-enable it.'
           );
         } else {
-          Alert.alert('Authentication Failed', 'Authentication was not successful. Please try again.');
+          Alert.alert(
+            'Authentication Failed',
+            'Authentication was not successful. Please try again.'
+          );
         }
         return false;
       }
     } catch (error) {
       console.error('Authentication error:', error);
-      Alert.alert('Authentication Error', 'An error occurred during authentication. Please try again.');
+      Alert.alert(
+        'Authentication Error',
+        'An error occurred during authentication. Please try again.'
+      );
       return false;
     } finally {
       setAuthenticationInProgress(false);
@@ -213,10 +219,10 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Clears authentication state (logout)
-   * 
+   *
    * @function logout
    * @returns {void}
-   * 
+   *
    * @example
    * logout(); // User will need to authenticate again
    */
@@ -226,10 +232,10 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Resets authentication state (used when app goes to background)
-   * 
+   *
    * @function resetAuthentication
    * @returns {void}
-   * 
+   *
    * @example
    * // Called when app loses focus for security
    * resetAuthentication();
@@ -253,11 +259,7 @@ export const AuthProvider = ({ children }) => {
     checkAuthenticationAvailability,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 /**

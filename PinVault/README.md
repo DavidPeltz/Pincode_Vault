@@ -1,87 +1,142 @@
 # PIN Vault v1.5 - Secure PIN Storage App
 
-A mobile app built with React Native and Expo that allows users to securely store their bank and credit card PIN codes using a unique visual grid system with biometric authentication protection and secure backup capabilities.
+A mobile app built with React Native and Expo that allows users to securely
+store their bank and credit card PIN codes using a unique visual grid system
+with biometric authentication protection and secure backup capabilities.
 
 ## 🚀 What's New in v1.5
 
 ### ⚡ Major Usability Improvements
-- **Streamlined Input Experience**: Reduced touches required for digit entry by 40-50%
-- **Auto-Submit Functionality**: Digits automatically submit when selected - no more "OK" button
-- **Enhanced Modal Interface**: Clean visual numpad with improved touch targets and feedback
-- **Smart Keyboard Management**: Proper keyboard dismissal and context-aware input methods
-- **Clear Step-by-Step Instructions**: Guided workflow from card naming through saving
 
-### 🔒 Enhanced Security Features  
-- **Mandatory Grid Completion**: Save button only appears when ALL cells are filled
-- **Prevents Incomplete Saves**: Blocks saving grids with only PIN digits (critical security fix)
-- **Dynamic Save States**: Clear feedback showing what's required ("Name Required", "Fill All Cells", etc.)
-- **Enforced Decoy Digits**: Users must complete "Fill Random" step before saving
+- **Streamlined Input Experience**: Reduced touches required for digit entry by
+  40-50%
+- **Auto-Submit Functionality**: Digits automatically submit when selected - no
+  more "OK" button
+- **Enhanced Modal Interface**: Clean visual numpad with improved touch targets
+  and feedback
+- **Smart Keyboard Management**: Proper keyboard dismissal and context-aware
+  input methods
+- **Clear Step-by-Step Instructions**: Guided workflow from card naming through
+  saving
+
+### 🔒 Enhanced Security Features
+
+- **Mandatory Grid Completion**: Save button only appears when ALL cells are
+  filled
+- **Prevents Incomplete Saves**: Blocks saving grids with only PIN digits
+  (critical security fix)
+- **Dynamic Save States**: Clear feedback showing what's required ("Name
+  Required", "Fill All Cells", etc.)
+- **Enforced Decoy Digits**: Users must complete "Fill Random" step before
+  saving
 
 ### 📱 Android-Specific Optimizations
+
 - **Hardware Back Button Support**: Proper modal dismissal and navigation
 - **Material Design Touch Feedback**: Native Android ripple effects throughout
-- **Platform-Specific Timing**: Optimized keyboard and animation timing for Android
+- **Platform-Specific Timing**: Optimized keyboard and animation timing for
+  Android
 - **Enhanced Performance**: Hardware-accelerated modals and smoother animations
 
 ## 🚀 What Was New in v1.4
 
 ### 🔧 Critical Gallery Navigation Fixes
-- **Fixed scroll bouncing**: Eliminated conflicting scroll behaviors causing swipes to bounce back
-- **Reliable single-grid scrolling**: Restored native paging behavior for smooth, predictable navigation
-- **Simplified gesture handling**: Removed complex custom swipe detection that caused conflicts
-- **Consistent behavior**: Now uses standard iOS/Android scrolling patterns for better UX
-- **Removed scroll-to-end**: Eliminated unreliable power gesture feature in favor of stability
-- **Improved reliability**: Single-grid navigation now works consistently without getting stuck
+
+- **Fixed scroll bouncing**: Eliminated conflicting scroll behaviors causing
+  swipes to bounce back
+- **Reliable single-grid scrolling**: Restored native paging behavior for
+  smooth, predictable navigation
+- **Simplified gesture handling**: Removed complex custom swipe detection that
+  caused conflicts
+- **Consistent behavior**: Now uses standard iOS/Android scrolling patterns for
+  better UX
+- **Removed scroll-to-end**: Eliminated unreliable power gesture feature in
+  favor of stability
+- **Improved reliability**: Single-grid navigation now works consistently
+  without getting stuck
 
 ## 🚀 What Was New in v1.3
 
 ### 📱 Enhanced Gallery Navigation
-- **Improved Swipe Sensitivity**: Customized swipe detection with two options - single grid navigation or jump to beginning/end
-- **Reliable Grid Centering**: Fixed swiping issues for consistent, smooth navigation between grids
-- **Smart Gesture Recognition**: Velocity-based swipe detection prevents accidental multi-grid jumps
-- **Optimized Scroll Performance**: Debounced updates and improved FlatList configuration for smoother experience
+
+- **Improved Swipe Sensitivity**: Customized swipe detection with two options -
+  single grid navigation or jump to beginning/end
+- **Reliable Grid Centering**: Fixed swiping issues for consistent, smooth
+  navigation between grids
+- **Smart Gesture Recognition**: Velocity-based swipe detection prevents
+  accidental multi-grid jumps
+- **Optimized Scroll Performance**: Debounced updates and improved FlatList
+  configuration for smoother experience
 
 ### 🎨 Visual Improvements
-- **Better Color Contrast**: Lightened blue grid cells in light mode for improved digit visibility
-- **Enhanced Accessibility**: Black text now clearly readable on all background colors
-- **Consistent Theming**: Maintained dark mode compatibility while improving light mode readability
+
+- **Better Color Contrast**: Lightened blue grid cells in light mode for
+  improved digit visibility
+- **Enhanced Accessibility**: Black text now clearly readable on all background
+  colors
+- **Consistent Theming**: Maintained dark mode compatibility while improving
+  light mode readability
 
 ### 🔧 Bug Fixes & Reliability
-- **Fixed Backup Restore**: "Replace All" option now properly clears existing grids before restoring
-- **Improved Data Integrity**: Added `clearAllGrids()` function for reliable complete data replacement
-- **Backward Compatibility**: Maintains support for v1.2 and v1.3 backup files while using v1.4 format for new backups
+
+- **Fixed Backup Restore**: "Replace All" option now properly clears existing
+  grids before restoring
+- **Improved Data Integrity**: Added `clearAllGrids()` function for reliable
+  complete data replacement
+- **Backward Compatibility**: Maintains support for v1.2 and v1.3 backup files
+  while using v1.4 format for new backups
 
 ## 🚀 What Was New in v1.2
 
 ### 🔐 Secure Backup & Restore System
-- **Encrypted Backups**: Password-protected backup files with PBKDF2-based encryption (10,000 rounds)
-- **Cross-Device Support**: Share backups between devices using password authentication
-- **User-Accessible Storage**: Save backups to your chosen folder on Android using Storage Access Framework
-- **Multiple Export Options**: Keep local backups or share/export to cloud services
-- **Authentication Protected**: All backup operations require biometric verification
+
+- **Encrypted Backups**: Password-protected backup files with PBKDF2-based
+  encryption (10,000 rounds)
+- **Cross-Device Support**: Share backups between devices using password
+  authentication
+- **User-Accessible Storage**: Save backups to your chosen folder on Android
+  using Storage Access Framework
+- **Multiple Export Options**: Keep local backups or share/export to cloud
+  services
+- **Authentication Protected**: All backup operations require biometric
+  verification
 
 ### 📱 Enhanced User Interface
-- **Header Integration**: Backup functionality accessible from all screens via header button
-- **Improved Navigation**: Better handling of Android gesture vs button navigation
-- **Password Visibility**: Toggle password visibility during backup/restore with eye icon
+
+- **Header Integration**: Backup functionality accessible from all screens via
+  header button
+- **Improved Navigation**: Better handling of Android gesture vs button
+  navigation
+- **Password Visibility**: Toggle password visibility during backup/restore with
+  eye icon
 - **Consistent Styling**: Standardized header icons with 44x44px circular design
-- **Better Onboarding**: Enhanced guidance for devices without authentication setup
+- **Better Onboarding**: Enhanced guidance for devices without authentication
+  setup
 
 ### 🛡️ Security Improvements
-- **Generic Authentication**: Updated messaging to support all authentication types (PIN, Pattern, Password, Face ID, Fingerprint)
-- **Cross-Platform Compatibility**: Works seamlessly across iOS and Android devices
-- **Secure File Format**: Custom `.pvb` (PIN Vault Backup) format with header identification
-- **Fallback Protection**: Graceful handling when advanced storage features aren't available
+
+- **Generic Authentication**: Updated messaging to support all authentication
+  types (PIN, Pattern, Password, Face ID, Fingerprint)
+- **Cross-Platform Compatibility**: Works seamlessly across iOS and Android
+  devices
+- **Secure File Format**: Custom `.pvb` (PIN Vault Backup) format with header
+  identification
+- **Fallback Protection**: Graceful handling when advanced storage features
+  aren't available
 
 ## Features
 
 ### 🔐 Visual PIN Security
-- **8x5 Color Grid**: Each PIN is stored in a randomly colored grid with 40 cells
+
+- **8x5 Color Grid**: Each PIN is stored in a randomly colored grid with 40
+  cells
 - **Four Colors**: Red, Blue, Green, and Yellow cells are evenly distributed
-- **Hidden PIN**: Only you know which colored cells contain your actual PIN digits
+- **Hidden PIN**: Only you know which colored cells contain your actual PIN
+  digits
 - **Decoy Numbers**: Fill empty cells with random digits for additional security
 
 ### 💾 Backup & Data Management
+
 - **Encrypted Backup Files**: Password-protected backups with strong encryption
 - **Cross-Device Migration**: Move your data between devices securely
 - **User-Controlled Storage**: Choose where to save your backups on Android
@@ -90,38 +145,55 @@ A mobile app built with React Native and Expo that allows users to securely stor
 - **Import/Export**: Works even on fresh installations with no existing grids
 
 ### 📱 User-Friendly Interface
+
 - **Touch Interface**: Simply tap cells to enter PIN digits (0-9)
 - **Visual Feedback**: PIN cells are highlighted with special borders
 - **Real-time Preview**: See your PIN as you enter it
-- **Card Naming**: Assign memorable names to each grid (e.g., "Chase Credit Card")
+- **Card Naming**: Assign memorable names to each grid (e.g., "Chase Credit
+  Card")
 - **Theme Toggle**: Switch between dark and light modes instantly
 - **Header Access**: Backup functionality always available in the header
 
 ### 🔐 Enhanced Authentication
-- **Multiple Auth Types**: Support for Face ID, Touch ID, Fingerprint, Iris, PIN, Pattern, Password
-- **Flexible Requirements**: Authentication required only for sensitive operations
+
+- **Multiple Auth Types**: Support for Face ID, Touch ID, Fingerprint, Iris,
+  PIN, Pattern, Password
+- **Flexible Requirements**: Authentication required only for sensitive
+  operations
 - **Setup Guidance**: Clear instructions for enabling device authentication
 - **Graceful Fallbacks**: Handles devices without biometric capabilities
 
 ### 🎨 Gallery View
-- **Reliable Swipe Navigation**: Smoothly scroll through your saved grids one at a time
+
+- **Reliable Swipe Navigation**: Smoothly scroll through your saved grids one at
+  a time
 - **PIN Display**: Clearly see your PIN extracted from the grid
-- **Edit/Delete**: Manage your grids with intuitive controls (requires authentication)
+- **Edit/Delete**: Manage your grids with intuitive controls (requires
+  authentication)
 - **Pagination**: Visual indicators show your position in the gallery
 - **Theme-Aware**: Beautiful appearance in both light and dark themes
 
 ## How It Works
 
 ### Security Concept
-The app uses "security through obscurity" combined with device-level authentication and encrypted backups. Your PIN is hidden among random digits in a colorful grid, access to modify grids requires biometric verification, and backups are protected with password-based encryption.
+
+The app uses "security through obscurity" combined with device-level
+authentication and encrypted backups. Your PIN is hidden among random digits in
+a colorful grid, access to modify grids requires biometric verification, and
+backups are protected with password-based encryption.
 
 ### Backup Security
-- **Password-Based Encryption**: Uses PBKDF2-like key derivation with 10,000 rounds
-- **Cross-Device Compatibility**: Backups work across different devices with the same password
-- **Authentication Required**: Biometric verification needed for all backup/restore operations
+
+- **Password-Based Encryption**: Uses PBKDF2-like key derivation with 10,000
+  rounds
+- **Cross-Device Compatibility**: Backups work across different devices with the
+  same password
+- **Authentication Required**: Biometric verification needed for all
+  backup/restore operations
 - **Secure File Format**: Custom format prevents accidental data exposure
 
 ### Usage Workflow
+
 1. **Authenticate**: Use device authentication to access editing features
 2. **Create Grid**: Generate a new 8x5 grid with randomly distributed colors
 3. **Enter PIN**: Tap colored cells to enter your PIN digits
@@ -150,6 +222,7 @@ npm run web      # Web browser
 ```
 
 ### Prerequisites
+
 - Node.js 16+ and npm
 - Expo CLI (`npm install -g @expo/cli`)
 - For iOS: Xcode and iOS Simulator (macOS required)
@@ -158,6 +231,7 @@ npm run web      # Web browser
 ## Technical Details
 
 ### Architecture
+
 - **Framework**: React Native with Expo SDK 53
 - **Navigation**: React Navigation v7 with Stack Navigator
 - **Storage**: AsyncStorage for persistent local data
@@ -167,6 +241,7 @@ npm run web      # Web browser
 - **UI**: Custom components with responsive design
 
 ### Key Components
+
 - **AuthProvider**: Biometric authentication management
 - **ThemeProvider**: Dark/light theme system
 - **PinGrid**: Interactive 8x5 grid component
@@ -180,6 +255,7 @@ npm run web      # Web browser
 - **Backup Utils**: File operations and backup management
 
 ### Dependencies
+
 ```json
 {
   "@react-native-async-storage/async-storage": "^2.2.0",
@@ -204,6 +280,7 @@ npm run web      # Web browser
 ## Security Features
 
 ### Multi-Layer Protection
+
 - **Biometric Authentication**: Device-level security for sensitive operations
 - **Encrypted Backups**: Password-protected backup files with strong encryption
 - **Visual Obfuscation**: PINs hidden among decoy digits in colorful grids
@@ -211,6 +288,7 @@ npm run web      # Web browser
 - **Cross-Device Security**: Secure backup sharing between your devices
 
 ### Authentication Types Supported
+
 - **Face ID** (iOS)
 - **Touch ID** (iOS)
 - **Fingerprint** (Android)
@@ -218,23 +296,30 @@ npm run web      # Web browser
 - **Device PIN/Password/Pattern** (fallback)
 
 ### Backup Security
-- **Password Protection**: Strong password required for backup encryption/decryption
+
+- **Password Protection**: Strong password required for backup
+  encryption/decryption
 - **Key Derivation**: PBKDF2-like algorithm with 10,000 rounds
 - **Cross-Device Compatibility**: Same password works across different devices
-- **Authentication Gate**: Biometric verification required for all backup operations
+- **Authentication Gate**: Biometric verification required for all backup
+  operations
 - **Secure Storage**: User-controlled backup file locations
 
 ### Security Considerations
 
 #### Strengths
-- **Multi-factor Protection**: Combines biometric auth, visual obfuscation, and backup encryption
-- **Device-Only Storage**: All data remains on your device unless you choose to backup
+
+- **Multi-factor Protection**: Combines biometric auth, visual obfuscation, and
+  backup encryption
+- **Device-Only Storage**: All data remains on your device unless you choose to
+  backup
 - **No Network Access**: Completely offline operation
 - **Encrypted Backups**: Password-protected backup files for disaster recovery
 - **Cross-Device Migration**: Secure way to move data between devices
 - **User-Controlled Storage**: Choose where your backups are saved
 
 #### Limitations
+
 - **Device Security Dependency**: Security relies on your device's lock screen
 - **Physical Access**: Still vulnerable to direct observation during use
 - **Password Dependency**: Backup security depends on password strength
@@ -243,75 +328,100 @@ npm run web      # Web browser
 ## Usage Tips
 
 ### Best Practices
+
 1. **Use Different Colors**: Spread your PIN across different colored cells
 2. **Memorable Patterns**: Choose colors in a pattern you can remember
 3. **Strong Backup Passwords**: Use a strong, memorable password for backups
 4. **Regular Backups**: Create backups before major device changes
-5. **Secure Storage**: Save backups to trusted cloud services or secure locations
+5. **Secure Storage**: Save backups to trusted cloud services or secure
+   locations
 6. **Test Restores**: Verify your backups work before relying on them
 7. **Private Use**: Always use in private to prevent shoulder surfing
 8. **Enable Authentication**: Ensure your device has authentication set up
 
 ### Backup Workflow
+
 1. **Create Backup**: Tap backup icon in header, authenticate, set password
-2. **Choose Storage**: Select "Keep Local" for device storage or "Share/Export" for cloud
+2. **Choose Storage**: Select "Keep Local" for device storage or "Share/Export"
+   for cloud
 3. **Secure Password**: Use a strong password you can remember across devices
 4. **Test Restore**: Verify backup works by testing restore process
 5. **Regular Updates**: Create new backups when you add/modify grids
 
 ### Security Examples
+
 - **Bank Debit**: PIN 1234 → Enter 1 in red, 2 in blue, 3 in green, 4 in yellow
 - **Credit Card**: PIN 9876 → Enter 9 in green, 8 in red, 7 in blue, 6 in yellow
 
 ## Screenshots
 
-*Coming soon - Screenshots of the v1.4 interface with improved navigation*
+_Coming soon - Screenshots of the v1.4 interface with improved navigation_
 
 ## Changelog
 
 ### v1.4.0 (Latest) - Gallery Navigation Reliability Fixes
+
 - ✅ **Fixed gallery scroll bouncing** - eliminated conflicting scroll behaviors
-- ✅ **Restored reliable single-grid scrolling** - uses native paging for consistent navigation
-- ✅ **Simplified gesture handling** - removed complex custom detection causing conflicts
-- ✅ **Improved stability** - standard iOS/Android scrolling patterns for better UX
-- ✅ **Removed unreliable features** - eliminated scroll-to-end gesture in favor of stability
-- ✅ **Maintained backward compatibility** - supports v1.2, v1.3, and v1.4 backup formats
+- ✅ **Restored reliable single-grid scrolling** - uses native paging for
+  consistent navigation
+- ✅ **Simplified gesture handling** - removed complex custom detection causing
+  conflicts
+- ✅ **Improved stability** - standard iOS/Android scrolling patterns for better
+  UX
+- ✅ **Removed unreliable features** - eliminated scroll-to-end gesture in favor
+  of stability
+- ✅ **Maintained backward compatibility** - supports v1.2, v1.3, and v1.4
+  backup formats
 - ✅ **Enhanced user experience** - predictable, smooth single-grid navigation
 
 ### v1.3.0 - Enhanced Navigation & User Experience
+
 - ✅ **Improved grid gallery swiping** with custom velocity-based detection
-- ✅ **Fixed swiping reliability** with consistent grid centering and smooth navigation
-- ✅ **Added smart swipe sensitivity** with two options: single grid or jump to end
+- ✅ **Fixed swiping reliability** with consistent grid centering and smooth
+  navigation
+- ✅ **Added smart swipe sensitivity** with two options: single grid or jump to
+  end
 - ✅ **Enhanced blue cell visibility** in light mode for better text contrast
-- ✅ **Fixed backup restore "Replace All"** to properly clear existing grids before restore
-- ✅ **Added backward compatibility** for v1.2 backup files while using v1.3 format
+- ✅ **Fixed backup restore "Replace All"** to properly clear existing grids
+  before restore
+- ✅ **Added backward compatibility** for v1.2 backup files while using v1.3
+  format
 - ✅ **Improved accessibility** with better color contrast and readability
-- ✅ **Optimized scroll performance** with debounced updates and enhanced FlatList configuration
+- ✅ **Optimized scroll performance** with debounced updates and enhanced
+  FlatList configuration
 
 ### v1.2.0 - Secure Backup & Restore
+
 - ✅ **Added secure backup system** with password-based encryption
 - ✅ **Implemented cross-device backup compatibility** for device migration
 - ✅ **Added user-accessible storage** on Android using Storage Access Framework
-- ✅ **Enhanced header navigation** with backup button accessible from all screens
-- ✅ **Improved authentication messaging** to support all device authentication types
+- ✅ **Enhanced header navigation** with backup button accessible from all
+  screens
+- ✅ **Improved authentication messaging** to support all device authentication
+  types
 - ✅ **Added password visibility toggle** with eye icon for backup operations
-- ✅ **Standardized header icon styling** with consistent 44x44px circular design
-- ✅ **Enhanced navigation bar handling** for Android gesture vs button navigation
+- ✅ **Standardized header icon styling** with consistent 44x44px circular
+  design
+- ✅ **Enhanced navigation bar handling** for Android gesture vs button
+  navigation
 - ✅ **Added comprehensive backup validation** and error handling
 - ✅ **Resolved circular dependencies** by refactoring context providers
 - ✅ **Added fallback storage options** when advanced features aren't available
-- ✅ **Implemented secure file format** with custom .pvb extension and header identification
+- ✅ **Implemented secure file format** with custom .pvb extension and header
+  identification
 - ✅ **Enhanced onboarding experience** for devices without authentication setup
 - ✅ **Added backup management utilities** for file operations and validation
 
 #### New Dependencies Added
+
 - `buffer`: For encryption operations
-- `expo-crypto`: For cryptographic functions  
+- `expo-crypto`: For cryptographic functions
 - `expo-document-picker`: For backup file selection
 - `expo-file-system`: For file operations
 - `expo-sharing`: For backup file sharing
 
 #### Architecture Improvements
+
 - **Extracted GridRefreshContext** to resolve circular dependency warnings
 - **Added NavigationContext** for coordinating updates across screens
 - **Created backup utilities** (`utils/backup.js`, `utils/encryption.js`)
@@ -319,14 +429,19 @@ npm run web      # Web browser
 - **Improved error handling** throughout backup/restore flow
 
 #### User Experience Enhancements
-- **Header-accessible backup** - Available from all screens including empty state
-- **Two backup modes** - "Keep Local" vs "Share/Export" with different storage handling
+
+- **Header-accessible backup** - Available from all screens including empty
+  state
+- **Two backup modes** - "Keep Local" vs "Share/Export" with different storage
+  handling
 - **Progress indicators** - Loading states and operation feedback
-- **Authentication integration** - Seamless biometric protection for sensitive operations
+- **Authentication integration** - Seamless biometric protection for sensitive
+  operations
 - **Generic messaging** - Device-agnostic authentication instructions
 - **Fallback support** - Graceful degradation when advanced features unavailable
 
 ### v1.1.0
+
 - ✅ Added biometric authentication for enhanced security
 - ✅ Implemented dark/light theme system with user preference storage
 - ✅ Added comprehensive security information modal
@@ -335,6 +450,7 @@ npm run web      # Web browser
 - ✅ Improved error handling and user feedback
 
 ### v1.0.0
+
 - Initial release with visual PIN grid system
 - Basic CRUD operations for PIN storage
 - Gallery view with swipe navigation
@@ -343,6 +459,7 @@ npm run web      # Web browser
 ## Contributing
 
 We welcome contributions! Areas of interest:
+
 - **Security Enhancements**: Additional encryption methods, security audits
 - **UI/UX Improvements**: Better accessibility, animations, responsive design
 - **Backup Features**: Cloud integration, automated backups, backup scheduling
@@ -350,6 +467,7 @@ We welcome contributions! Areas of interest:
 - **Documentation**: Code documentation and user guides
 
 ### Development Setup
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
@@ -360,7 +478,8 @@ We welcome contributions! Areas of interest:
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 - see the
+[LICENSE](LICENSE) file for details.
 
 ## Support
 
@@ -370,7 +489,9 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Disclaimer
 
-**Important Security Notice**: While PIN Vault v1.4 provides multiple layers of security including biometric authentication, visual obfuscation, and encrypted backups, users should:
+**Important Security Notice**: While PIN Vault v1.4 provides multiple layers of
+security including biometric authentication, visual obfuscation, and encrypted
+backups, users should:
 
 - Understand that this app is designed for convenience, not maximum security
 - Use strong passwords for backup encryption
@@ -380,7 +501,8 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 - Use the app in private environments to prevent observation
 - Regularly review and update stored PINs
 
-**Use at your own risk**. The developers are not responsible for any data loss or security breaches resulting from the use of this application.
+**Use at your own risk**. The developers are not responsible for any data loss
+or security breaches resulting from the use of this application.
 
 ---
 
@@ -397,8 +519,11 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 9. **Choose storage** location for your backup file
 10. **Access** your PINs anytime through the gallery view
 
-**Remember**: The security of this system relies on keeping your color/position system secret, using strong backup passwords, and using the app in private settings with authentication protection enabled.
+**Remember**: The security of this system relies on keeping your color/position
+system secret, using strong backup passwords, and using the app in private
+settings with authentication protection enabled.
 
 ---
 
-*PIN Vault v1.4 - Secure, Local, Private PIN Storage with Reliable Navigation* 🔐
+_PIN Vault v1.4 - Secure, Local, Private PIN Storage with Reliable Navigation_
+🔐

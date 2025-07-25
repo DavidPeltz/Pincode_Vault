@@ -1,15 +1,7 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  TextInput,
-  StyleSheet,
-  Alert,
-} from 'react-native';
-import { useTheme } from '../../contexts/ThemeContext';
+import { View, Text, TouchableOpacity, Modal, TextInput, StyleSheet, Alert } from 'react-native';
 import PropTypes from 'prop-types';
+import { useTheme } from '../../contexts/ThemeContext';
 
 /**
  * Password input modal component for backup operations
@@ -57,7 +49,7 @@ export default function PasswordInput({ visible, action, onSubmit, onCancel, err
   const getDescription = () => {
     switch (action) {
       case 'backup-local':
-        return 'Enter a password to encrypt your backup file. You\'ll need this password to restore your data.';
+        return "Enter a password to encrypt your backup file. You'll need this password to restore your data.";
       case 'backup-share':
         return 'Enter a password to encrypt your backup for sharing. The same password will be needed on the destination device.';
       case 'restore':
@@ -68,12 +60,7 @@ export default function PasswordInput({ visible, action, onSubmit, onCancel, err
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={handleCancel}
-    >
+    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={handleCancel}>
       <View style={styles.overlay}>
         <View style={[styles.container, { backgroundColor: theme.modal.background }]}>
           <Text style={[styles.title, { color: theme.text }]}>{getTitle()}</Text>
@@ -89,7 +76,7 @@ export default function PasswordInput({ visible, action, onSubmit, onCancel, err
                   backgroundColor: theme.surface,
                   borderColor: error ? theme.error : theme.border,
                   color: theme.text,
-                }
+                },
               ]}
               value={password}
               onChangeText={setPassword}
@@ -110,9 +97,7 @@ export default function PasswordInput({ visible, action, onSubmit, onCancel, err
             </TouchableOpacity>
           </View>
 
-          {error ? (
-            <Text style={[styles.errorText, { color: theme.error }]}>{error}</Text>
-          ) : null}
+          {error ? <Text style={[styles.errorText, { color: theme.error }]}>{error}</Text> : null}
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity
@@ -142,16 +127,16 @@ export default function PasswordInput({ visible, action, onSubmit, onCancel, err
 PasswordInput.propTypes = {
   /** Whether the modal is visible */
   visible: PropTypes.bool.isRequired,
-  
+
   /** The action type for the password input */
   action: PropTypes.oneOf(['backup-local', 'backup-share', 'restore']),
-  
+
   /** Callback function called when password is submitted */
   onSubmit: PropTypes.func.isRequired,
-  
+
   /** Callback function called when password input is cancelled */
   onCancel: PropTypes.func.isRequired,
-  
+
   /** Error message to display */
   error: PropTypes.string,
 };

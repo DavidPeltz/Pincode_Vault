@@ -1,15 +1,8 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-  Alert,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Alert } from 'react-native';
+import PropTypes from 'prop-types';
 import { useTheme } from '../../contexts/ThemeContext';
 import PinGrid from '../PinGrid';
-import PropTypes from 'prop-types';
 
 const { width } = Dimensions.get('window');
 
@@ -26,7 +19,9 @@ export default function GridCard({ item, index, onEdit, onDelete, formatDate }) 
   const { theme } = useTheme();
 
   const extractPinFromGrid = () => {
-    if (!item.grid) return '';
+    if (!item.grid) {
+      return '';
+    }
     return item.grid
       .filter(cell => cell.isPinDigit)
       .map(cell => cell.value)
@@ -43,11 +38,11 @@ export default function GridCard({ item, index, onEdit, onDelete, formatDate }) 
       `Are you sure you want to delete "${item.name}"? This action cannot be undone.`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
+        {
+          text: 'Delete',
           style: 'destructive',
-          onPress: () => onDelete(item)
-        }
+          onPress: () => onDelete(item),
+        },
       ]
     );
   };
@@ -62,7 +57,7 @@ export default function GridCard({ item, index, onEdit, onDelete, formatDate }) 
             Created: {formatDate(item.createdAt)}
           </Text>
         </View>
-        
+
         <View style={styles.gridActions}>
           <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: theme.primary }]}
@@ -70,7 +65,7 @@ export default function GridCard({ item, index, onEdit, onDelete, formatDate }) 
           >
             <Text style={styles.actionText}>✏️</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: theme.danger }]}
             onPress={handleDelete}
@@ -101,9 +96,7 @@ export default function GridCard({ item, index, onEdit, onDelete, formatDate }) 
 
       {/* Grid Index Indicator */}
       <View style={styles.gridFooter}>
-        <Text style={[styles.gridIndex, { color: theme.textSecondary }]}>
-          Grid {index + 1}
-        </Text>
+        <Text style={[styles.gridIndex, { color: theme.textSecondary }]}>Grid {index + 1}</Text>
       </View>
     </View>
   );
@@ -121,23 +114,23 @@ GridCard.propTypes = {
     createdAt: PropTypes.string.isRequired,
     updatedAt: PropTypes.string,
   }).isRequired,
-  
+
   /** Grid index number for display */
   index: PropTypes.number.isRequired,
-  
+
   /** Callback function called when edit button is pressed */
   onEdit: PropTypes.func.isRequired,
-  
+
   /** Callback function called when delete button is pressed */
   onDelete: PropTypes.func.isRequired,
-  
+
   /** Function to format date strings for display */
   formatDate: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({
   gridItem: {
-    width: width,
+    width,
     padding: 20,
     paddingBottom: 30,
   },

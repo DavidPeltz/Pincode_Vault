@@ -10,9 +10,7 @@ export default function ThemeToggle() {
       style={[styles.container, { backgroundColor: theme.surface }]}
       onPress={toggleTheme}
     >
-      <Text style={[styles.icon, { color: theme.text }]}>
-        {isDarkMode ? '☀️' : '🌙'}
-      </Text>
+      <Text style={[styles.icon, { color: theme.text }]}>{isDarkMode ? '☀️' : '🌙'}</Text>
     </TouchableOpacity>
   );
 }

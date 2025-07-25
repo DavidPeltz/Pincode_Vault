@@ -10,14 +10,14 @@ import {
   Dimensions,
   Keyboard,
   Platform,
-  BackHandler
+  BackHandler,
 } from 'react-native';
-import { useTheme } from '../contexts/ThemeContext';
 import PropTypes from 'prop-types';
+import { useTheme } from '../contexts/ThemeContext';
 
 /**
  * @fileoverview Interactive PIN grid component for PIN Vault
- * 
+ *
  * Renders an 8x5 grid of colored cells that can be tapped to enter PIN digits.
  * Supports both editable and read-only modes with visual feedback for PIN cells.
  * Includes platform-specific optimizations for keyboard handling and user interaction.
@@ -27,11 +27,11 @@ const { width, height } = Dimensions.get('window');
 
 /**
  * Interactive PIN Grid Component
- * 
+ *
  * Displays a visual grid of colored cells for PIN entry and viewing.
  * In editable mode, users can tap cells to enter digits. PIN cells are
  * highlighted with special borders to distinguish them from decoy digits.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {Array<Object>} props.grid - Array of 40 grid cell objects
@@ -39,10 +39,10 @@ const { width, height } = Dimensions.get('window');
  * @param {boolean} [props.isEditable=true] - Whether grid cells can be edited
  * @param {boolean} [props.showValues=true] - Whether to display cell values
  * @param {boolean} [props.showPinHighlight=true] - Whether to highlight PIN cells
- * 
+ *
  * @example
  * const [grid, setGrid] = useState(generateRandomGrid());
- * 
+ *
  * <PinGrid
  *   grid={grid}
  *   onGridUpdate={setGrid}
@@ -51,7 +51,13 @@ const { width, height } = Dimensions.get('window');
  *   showPinHighlight={true}
  * />
  */
-const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, showPinHighlight = true }) => {
+const PinGrid = ({
+  grid,
+  onGridUpdate,
+  isEditable = true,
+  showValues = true,
+  showPinHighlight = true,
+}) => {
   const [selectedCell, setSelectedCell] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -60,15 +66,15 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   /**
    * Gets the hex color code for a grid cell color name
-   * 
+   *
    * @function getColorHex
    * @param {string} color - Color name ('red', 'blue', 'green', 'yellow')
    * @returns {string} Hex color code from current theme
-   * 
+   *
    * @example
    * const redColor = getColorHex('red'); // '#FF0000' in light mode
    */
-  const getColorHex = (color) => {
+  const getColorHex = color => {
     return theme.gridColors[color] || '#CCCCCC';
   };
 
@@ -94,20 +100,22 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   /**
    * Handles cell press events to open digit input modal
-   * 
+   *
    * @function handleCellPress
    * @param {number} cellIndex - Index of the pressed cell (0-39)
    * @returns {void}
-   * 
+   *
    * @example
    * handleCellPress(0); // Opens input modal for first cell
    */
-  const handleCellPress = (cellIndex) => {
-    if (!isEditable) return;
-    
+  const handleCellPress = cellIndex => {
+    if (!isEditable) {
+      return;
+    }
+
     // Dismiss any existing keyboard first (Android optimization)
     Keyboard.dismiss();
-    
+
     setSelectedCell(cellIndex);
     setInputValue(grid[cellIndex].value?.toString() || '');
     setModalVisible(true);
@@ -115,13 +123,13 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   /**
    * Updates a specific cell's value and PIN digit status
-   * 
+   *
    * @function updateCellValue
    * @param {number} cellIndex - Index of the cell to update
    * @param {number|null} value - New digit value (0-9) or null for empty
    * @param {boolean} isPinDigit - Whether this cell contains a PIN digit
    * @returns {void}
-   * 
+   *
    * @example
    * updateCellValue(5, 7, true); // Set cell 5 to digit 7 as PIN digit
    * updateCellValue(10, null, false); // Clear cell 10
@@ -130,20 +138,20 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
     const updatedGrid = [...grid];
     updatedGrid[cellIndex] = {
       ...updatedGrid[cellIndex],
-      value: value,
-      isPinDigit: isPinDigit
+      value,
+      isPinDigit,
     };
     onGridUpdate(updatedGrid);
   };
 
   /**
    * Handles input value changes in the modal text input
-   * 
+   *
    * @function handleValueChange
    * @param {string} text - New input text value
    * @returns {void}
    */
-  const handleValueChange = (text) => {
+  const handleValueChange = text => {
     // Update display value only (no auto-submit since keyboard is disabled)
     if (text === '' || (text.length === 1 && /^[0-9]$/.test(text))) {
       setInputValue(text);
@@ -152,22 +160,18 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   /**
    * Submits the entered value and updates the grid
-   * 
+   *
    * @function handleValueSubmit
    * @param {string} [value=inputValue] - Value to submit (defaults to current input)
    * @returns {void}
-   * 
+   *
    * @example
    * handleValueSubmit('5'); // Submit digit 5 to selected cell
    * handleValueSubmit(''); // Clear the selected cell
    */
   const handleValueSubmit = (value = inputValue) => {
     if (value === '' || (value >= '0' && value <= '9')) {
-      updateCellValue(
-        selectedCell, 
-        value === '' ? null : parseInt(value),
-        value !== ''
-      );
+      updateCellValue(selectedCell, value === '' ? null : parseInt(value), value !== '');
       closeModal();
     } else {
       Alert.alert('Invalid Input', 'Please enter a digit from 0 to 9');
@@ -176,7 +180,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   /**
    * Clears the selected cell value
-   * 
+   *
    * @function handleClearCell
    * @returns {void}
    */
@@ -187,7 +191,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   /**
    * Closes the input modal with platform-specific keyboard handling
-   * 
+   *
    * @function closeModal
    * @returns {void}
    */
@@ -211,7 +215,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   /**
    * Handles keyboard submit event
-   * 
+   *
    * @function handleKeyboardSubmit
    * @returns {void}
    */
@@ -221,7 +225,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   /**
    * Handles modal request close (Android back button)
-   * 
+   *
    * @function handleModalRequestClose
    * @returns {void}
    */
@@ -231,12 +235,12 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   /**
    * Renders a single grid cell with proper styling and interaction
-   * 
+   *
    * @function renderCell
    * @param {Object} cell - Cell data object
    * @param {number} index - Cell index in the grid array
    * @returns {React.ReactElement} Rendered cell component
-   * 
+   *
    * @example
    * const cell = { id: 0, color: 'red', value: 5, isPinDigit: true };
    * const cellElement = renderCell(cell, 0);
@@ -244,34 +248,30 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
   const renderCell = (cell, index) => {
     const row = Math.floor(index / 8);
     const col = index % 8;
-    
+
     // Dynamic PIN cell style that adapts to theme
-    const pinCellStyle = cell.isPinDigit && showPinHighlight ? {
-      ...styles.pinCell,
-      borderColor: isDarkMode ? '#FFFFFF' : '#333333'
-    } : null;
-    
+    const pinCellStyle =
+      cell.isPinDigit && showPinHighlight
+        ? {
+            ...styles.pinCell,
+            borderColor: isDarkMode ? '#FFFFFF' : '#333333',
+          }
+        : null;
+
     return (
       <TouchableOpacity
         key={index}
-        style={[
-          styles.cell,
-          { backgroundColor: getColorHex(cell.color) },
-          pinCellStyle
-        ]}
+        style={[styles.cell, { backgroundColor: getColorHex(cell.color) }, pinCellStyle]}
         onPress={() => handleCellPress(index)}
         disabled={!isEditable}
         activeOpacity={0.7}
         // Android-specific touch feedback
         android_ripple={{
           color: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-          borderless: false
+          borderless: false,
         }}
       >
-        <Text style={[
-          styles.cellText,
-          cell.isPinDigit && showPinHighlight && styles.pinText
-        ]}>
+        <Text style={[styles.cellText, cell.isPinDigit && showPinHighlight && styles.pinText]}>
           {showValues && cell.value !== null ? cell.value : ''}
         </Text>
       </TouchableOpacity>
@@ -280,19 +280,19 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   /**
    * Renders the quick number pad for digit selection
-   * 
+   *
    * @function renderQuickNumberPad
    * @returns {React.ReactElement} Number pad component
    */
   const renderQuickNumberPad = () => {
     /**
      * Handles number pad button press with auto-submit
-     * 
+     *
      * @function handleNumberPress
      * @param {number} digit - Selected digit (0-9)
      * @returns {void}
      */
-    const handleNumberPress = (digit) => {
+    const handleNumberPress = digit => {
       setInputValue(digit.toString());
       setTimeout(() => handleValueSubmit(digit.toString()), 300);
     };
@@ -301,7 +301,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
       <View style={styles.quickNumberPad}>
         {/* First row: 1, 2, 3 */}
         <View style={styles.numberRow}>
-          {[1, 2, 3].map((digit) => (
+          {[1, 2, 3].map(digit => (
             <TouchableOpacity
               key={digit}
               style={[styles.quickButton, { backgroundColor: theme.primary }]}
@@ -309,17 +309,17 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
               activeOpacity={0.7}
               android_ripple={{
                 color: 'rgba(255,255,255,0.2)',
-                borderless: false
+                borderless: false,
               }}
             >
               <Text style={styles.quickButtonText}>{digit}</Text>
             </TouchableOpacity>
           ))}
         </View>
-        
+
         {/* Second row: 4, 5, 6 */}
         <View style={styles.numberRow}>
-          {[4, 5, 6].map((digit) => (
+          {[4, 5, 6].map(digit => (
             <TouchableOpacity
               key={digit}
               style={[styles.quickButton, { backgroundColor: theme.primary }]}
@@ -327,17 +327,17 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
               activeOpacity={0.7}
               android_ripple={{
                 color: 'rgba(255,255,255,0.2)',
-                borderless: false
+                borderless: false,
               }}
             >
               <Text style={styles.quickButtonText}>{digit}</Text>
             </TouchableOpacity>
           ))}
         </View>
-        
+
         {/* Third row: 7, 8, 9 */}
         <View style={styles.numberRow}>
-          {[7, 8, 9].map((digit) => (
+          {[7, 8, 9].map(digit => (
             <TouchableOpacity
               key={digit}
               style={[styles.quickButton, { backgroundColor: theme.primary }]}
@@ -345,14 +345,14 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
               activeOpacity={0.7}
               android_ripple={{
                 color: 'rgba(255,255,255,0.2)',
-                borderless: false
+                borderless: false,
               }}
             >
               <Text style={styles.quickButtonText}>{digit}</Text>
             </TouchableOpacity>
           ))}
         </View>
-        
+
         {/* Fourth row: Clear, 0, OK */}
         <View style={styles.numberRow}>
           <TouchableOpacity
@@ -361,31 +361,31 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
             activeOpacity={0.7}
             android_ripple={{
               color: 'rgba(255,255,255,0.2)',
-              borderless: false
+              borderless: false,
             }}
           >
             <Text style={styles.quickButtonText}>Clear</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[styles.quickButton, { backgroundColor: theme.primary }]}
             onPress={() => handleNumberPress(0)}
             activeOpacity={0.7}
             android_ripple={{
               color: 'rgba(255,255,255,0.2)',
-              borderless: false
+              borderless: false,
             }}
           >
             <Text style={styles.quickButtonText}>0</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[styles.quickButton, { backgroundColor: theme.success }]}
             onPress={() => handleValueSubmit()}
             activeOpacity={0.7}
             android_ripple={{
               color: 'rgba(255,255,255,0.2)',
-              borderless: false
+              borderless: false,
             }}
           >
             <Text style={styles.quickButtonText}>OK</Text>
@@ -397,9 +397,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
 
   return (
     <View style={styles.container}>
-      <View style={styles.grid}>
-        {grid.map((cell, index) => renderCell(cell, index))}
-      </View>
+      <View style={styles.grid}>{grid.map((cell, index) => renderCell(cell, index))}</View>
 
       {/* Digit Input Modal */}
       <Modal
@@ -414,7 +412,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
             <Text style={[styles.modalTitle, { color: theme.text }]}>
               Enter Digit for {grid[selectedCell]?.color} Cell
             </Text>
-            
+
             <TextInput
               ref={inputRef}
               style={[
@@ -423,7 +421,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
                   backgroundColor: theme.surface,
                   borderColor: theme.border,
                   color: theme.text,
-                }
+                },
               ]}
               value={inputValue}
               onChangeText={handleValueChange}
@@ -436,7 +434,7 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
               underlineColorAndroid="transparent"
               onSubmitEditing={handleKeyboardSubmit}
             />
-            
+
             {renderQuickNumberPad()}
           </View>
         </View>
@@ -450,22 +448,24 @@ const PinGrid = ({ grid, onGridUpdate, isEditable = true, showValues = true, sho
  */
 PinGrid.propTypes = {
   /** Array of 40 grid cell objects with id, color, value, and isPinDigit properties */
-  grid: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    color: PropTypes.oneOf(['red', 'blue', 'green', 'yellow']).isRequired,
-    value: PropTypes.number,
-    isPinDigit: PropTypes.bool.isRequired,
-  })).isRequired,
-  
+  grid: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      color: PropTypes.oneOf(['red', 'blue', 'green', 'yellow']).isRequired,
+      value: PropTypes.number,
+      isPinDigit: PropTypes.bool.isRequired,
+    })
+  ).isRequired,
+
   /** Callback function called when grid is updated with new grid array */
   onGridUpdate: PropTypes.func.isRequired,
-  
+
   /** Whether grid cells can be edited by tapping */
   isEditable: PropTypes.bool,
-  
+
   /** Whether to display cell values (digits) */
   showValues: PropTypes.bool,
-  
+
   /** Whether to highlight PIN cells with special border */
   showPinHighlight: PropTypes.bool,
 };
@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     width: Math.min(width - 40, 320),
-    aspectRatio: 8/5,
+    aspectRatio: 8 / 5,
   },
   cell: {
     width: '12.5%',

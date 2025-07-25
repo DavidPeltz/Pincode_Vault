@@ -31,7 +31,7 @@ const STORAGE_KEY = 'PIN_GRIDS';
  * @function saveGrid
  * @param {GridData} gridData - The grid data to save
  * @returns {Promise<boolean>} True if save was successful, false otherwise
- * 
+ *
  * @example
  * const gridData = {
  *   id: 'grid_123',
@@ -45,7 +45,7 @@ const STORAGE_KEY = 'PIN_GRIDS';
  *   console.log('Grid saved successfully');
  * }
  */
-export const saveGrid = async (gridData) => {
+export const saveGrid = async gridData => {
   try {
     const existingGrids = await getGrids();
     const updatedGrids = { ...existingGrids, [gridData.id]: gridData };
@@ -62,7 +62,7 @@ export const saveGrid = async (gridData) => {
  * @async
  * @function getGrids
  * @returns {Promise<Object<string, GridData>>} Object with grid IDs as keys and GridData as values
- * 
+ *
  * @example
  * const grids = await getGrids();
  * const gridArray = Object.values(grids);
@@ -84,14 +84,14 @@ export const getGrids = async () => {
  * @function deleteGrid
  * @param {string} gridId - The ID of the grid to delete
  * @returns {Promise<boolean>} True if deletion was successful, false otherwise
- * 
+ *
  * @example
  * const success = await deleteGrid('grid_123');
  * if (success) {
  *   console.log('Grid deleted successfully');
  * }
  */
-export const deleteGrid = async (gridId) => {
+export const deleteGrid = async gridId => {
   try {
     const existingGrids = await getGrids();
     delete existingGrids[gridId];
@@ -108,7 +108,7 @@ export const deleteGrid = async (gridId) => {
  * @async
  * @function clearAllGrids
  * @returns {Promise<boolean>} True if clearing was successful, false otherwise
- * 
+ *
  * @example
  * const success = await clearAllGrids();
  * if (success) {
@@ -127,17 +127,17 @@ export const clearAllGrids = async () => {
 
 /**
  * Generates a random 8x5 PIN grid with evenly distributed colors
- * 
+ *
  * This function creates a 40-cell grid where each color (red, blue, green, yellow)
  * appears exactly 10 times. The colors are then shuffled to create a random layout.
- * 
+ *
  * @function generateRandomGrid
  * @returns {GridCell[]} Array of 40 grid cells with randomized color positions
- * 
+ *
  * @example
  * const newGrid = generateRandomGrid();
  * console.log(newGrid.length); // 40
- * 
+ *
  * // Count colors to verify even distribution
  * const colorCounts = newGrid.reduce((acc, cell) => {
  *   acc[cell.color] = (acc[cell.color] || 0) + 1;
@@ -148,36 +148,36 @@ export const clearAllGrids = async () => {
 export const generateRandomGrid = () => {
   const colors = ['red', 'blue', 'green', 'yellow'];
   const grid = [];
-  
+
   // Create 8x5 grid (40 cells) with evenly distributed colors
   for (let i = 0; i < 40; i++) {
     grid.push({
       id: i,
       color: colors[i % 4], // Evenly distribute colors
       value: null,
-      isPinDigit: false
+      isPinDigit: false,
     });
   }
-  
+
   // Shuffle the grid using Fisher-Yates algorithm to randomize color positions
   for (let i = grid.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [grid[i].color, grid[j].color] = [grid[j].color, grid[i].color];
   }
-  
+
   return grid;
 };
 
 /**
  * Fills all empty cells in a grid with random digits (0-9)
- * 
+ *
  * This function is used to add decoy digits to cells that don't contain PIN digits,
  * providing visual obfuscation for security purposes.
- * 
+ *
  * @function fillEmptyCells
  * @param {GridCell[]} grid - The grid to fill with random digits
  * @returns {GridCell[]} New grid array with random values in previously empty cells
- * 
+ *
  * @example
  * const grid = generateRandomGrid();
  * // Set some PIN digits first
@@ -185,15 +185,15 @@ export const generateRandomGrid = () => {
  * grid[0].isPinDigit = true;
  * grid[5].value = 2;
  * grid[5].isPinDigit = true;
- * 
+ *
  * // Fill remaining cells with random digits
  * const filledGrid = fillEmptyCells(grid);
  * const emptyCells = filledGrid.filter(cell => cell.value === null);
  * console.log(emptyCells.length); // 0 - all cells now have values
  */
-export const fillEmptyCells = (grid) => {
+export const fillEmptyCells = grid => {
   return grid.map(cell => ({
     ...cell,
-    value: cell.value === null ? Math.floor(Math.random() * 10) : cell.value
+    value: cell.value === null ? Math.floor(Math.random() * 10) : cell.value,
   }));
 };

@@ -16,7 +16,7 @@ export default function InfoButton() {
   const [modalVisible, setModalVisible] = useState(false);
   const { theme } = useTheme();
 
-  const openLink = async (url) => {
+  const openLink = async url => {
     try {
       const supported = await Linking.canOpenURL(url);
       if (supported) {
@@ -31,10 +31,7 @@ export default function InfoButton() {
 
   return (
     <>
-      <TouchableOpacity
-        style={styles.container}
-        onPress={() => setModalVisible(true)}
-      >
+      <TouchableOpacity style={styles.container} onPress={() => setModalVisible(true)}>
         <Text style={styles.icon}>i</Text>
       </TouchableOpacity>
 
@@ -48,22 +45,21 @@ export default function InfoButton() {
           <View style={[styles.modalContent, { backgroundColor: theme.modal.background }]}>
             <ScrollView contentContainerStyle={styles.scrollContent}>
               <View style={styles.logoContainer}>
-                <Image 
-                  source={require('../assets/PIN_Vault_Icon.png')} 
+                <Image
+                  source={require('../assets/PIN_Vault_Icon.png')}
                   style={styles.logo}
                   resizeMode="contain"
                 />
               </View>
-              <Text style={[styles.modalTitle, { color: theme.text }]}>
-                PIN Vault Information
-              </Text>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>PIN Vault Information</Text>
 
               <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: theme.primary }]}>
-                  About PIN Vault
-                </Text>
+                <Text style={[styles.sectionTitle, { color: theme.primary }]}>About PIN Vault</Text>
                 <Text style={[styles.sectionText, { color: theme.textSecondary }]}>
-                  PIN Vault is a secure mobile app designed to help you safely store and manage your bank and credit card PIN codes using a visual grid system. Your PINs are hidden among random digits and protected with device authentication (PIN, Pattern, Password, Face ID, or Fingerprint).
+                  PIN Vault is a secure mobile app designed to help you safely store and manage your
+                  bank and credit card PIN codes using a visual grid system. Your PINs are hidden
+                  among random digits and protected with device authentication (PIN, Pattern,
+                  Password, Face ID, or Fingerprint).
                 </Text>
               </View>
 
@@ -72,7 +68,10 @@ export default function InfoButton() {
                   Backup & Restore
                 </Text>
                 <Text style={[styles.sectionText, { color: theme.textSecondary }]}>
-                  Securely backup your PIN grids to password-protected files that can be shared across devices. Use the backup button in the header to export your grids or import existing backups when setting up PIN Vault on a new device. All backup files are encrypted for your security.
+                  Securely backup your PIN grids to password-protected files that can be shared
+                  across devices. Use the backup button in the header to export your grids or import
+                  existing backups when setting up PIN Vault on a new device. All backup files are
+                  encrypted for your security.
                 </Text>
               </View>
 
@@ -88,7 +87,7 @@ export default function InfoButton() {
                     📧 davidpeltz@gmail.com
                   </Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity
                   style={[styles.linkButton, { backgroundColor: theme.surface }]}
                   onPress={() => openLink('https://github.com/DavidPeltz/Pincode_Vault')}
@@ -106,23 +105,19 @@ export default function InfoButton() {
                 <Text style={[styles.sectionText, { color: theme.textSecondary }]}>
                   If you find PIN Vault useful, consider supporting its development:
                 </Text>
-                
+
                 <TouchableOpacity
                   style={[styles.donateButton, { backgroundColor: theme.success }]}
                   onPress={() => openLink('https://paypal.me/DavidPeltz')}
                 >
-                  <Text style={styles.donateButtonText}>
-                    💝 Donate via PayPal
-                  </Text>
+                  <Text style={styles.donateButtonText}>💝 Donate via PayPal</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={[styles.donateButton, { backgroundColor: theme.orange }]}
                   onPress={() => openLink('https://ko-fi.com/davidpeltz')}
                 >
-                  <Text style={styles.donateButtonText}>
-                    ☕ Buy me a coffee
-                  </Text>
+                  <Text style={styles.donateButtonText}>☕ Buy me a coffee</Text>
                 </TouchableOpacity>
               </View>
 
@@ -132,7 +127,9 @@ export default function InfoButton() {
                 </Text>
                 <Text style={[styles.sectionText, { color: theme.textSecondary }]}>
                   Version: 1.5.0{'\n'}
-                  Your PIN data is stored locally on your device and never transmitted to external servers. The app uses your device's available authentication methods (PIN, Pattern, Password, Face ID, or Fingerprint) for additional security.
+                  Your PIN data is stored locally on your device and never transmitted to external
+                  servers. The app uses your device's available authentication methods (PIN,
+                  Pattern, Password, Face ID, or Fingerprint) for additional security.
                 </Text>
               </View>
             </ScrollView>

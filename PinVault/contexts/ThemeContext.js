@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 /**
  * @fileoverview Theme management system for PIN Vault
- * 
+ *
  * Provides light and dark theme support with persistent user preferences.
  * Includes predefined color schemes optimized for accessibility and
  * visual clarity in both light and dark environments.
@@ -53,14 +53,14 @@ const ThemeContext = createContext();
 
 /**
  * Custom hook to access theme context
- * 
+ *
  * @function useTheme
  * @returns {ThemeContextValue} Theme context value
  * @throws {Error} If used outside of ThemeProvider
- * 
+ *
  * @example
  * const { theme, isDarkMode, toggleTheme } = useTheme();
- * 
+ *
  * return (
  *   <View style={{ backgroundColor: theme.background }}>
  *     <Text style={{ color: theme.text }}>Hello World</Text>
@@ -100,12 +100,12 @@ const lightTheme = {
     red: '#FF0000',
     green: '#00FF00',
     blue: '#6BB6FF',
-    yellow: '#FFFF00'
+    yellow: '#FFFF00',
   },
   modal: {
     background: '#FFFFFF',
-    overlay: 'rgba(0, 0, 0, 0.5)'
-  }
+    overlay: 'rgba(0, 0, 0, 0.5)',
+  },
 };
 
 /**
@@ -132,25 +132,25 @@ const darkTheme = {
     red: '#FF6B6B',
     green: '#4ECDC4',
     blue: '#74B9FF',
-    yellow: '#FDCB6E'
+    yellow: '#FDCB6E',
   },
   modal: {
     background: '#2C2C2C',
-    overlay: 'rgba(0, 0, 0, 0.7)'
-  }
+    overlay: 'rgba(0, 0, 0, 0.7)',
+  },
 };
 
 /**
  * Theme Provider Component
- * 
+ *
  * Manages theme state and provides theme switching functionality.
  * Automatically loads user's theme preference from storage and
  * persists theme changes for future app launches.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - Child components to wrap with theme context
- * 
+ *
  * @example
  * <ThemeProvider>
  *   <App />
@@ -165,11 +165,11 @@ export const ThemeProvider = ({ children }) => {
 
   /**
    * Loads user's theme preference from AsyncStorage
-   * 
+   *
    * @async
    * @function loadThemePreference
    * @returns {Promise<void>}
-   * 
+   *
    * @example
    * await loadThemePreference();
    * console.log(isDarkMode); // true/false based on stored preference
@@ -187,14 +187,14 @@ export const ThemeProvider = ({ children }) => {
 
   /**
    * Toggles between light and dark themes
-   * 
+   *
    * Switches the current theme and saves the preference to AsyncStorage
    * for persistence across app launches.
-   * 
+   *
    * @async
    * @function toggleTheme
    * @returns {Promise<void>}
-   * 
+   *
    * @example
    * await toggleTheme(); // Switches from light to dark or vice versa
    */
@@ -221,14 +221,10 @@ export const ThemeProvider = ({ children }) => {
   const contextValue = {
     theme,
     isDarkMode,
-    toggleTheme
+    toggleTheme,
   };
 
-  return (
-    <ThemeContext.Provider value={contextValue}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;
 };
 
 /**

@@ -1,47 +1,41 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Modal
-} from 'react-native';
-import { useAuth } from './AuthProvider';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from './AuthProvider';
 
 const SecurityInfoModal = ({ visible, onClose }) => {
   const { biometricType, isAuthAvailable } = useAuth();
   const { theme } = useTheme();
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-    >
+    <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}>
         <View style={[styles.modalContent, { backgroundColor: theme.modal.background }]}>
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.header}>
               <Text style={[styles.title, { color: theme.text }]}>🔐 PIN Vault Security</Text>
-              <Text style={[styles.subtitle, { color: theme.textSecondary }]}>Your PINs are protected by device authentication</Text>
+              <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+                Your PINs are protected by device authentication
+              </Text>
             </View>
 
             <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: theme.primary }]}>🛡️ Authentication Protection</Text>
-              <Text style={[styles.description, { color: theme.textSecondary }]}>
-                PIN Vault uses your device's built-in security to protect access to editing and creating PIN grids.
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>
+                🛡️ Authentication Protection
               </Text>
-              
+              <Text style={[styles.description, { color: theme.textSecondary }]}>
+                PIN Vault uses your device's built-in security to protect access to editing and
+                creating PIN grids.
+              </Text>
+
               {isAuthAvailable ? (
                 <View style={[styles.authInfo, { backgroundColor: theme.surface }]}>
                   <Text style={[styles.authType, { color: theme.success }]}>
                     ✅ Device Authentication Available
                   </Text>
                   <Text style={[styles.authDescription, { color: theme.textSecondary }]}>
-                    Your device authentication (PIN, Pattern, Password, Face ID, or Fingerprint) will be used to verify your identity when accessing PIN grids.
+                    Your device authentication (PIN, Pattern, Password, Face ID, or Fingerprint)
+                    will be used to verify your identity when accessing PIN grids.
                   </Text>
                 </View>
               ) : (
@@ -50,54 +44,70 @@ const SecurityInfoModal = ({ visible, onClose }) => {
                     ⚠️ Device authentication is not set up
                   </Text>
                   <Text style={[styles.warningDescription, { color: theme.textSecondary }]}>
-                    Please configure device authentication (PIN, Pattern, Password, Face ID, or Fingerprint) in your device settings to use PIN Vault securely.
+                    Please configure device authentication (PIN, Pattern, Password, Face ID, or
+                    Fingerprint) in your device settings to use PIN Vault securely.
                   </Text>
                 </View>
               )}
             </View>
 
             <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: theme.primary }]}>🎯 Grid Method Security</Text>
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>
+                🎯 Grid Method Security
+              </Text>
               <Text style={[styles.description, { color: theme.textSecondary }]}>
                 The PIN grid method provides additional security through:
               </Text>
-              
+
               <View style={styles.securityPoints}>
                 <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
-                  • <Text style={[styles.bold, { color: theme.text }]}>Visual Camouflage:</Text> Your real PIN digits are hidden among random numbers
+                  • <Text style={[styles.bold, { color: theme.text }]}>Visual Camouflage:</Text>{' '}
+                  Your real PIN digits are hidden among random numbers
                 </Text>
                 <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
-                  • <Text style={[styles.bold, { color: theme.text }]}>Memory Pattern:</Text> Remember the position and color pattern, not just numbers
+                  • <Text style={[styles.bold, { color: theme.text }]}>Memory Pattern:</Text>{' '}
+                  Remember the position and color pattern, not just numbers
                 </Text>
                 <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
-                  • <Text style={[styles.bold, { color: theme.text }]}>Unique Layout:</Text> Each grid has a unique arrangement of colors and positions
+                  • <Text style={[styles.bold, { color: theme.text }]}>Unique Layout:</Text> Each
+                  grid has a unique arrangement of colors and positions
                 </Text>
                 <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
-                  • <Text style={[styles.bold, { color: theme.text }]}>Theft Resistance:</Text> Even if someone sees your grid, they can't identify your PIN
+                  • <Text style={[styles.bold, { color: theme.text }]}>Theft Resistance:</Text> Even
+                  if someone sees your grid, they can't identify your PIN
                 </Text>
               </View>
             </View>
 
             <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: theme.primary }]}>📱 Data Protection</Text>
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>
+                📱 Data Protection
+              </Text>
               <View style={styles.securityPoints}>
                 <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
-                  • <Text style={[styles.bold, { color: theme.text }]}>Local Storage:</Text> All data is stored only on your device
+                  • <Text style={[styles.bold, { color: theme.text }]}>Local Storage:</Text> All
+                  data is stored only on your device
                 </Text>
                 <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
-                  • <Text style={[styles.bold, { color: theme.text }]}>No Cloud Sync:</Text> Your PINs never leave your device
+                  • <Text style={[styles.bold, { color: theme.text }]}>No Cloud Sync:</Text> Your
+                  PINs never leave your device
                 </Text>
                 <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
-                  • <Text style={[styles.bold, { color: theme.text }]}>Encrypted Storage:</Text> Data is protected by your device's encryption
+                  • <Text style={[styles.bold, { color: theme.text }]}>Encrypted Storage:</Text>{' '}
+                  Data is protected by your device's encryption
                 </Text>
                 <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
-                  • <Text style={[styles.bold, { color: theme.text }]}>Authentication Required:</Text> Access requires biometric or device unlock
+                  •{' '}
+                  <Text style={[styles.bold, { color: theme.text }]}>Authentication Required:</Text>{' '}
+                  Access requires biometric or device unlock
                 </Text>
               </View>
             </View>
 
             <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: theme.primary }]}>💡 Security Best Practices</Text>
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>
+                💡 Security Best Practices
+              </Text>
               <View style={styles.securityPoints}>
                 <Text style={[styles.bulletPoint, { color: theme.textSecondary }]}>
                   • Use unique PINs for different cards
@@ -118,7 +128,9 @@ const SecurityInfoModal = ({ visible, onClose }) => {
             </View>
 
             <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: theme.primary }]}>🚨 Emergency Access</Text>
+              <Text style={[styles.sectionTitle, { color: theme.primary }]}>
+                🚨 Emergency Access
+              </Text>
               <Text style={[styles.description, { color: theme.textSecondary }]}>
                 If you lose access to your device authentication:
               </Text>

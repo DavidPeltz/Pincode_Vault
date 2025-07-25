@@ -1,11 +1,7 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-} from 'react-native';
-import { useTheme } from '../../contexts/ThemeContext';
+import { View, Text, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
+import { useTheme } from '../../contexts/ThemeContext';
 
 /**
  * Component to display backup file information
@@ -16,8 +12,10 @@ import PropTypes from 'prop-types';
 export default function BackupInfo({ backupInfo, restoreOptions }) {
   const { theme } = useTheme();
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Unknown';
+  const formatDate = dateString => {
+    if (!dateString) {
+      return 'Unknown';
+    }
     try {
       return new Date(dateString).toLocaleString();
     } catch {
@@ -25,46 +23,54 @@ export default function BackupInfo({ backupInfo, restoreOptions }) {
     }
   };
 
-  const formatFileSize = (bytes) => {
-    if (!bytes || bytes === 0) return '0 B';
+  const formatFileSize = bytes => {
+    if (!bytes || bytes === 0) {
+      return '0 B';
+    }
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  if (!backupInfo) return null;
+  if (!backupInfo) {
+    return null;
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.surface, borderColor: theme.border }]}>
       <Text style={[styles.title, { color: theme.text }]}>📁 Backup Information</Text>
-      
+
       <View style={styles.infoGrid}>
         <View style={styles.infoRow}>
           <Text style={[styles.label, { color: theme.textSecondary }]}>File Name:</Text>
           <Text style={[styles.value, { color: theme.text }]}>{backupInfo.fileName}</Text>
         </View>
-        
+
         <View style={styles.infoRow}>
           <Text style={[styles.label, { color: theme.textSecondary }]}>Version:</Text>
           <Text style={[styles.value, { color: theme.text }]}>{backupInfo.version}</Text>
         </View>
-        
+
         <View style={styles.infoRow}>
           <Text style={[styles.label, { color: theme.textSecondary }]}>Created:</Text>
-          <Text style={[styles.value, { color: theme.text }]}>{formatDate(backupInfo.timestamp)}</Text>
+          <Text style={[styles.value, { color: theme.text }]}>
+            {formatDate(backupInfo.timestamp)}
+          </Text>
         </View>
-        
+
         <View style={styles.infoRow}>
           <Text style={[styles.label, { color: theme.textSecondary }]}>Grids:</Text>
           <Text style={[styles.value, { color: theme.text }]}>{backupInfo.gridCount} grid(s)</Text>
         </View>
-        
+
         <View style={styles.infoRow}>
           <Text style={[styles.label, { color: theme.textSecondary }]}>File Size:</Text>
-          <Text style={[styles.value, { color: theme.text }]}>{formatFileSize(backupInfo.fileSize)}</Text>
+          <Text style={[styles.value, { color: theme.text }]}>
+            {formatFileSize(backupInfo.fileSize)}
+          </Text>
         </View>
-        
+
         <View style={styles.infoRow}>
           <Text style={[styles.label, { color: theme.textSecondary }]}>Encryption:</Text>
           <Text style={[styles.value, { color: theme.text }]}>{backupInfo.encryptionType}</Text>
@@ -74,18 +80,32 @@ export default function BackupInfo({ backupInfo, restoreOptions }) {
       {/* Restore Options Section */}
       <View style={[styles.optionsSection, { borderTopColor: theme.border }]}>
         <Text style={[styles.optionsTitle, { color: theme.text }]}>🔄 Restore Options</Text>
-        
+
         <View style={styles.optionRow}>
           <Text style={[styles.optionLabel, { color: theme.textSecondary }]}>Replace All:</Text>
-          <Text style={[styles.optionValue, { color: restoreOptions.replaceAll ? theme.warning : theme.textSecondary }]}>
-            {restoreOptions.replaceAll ? 'Yes - Clear existing grids first' : 'No - Merge with existing'}
+          <Text
+            style={[
+              styles.optionValue,
+              { color: restoreOptions.replaceAll ? theme.warning : theme.textSecondary },
+            ]}
+          >
+            {restoreOptions.replaceAll
+              ? 'Yes - Clear existing grids first'
+              : 'No - Merge with existing'}
           </Text>
         </View>
-        
+
         <View style={styles.optionRow}>
           <Text style={[styles.optionLabel, { color: theme.textSecondary }]}>Overwrite:</Text>
-          <Text style={[styles.optionValue, { color: restoreOptions.overwriteExisting ? theme.warning : theme.textSecondary }]}>
-            {restoreOptions.overwriteExisting ? 'Yes - Replace matching grids' : 'No - Skip duplicates'}
+          <Text
+            style={[
+              styles.optionValue,
+              { color: restoreOptions.overwriteExisting ? theme.warning : theme.textSecondary },
+            ]}
+          >
+            {restoreOptions.overwriteExisting
+              ? 'Yes - Replace matching grids'
+              : 'No - Skip duplicates'}
           </Text>
         </View>
       </View>
@@ -106,7 +126,7 @@ BackupInfo.propTypes = {
     fileSize: PropTypes.number,
     encryptionType: PropTypes.string,
   }),
-  
+
   /** Restore options configuration object */
   restoreOptions: PropTypes.shape({
     replaceAll: PropTypes.bool.isRequired,
