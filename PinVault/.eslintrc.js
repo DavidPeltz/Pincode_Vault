@@ -148,6 +148,9 @@ module.exports = {
       rules: {
         'no-console': 'off',
         'require-jsdoc': 'off',
+        'react/prop-types': 'off', // PropTypes not needed in tests
+        'react/display-name': 'off', // Component names not needed in tests
+        'no-unused-vars': 'warn', // Relax for test variables
       },
     },
     // Specific rules for utility files

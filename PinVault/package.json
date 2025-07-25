@@ -13,7 +13,12 @@
     "format:check": "prettier --check .",
     "quality": "npm run lint && npm run format:check",
     "quality:fix": "npm run lint:fix && npm run format",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:update-snapshots": "jest --updateSnapshot",
+    "test:clear-cache": "jest --clearCache"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
@@ -38,13 +43,18 @@
     "@babel/core": "^7.28.0",
     "@babel/preset-react": "^7.27.1",
     "@react-native/eslint-config": "^0.80.2",
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.2.0",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.3",
     "husky": "^9.1.7",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
     "lint-staged": "^16.1.2",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "react-test-renderer": "^19.0.0"
   },
   "expo": {
     "doctor": {
