@@ -1,0 +1,42 @@
+{
+  "recommendations": [
+    // Essential for React Native development
+    "ms-vscode.vscode-react-native",
+    
+    // Code formatting and linting
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    
+    // Code quality and IntelliSense
+    "christian-kohler.path-intellisense",
+    "formulahendry.auto-rename-tag",
+    "bradlc.vscode-tailwindcss",
+    
+    // JSON and configuration files
+    "ms-vscode.vscode-json",
+    
+    // Git integration
+    "eamodio.gitlens",
+    
+    // Debugging and testing
+    "ms-vscode.vscode-jest",
+    
+    // Documentation
+    "yzhang.markdown-all-in-one",
+    "shd101wyy.markdown-preview-enhanced",
+    
+    // Productivity
+    "ms-vscode.vscode-todo-highlight",
+    "gruntfuggly.todo-tree",
+    "aaron-bond.better-comments",
+    
+    // Themes (optional)
+    "pkief.material-icon-theme",
+    "github.github-vscode-theme"
+  ],
+  "unwantedRecommendations": [
+    // Avoid conflicting formatters
+    "hookyqr.beautify",
+    "ms-vscode.vscode-typescript-next"
+  ]
+}

@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+.expo/
+web-build/
+
+# Generated files
+*.d.ts
+*.map
+package-lock.json
+yarn.lock
+
+# Platform specific
+android/
+ios/
+
+# Logs
+*.log
+
+# Coverage reports
+coverage/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary folders
+tmp/
+temp/
+
+# Metro
+.metro-health-check*
+
+# Documentation that should preserve formatting
+CHANGELOG.md
+LICENSE
